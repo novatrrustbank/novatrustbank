@@ -1,0 +1,1 @@
+<nav class='header'><div class='brand'><div class='logo'>NT</div><div class='brand-text'>NovaTrust Bank</div></div><div class='nav-links'>@auth<a href='{{ route("dashboard") }}'>Dashboard</a>@else<a href='{{ route("login") }}'>Login</a>@endauth</div></nav>

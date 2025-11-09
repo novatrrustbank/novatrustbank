@@ -31,6 +31,8 @@ RUN cp .env.example .env || true
 # Generate Laravel cache (no artisan key:generate)
 RUN php artisan config:cache || true
 
+RUN php artisan config:clear && php artisan cache:clear
+
 # Expose port 8000
 EXPOSE 8000
 

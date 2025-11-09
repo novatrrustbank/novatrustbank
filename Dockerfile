@@ -1,40 +1,30 @@
-# Use the official PHP image with extensions
+# Use official PHP image with required extensions
 FROM php:8.2-fpm
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    zip \
-    unzip \
-    libpq-dev \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    && docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev && \
+    docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR /var/www
 
-# Copy existing app files
-COPY . .
+# Copy composer files first (for caching)
+COPY composer.json composer.lock ./
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install composer
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Copy the example environment file (Render will use ENV variables)
-RUN cp .env.example .env || true
+# Copy project files
+COPY . .
 
-# Generate Laravel cache (no artisan key:generate)
-RUN php artisan config:cache || true
+# Set permissions
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-RUN php artisan config:clear && php artisan cache:clear
-
-# Expose port 8000
+# Expose port 8000 and start Laravel server
 EXPOSE 8000
 
-# Start Laravel
 CMD php artisan serve --host=0.0.0.0 --port=8000

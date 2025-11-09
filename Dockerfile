@@ -1,42 +1,31 @@
-# Use an official PHP image with necessary extensions
-FROM php:8.1-apache
+# Use the official PHP 8.2 image with extensions
+FROM php:8.2-fpm
 
-# Set working directory inside container
+# Set working directory
 WORKDIR /var/www/html
 
-# Install required system dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libzip-dev \
-    zip \
-    && docker-php-ext-install pdo_mysql zip
-
-# Enable Apache mod_rewrite for Laravel routes
-RUN a2enmod rewrite
-
-# Copy project files into the container
-COPY . .
+    git curl libpng-dev libjpeg-dev libfreetype6-dev zip unzip libonig-dev libxml2-dev libzip-dev && \
+    docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Install Composer
-COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Laravel dependencies
+# Copy project files
+COPY . .
+
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Give permissions to Laravel storage and bootstrap cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Generate Laravel key (important for Render)
+RUN php artisan key:generate --force
 
-# Set environment variables
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+# Run migrations on deploy (ignore errors if tables already exist)
+RUN php artisan migrate --force || true
 
-# Update Apache configuration
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# Expose port 8000 (Render uses this port automatically)
+EXPOSE 8000
 
-# Expose port 80 for web access
-EXPOSE 80
-
-# Start Apache server
-CMD ["apache2-foreground"]
+# Start Laravel server
+CMD php artisan serve --host=0.0.0.0 --port=8000

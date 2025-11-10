@@ -61,13 +61,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 Route::get('/test-mail', function () {
     try {
-        Mail::raw('✅ Test email from NovaTrustBank', function ($message) {
+        Mail::raw('✅ SendGrid test from NovaTrust Bank.', function ($message) {
             $message->to('collaomn@gmail.com')
-                    ->subject('📧 Laravel SMTP Test');
+                    ->subject('SendGrid Test Email');
         });
-
-        return '✅ Test email sent successfully! Check your Gmail inbox or spam folder.';
+        return '✅ Test email sent successfully!';
     } catch (\Exception $e) {
-        return '❌ Mail sending failed: ' . $e->getMessage();
+        return '❌ Error: ' . $e->getMessage();
     }
 });

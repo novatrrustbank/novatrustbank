@@ -21,6 +21,9 @@ COPY . .
 # Install PHP dependencies (production)
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
+# ✅ Create storage symlink for uploads
+RUN php artisan storage:link || true
+
 # Copy start script
 COPY ./start.sh /start.sh
 RUN chmod +x /start.sh

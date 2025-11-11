@@ -1,7 +1,13 @@
 <body>
 
 
-    {{-- 👇 Place this just before </body> --}}
+    <script type="text/javascript">
+    var Tawk_API = Tawk_API || {};
+    Tawk_API.visitor = {
+        name : "{{ Auth::check() ? Auth::user()->name : 'Guest User' }}",
+        email : "{{ Auth::check() ? Auth::user()->email : '' }}"
+    };
+</script>
     <!-- Identify the current visitor (for logged-in users) -->
     <script type="text/javascript">
         var Tawk_API = Tawk_API || {};

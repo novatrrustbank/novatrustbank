@@ -15,7 +15,7 @@
     <script src="{{ asset('js/app.js') }}"></script>
     @stack('scripts')
 
-    {{-- 👇 Place this just before </body> --}}
+    </body>
     <!-- Identify the current visitor (for logged-in users) -->
     <script type="text/javascript">
         var Tawk_API = Tawk_API || {};

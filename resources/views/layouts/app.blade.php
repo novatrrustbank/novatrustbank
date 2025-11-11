@@ -3,15 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'NovaTrust Bank')</title>
-    @yield('styles') <!-- Allow each page to insert its own CSS -->
+    <title>{{ config('app.name', 'NovaTrust Bank') }}</title>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @stack('styles')
 </head>
 <body>
-    @yield('content')
+    <div id="app">
+        @yield('content')
+    </div>
 
-    <!-- ✅ Tawk.to Live Chat Script -->
-    <script type="text/javascript">
-    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+    <script src="{{ asset('js/app.js') }}"></script>
+    @stack('scripts')
+
+{{-- 👇 Place this just before </body> --}}
+<!-- Identify the current visitor (for logged-in users) -->
+<script type="text/javascript">
+    var Tawk_API = Tawk_API || {};
+    Tawk_API.visitor = {
+        name : "{{ Auth::check() ? Auth::user()->name : 'Guest User' }}",
+        email : "{{ Auth::check() ? Auth::user()->email : '' }}"
+    };
+
+    // Automatically open chat when the page loads
+    Tawk_API.onLoad = function() {
+        Tawk_API.maximize(); // Opens the chat pop-up automatically
+    };
+</script>
+
+<!-- Start of Tawk.to Script -->
+<script type="text/javascript">
+    var Tawk_LoadStart = new Date();
     (function() {
         var s1 = document.createElement("script"),
             s0 = document.getElementsByTagName("script")[0];
@@ -21,7 +42,7 @@
         s1.setAttribute('crossorigin', '*');
         s0.parentNode.insertBefore(s1, s0);
     })();
-    </script>
-    <!-- ✅ End of Tawk.to Script -->
+</script>
+<!-- End of Tawk.to Script -->
 </body>
 </html>

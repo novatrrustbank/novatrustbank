@@ -60,7 +60,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
 
     // ✅ Update User Balance (Add or Deduct)
-    Route::post('/admin/users/{id}/update-balance', [AdminController::class, 'updateBalance'])->name('admin.users.updateBalance');
+    Route::post('/admin/users/{id}/update-balance', [AdminController::class, 'updateBalance'])->name('admin.updateBalance');
 });
 
 // === Test Mail ===

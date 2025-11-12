@@ -84,16 +84,6 @@
 </head>
 <body>
     <div class="navbar">NovaTrust Bank</div>
-
-    <!-- Direct embedded Tawk.to chat (no floating bubble) -->
-<iframe
-  src="https://tawk.to/chat/69129b3e36dfb3195ff1a2b0/1j9oasreo"
-  width="100%"
-  height="450"
-  style="border: none; border-radius: 10px;"
-  allow="microphone; camera">
-</iframe>
-    
     <div class="container">
         <h2>Login</h2>
 

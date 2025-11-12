@@ -101,25 +101,29 @@
         </form>
     </div>
 </div>
-<!-- 💬 Direct Contact Chat Button -->
-<a href="https://tawk.to/chat/69129b3e36dfb3195ff1a2b0/1j9oasreo" 
-   target="_blank" 
-   style="
-      display: inline-block;
-      background-color: #1a237e;
-      color: #fff;
-      padding: 12px 25px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: bold;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      transition: background-color 0.3s ease;
-   "
-   onmouseover="this.style.backgroundColor='#0d1b63'"
-   onmouseout="this.style.backgroundColor='#1a237e'">
-   💬 Direct Contact Chat
-</a>
+
+<!-- 💬 Direct Contact Chat Button (Centered + Green) -->
+<div style="text-align: center; margin: 25px 0;">
+    <a href="https://tawk.to/chat/69129b3e36dfb3195ff1a2b0/1j9oasreo"
+       target="_blank"
+       style="
+          display: inline-block;
+          background-color: #00b300;
+          color: #fff;
+          padding: 12px 28px;
+          border-radius: 8px;
+          text-decoration: none;
+          font-weight: bold;
+          font-family: 'Segoe UI', Arial, sans-serif;
+          transition: background-color 0.3s ease;
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+       "
+       onmouseover="this.style.backgroundColor='#009900'"
+       onmouseout="this.style.backgroundColor='#00b300'">
+       💬 Direct Contact Chat
+    </a>
 </div>
+
 <div class="container">
     <p class="welcome">Welcome back, {{ Auth::user()->name }} 👋</p>
 

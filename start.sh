@@ -21,11 +21,9 @@ done
 php artisan migrate --force || echo "migrate failed"
 php artisan db:seed --class=AdminSeeder --force || echo "db:seed AdminSeeder failed"
 
-php artisan migrate
 
-# Clear and cache config
-php artisan config:clear || true
-php artisan config:cache || true
-
-# Start the application server
+#!/bin/bash
+php artisan key:generate --force
+php artisan migrate --force
+php artisan config:cache
 php artisan serve --host=0.0.0.0 --port=8000

@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->foreign('sender_id')->references('id')->on('users')->nullOnDelete();
         });
     }
-
+ 
     public function down(): void
     {
         Schema::dropIfExists('messages');

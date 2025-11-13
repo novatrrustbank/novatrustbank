@@ -44,4 +44,4 @@ class AdminMessageController extends Controller
         $message = Message::findOrFail($id);
         return view('admin.message_show', compact('message'));
     }
-}
+} 

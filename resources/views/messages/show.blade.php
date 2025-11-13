@@ -14,5 +14,5 @@
     <div style="margin-top:12px;">
         <a href="{{ route('messages.inbox') }}" style="text-decoration:none;color:#1a237e;">← Back to inbox</a>
     </div>
-</div> 
+</div>
 @endsection

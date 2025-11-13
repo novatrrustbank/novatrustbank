@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 set -o errexit
 
-# 1️⃣ Install dependencies
-composer install --no-interaction --prefer-dist --optimize-autoloader
+# 🧹 Clear any cached files
+php artisan optimize:clear || true
 
-# 2️⃣ Run migrations safely
-php artisan migrate --force
+# 🧱 Run migrations (safe mode)
+php artisan migrate --force || true
 
-# 3️⃣ Clear caches and optimize
-php artisan optimize:clear
+# 🔗 Create storage link
+php artisan storage:link || true
+
+# 🚀 Optimize Laravel for production
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# 4️⃣ Start Laravel
-php artisan serve --host 0.0.0.0 --port $PORT
+# 🌐 Start Laravel on Render's assigned port
+php artisan serve --host=0.0.0.0 --port=$PORT

@@ -1,29 +1,52 @@
 #!/bin/sh
 set -e
 
-# If APP_KEY not set, try to generate (prints valid key but we prefer env variable)
+echo "=== Starting Laravel container ==="
+
+# If APP_KEY not set, generate one temporarily (recommended to store in Render dashboard)
 if [ -z "$APP_KEY" ]; then
   echo "APP_KEY not set — generating temporary key"
   php artisan key:generate --force
 fi
 
-# Wait for DB to be ready (tries for ~60 attempts)
-echo "Waiting for DB..."
+# Wait for PostgreSQL database to be ready (~60s timeout)
+echo "Waiting for database connection..."
 n=0
-until php -r "new PDO('pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'), getenv('DB_USERNAME'), getenv('DB_PASSWORD')); exit(0);" 2>/dev/null || [ $n -gt 60 ]
+until php -r "
+try {
+  new PDO(
+    'pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'),
+    getenv('DB_USERNAME'),
+    getenv('DB_PASSWORD')
+  );
+  exit(0);
+} catch (Exception \$e) { exit(1); }
+" 2>/dev/null || [ \$n -gt 60 ]
 do
-  n=$((n+1))
-  echo "  waiting ($n)..."
+  n=\$((n+1))
+  echo "  waiting for DB... (\$n)"
   sleep 1
 done
 
-# Run migrations and seed admin user (safe: will not stop container if fail)
-php artisan migrate --force || echo "migrate failed"
-php artisan db:seed --class=AdminSeeder --force || echo "db:seed AdminSeeder failed"
-
-# Clear and cache config
+# Clear old cache (prevents config or route issues)
 php artisan config:clear || true
-php artisan config:cache || true
+php artisan cache:clear || true
 
-# Start the application server
+# ✅ Run migrations safely (includes messages table)
+echo "Running migrations..."
+php artisan migrate --force || {
+  echo "Migration failed, retrying in 5s..."
+  sleep 5
+  php artisan migrate --force || echo "⚠️ Migration failed again — continuing..."
+}
+
+# Optional: seed admin
+php artisan db:seed --class=AdminSeeder --force || echo "AdminSeeder failed (may be fine)"
+
+# Rebuild cache
+php artisan config:cache || true
+php artisan route:cache || true
+
+# Start Laravel’s built-in server
+echo "=== Starting PHP server ==="
 php artisan serve --host=0.0.0.0 --port=8000

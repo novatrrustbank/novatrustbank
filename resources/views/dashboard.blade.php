@@ -170,5 +170,5 @@
     <p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
         © {{ date('Y') }} NovaTrust Bank. All Rights Reserved.
     </p>
-</section>
+</section> 
 @endsection

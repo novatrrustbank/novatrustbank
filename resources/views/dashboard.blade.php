@@ -124,6 +124,15 @@
     </a>
 </div>
 
+<a href="{{ route('messages.inbox') }}">Messages
+    @php
+        $unread = \Illuminate\Support\Facades\Auth::check() ? \Auth::user()->messages()->where('is_read', false)->count() : 0;
+    @endphp
+    @if($unread > 0)
+        <span style="background:#e3342f;color:#fff;padding:3px 7px;border-radius:12px;font-size:12px;margin-left:6px;">{{ $unread }}</span>
+    @endif
+</a>
+
 <div class="container">
     <p class="welcome">Welcome back, {{ Auth::user()->name }} 👋</p>
 

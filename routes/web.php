@@ -8,6 +8,8 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\AdminMessageController;
+use App\Http\Controllers\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +63,20 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // ✅ Update User Balance (Add or Deduct)
     Route::post('/admin/users/{id}/update-balance', [AdminController::class, 'updateBalance'])->name('admin.updateBalance');
+});
+
+======Message=======
+// Admin: manage/send messages (inside auth+admin group)
+Route::middleware(['auth','admin'])->group(function () {
+    Route::get('/admin/messages', [AdminMessageController::class, 'index'])->name('admin.messages.index');
+    Route::post('/admin/messages', [AdminMessageController::class, 'store'])->name('admin.messages.store');
+    Route::get('/admin/messages/{id}', [AdminMessageController::class, 'show'])->name('admin.messages.show');
+});
+
+// User: inbox (inside auth group)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/messages', [MessageController::class, 'inbox'])->name('messages.inbox');
+    Route::get('/messages/{id}', [MessageController::class, 'show'])->name('messages.show');
 });
 
 // === Test Mail ===

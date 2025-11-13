@@ -1,52 +1,53 @@
 #!/bin/sh
 set -e
 
-echo "🚀 Starting Laravel app initialization..."
+# ==========================================
+# ✅ Laravel Render Deployment Script
+# ==========================================
 
-# Ensure APP_KEY is set
+echo "🚀 Starting Laravel deploy..."
+
+# 1️⃣ Generate temporary APP_KEY if missing
 if [ -z "$APP_KEY" ]; then
-  echo "🔑 APP_KEY not found — generating temporary key..."
+  echo "⚠️ APP_KEY not set — generating temporary key"
   php artisan key:generate --force
 fi
 
-# Wait for database connection
-echo "⏳ Waiting for database to be ready..."
+# 2️⃣ Wait for database connection to be ready
+echo "⏳ Waiting for database..."
 n=0
-until php -r "
-try {
-  new PDO(
-    'pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'),
-    getenv('DB_USERNAME'),
-    getenv('DB_PASSWORD')
-  );
-  exit(0);
-} catch (Exception \$e) {
-  exit(1);
-}
-" 2>/dev/null || [ $n -gt 60 ]; do
+until php -r "new PDO('pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'), getenv('DB_USERNAME'), getenv('DB_PASSWORD')); exit(0);" 2>/dev/null || [ $n -gt 60 ]
+do
   n=$((n+1))
-  echo "   Database not ready yet... retrying ($n)"
-  sleep 2
+  echo "  waiting ($n)..."
+  sleep 1
 done
 
-echo "✅ Database connection established!"
-
-# Run migrations (force mode for production)
-echo "🗂️ Running database migrations..."
-php artisan migrate --force || echo "⚠️ Migration failed, continuing startup..."
-
-# Optionally run seeders (admin, sample data, etc.)
-echo "🌱 Seeding admin user (if applicable)..."
-php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Admin seeder failed or already exists."
-
-# Clear and cache configuration
-echo "🧹 Clearing and caching config..."
+# 3️⃣ Clear cached config/schema/views to prevent schema mismatch
+echo "🧹 Clearing old caches..."
 php artisan config:clear || true
+php artisan cache:clear || true
+php artisan view:clear || true
+php artisan optimize:clear || true
+
+# 4️⃣ Remove old schema dump (if exists) to rebuild migrations
+echo "🧱 Refreshing schema..."
+php artisan schema:dump --prune || true
+
+# 5️⃣ Run migrations for messages & others
+echo "🗄️ Running database migrations..."
+php artisan migrate --force || echo "⚠️ Migration step failed but continuing..."
+
+# 6️⃣ (Optional) Seed Admin account
+echo "👤 Seeding admin (if seeder exists)..."
+php artisan db:seed --class=AdminSeeder --force || echo "⚠️ AdminSeeder not found — skipping."
+
+# 7️⃣ Rebuild optimized caches for performance
+echo "⚙️ Rebuilding cache..."
 php artisan config:cache || true
+php artisan route:cache || true
+php artisan view:cache || true
 
-# Show successful start log
-echo "✅ Laravel app initialized successfully!"
-echo "🌍 Starting server on port 8000..."
-
-# Start Laravel server
+# 8️⃣ Start Laravel application server
+echo "✅ Starting Laravel server on port 8000..."
 php artisan serve --host=0.0.0.0 --port=8000

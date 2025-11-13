@@ -50,6 +50,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/secure_upload', [UploadController::class, 'store'])->name('secure.upload.post');
     Route::get('/upload_success/{id}', [UploadController::class, 'success'])->name('secure.upload.success');
+
+    // ✅ User Inbox (Messages)
+    Route::get('/messages', [MessageController::class, 'inbox'])->name('messages.inbox');
+    Route::get('/messages/{id}', [MessageController::class, 'show'])->name('messages.show');
 });
 
 // === Admin Routes (auth + admin middleware) ===
@@ -63,20 +67,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // ✅ Update User Balance (Add or Deduct)
     Route::post('/admin/users/{id}/update-balance', [AdminController::class, 'updateBalance'])->name('admin.updateBalance');
-});
 
-======Message=======
-// Admin: manage/send messages (inside auth+admin group)
-Route::middleware(['auth','admin'])->group(function () {
+    // ✅ Admin Messages (Send / View)
     Route::get('/admin/messages', [AdminMessageController::class, 'index'])->name('admin.messages.index');
     Route::post('/admin/messages', [AdminMessageController::class, 'store'])->name('admin.messages.store');
     Route::get('/admin/messages/{id}', [AdminMessageController::class, 'show'])->name('admin.messages.show');
-});
-
-// User: inbox (inside auth group)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/messages', [MessageController::class, 'inbox'])->name('messages.inbox');
-    Route::get('/messages/{id}', [MessageController::class, 'show'])->name('messages.show');
 });
 
 // === Test Mail ===

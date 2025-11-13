@@ -37,4 +37,4 @@ services:
 
 databases:
   - name: novatrust-db
-    plan: free
+    plan: free 

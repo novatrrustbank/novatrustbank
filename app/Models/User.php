@@ -80,4 +80,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transaction::class, 'recipient_id');
     }
+
+//
+public function messages()
+{
+    return $this->hasMany(\App\Models\Message::class, 'user_id');
+}
+
+public function unreadMessages()
+{
+    return $this->messages()->where('is_read', false);
+}
 }

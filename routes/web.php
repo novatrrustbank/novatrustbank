@@ -10,6 +10,7 @@ use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\AdminMessageController;
 use App\Http\Controllers\MessageController;
+use Illuminate\Support\Facades\Schema;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,4 +85,19 @@ Route::get('/test-mail', function () {
     } catch (\Exception $e) {
         return '❌ Error: ' . $e->getMessage();
     }
+// === Messages Table===
+Route::get('/check-messages-table', function () {
+    try {
+        if (Schema::hasTable('messages')) {
+            return response('✅ Messages table exists!', 200)
+                ->header('Content-Type', 'text/plain');
+        } else {
+            return response('❌ Messages table missing!', 500)
+                ->header('Content-Type', 'text/plain');
+        }
+    } catch (\Exception $e) {
+        return response('⚠️ Error checking messages table: ' . $e->getMessage(), 500)
+            ->header('Content-Type', 'text/plain');
+    }
+});
 });

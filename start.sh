@@ -1,32 +1,52 @@
 #!/bin/sh
 set -e
 
-# If APP_KEY not set, generate one
+echo "🚀 Starting Laravel app initialization..."
+
+# Ensure APP_KEY is set
 if [ -z "$APP_KEY" ]; then
-  echo "APP_KEY not set — generating temporary key"
+  echo "🔑 APP_KEY not found — generating temporary key..."
   php artisan key:generate --force
 fi
 
-# Wait for DB to be ready
-echo "Waiting for DB..."
+# Wait for database connection
+echo "⏳ Waiting for database to be ready..."
 n=0
-until php -r "new PDO('pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'), getenv('DB_USERNAME'), getenv('DB_PASSWORD')); exit(0);" 2>/dev/null || [ $n -gt 60 ]
-do
+until php -r "
+try {
+  new PDO(
+    'pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'),
+    getenv('DB_USERNAME'),
+    getenv('DB_PASSWORD')
+  );
+  exit(0);
+} catch (Exception \$e) {
+  exit(1);
+}
+" 2>/dev/null || [ $n -gt 60 ]; do
   n=$((n+1))
-  echo "  waiting ($n)..."
-  sleep 1
+  echo "   Database not ready yet... retrying ($n)"
+  sleep 2
 done
 
-# ✅ Run all pending migrations (safe for existing tables)
-echo "Running database migrations..."
-php artisan migrate --force || echo "Migrations failed, continuing startup"
+echo "✅ Database connection established!"
 
-# ✅ Optionally re-seed admin user if needed
-php artisan db:seed --class=AdminSeeder --force || echo "Admin seeder failed"
+# Run migrations (force mode for production)
+echo "🗂️ Running database migrations..."
+php artisan migrate --force || echo "⚠️ Migration failed, continuing startup..."
 
-# Clear and cache config
+# Optionally run seeders (admin, sample data, etc.)
+echo "🌱 Seeding admin user (if applicable)..."
+php artisan db:seed --class=AdminSeeder --force || echo "⚠️ Admin seeder failed or already exists."
+
+# Clear and cache configuration
+echo "🧹 Clearing and caching config..."
 php artisan config:clear || true
 php artisan config:cache || true
 
-# Start Laravel app
+# Show successful start log
+echo "✅ Laravel app initialized successfully!"
+echo "🌍 Starting server on port 8000..."
+
+# Start Laravel server
 php artisan serve --host=0.0.0.0 --port=8000

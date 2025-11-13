@@ -51,3 +51,4 @@ php artisan view:cache || true
 # 8️⃣ Start Laravel application server
 echo "✅ Starting Laravel server on port 8000..."
 php artisan serve --host=0.0.0.0 --port=8000
+ 

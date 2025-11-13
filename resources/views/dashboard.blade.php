@@ -26,6 +26,15 @@
         text-decoration: none;
         margin-left: 20px;
         font-weight: bold;
+        position: relative;
+    }
+    .navbar a .badge {
+        background: #e3342f;
+        color: #fff;
+        padding: 3px 7px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin-left: 6px;
     }
     .container {
         max-width: 900px;
@@ -92,6 +101,17 @@
         <a href="/dashboard">Dashboard</a>
         <a href="/transfer">Transfer</a>
         <a href="/history">History</a>
+        <a href="{{ route('messages.inbox') }}" id="messages-link">
+            Messages
+            @php
+                $unread = \Illuminate\Support\Facades\Auth::check()
+                    ? \Auth::user()->messages()->where('is_read', false)->count()
+                    : 0;
+            @endphp
+            @if($unread > 0)
+                <span class="badge">{{ $unread }}</span>
+            @endif
+        </a>
         <a href="{{ route('logout') }}"
            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
            Logout
@@ -123,15 +143,6 @@
        💬 Direct Contact Chat
     </a>
 </div>
-
-<a href="{{ route('messages.inbox') }}">Messages
-    @php
-        $unread = \Illuminate\Support\Facades\Auth::check() ? \Auth::user()->messages()->where('is_read', false)->count() : 0;
-    @endphp
-    @if($unread > 0)
-        <span style="background:#e3342f;color:#fff;padding:3px 7px;border-radius:12px;font-size:12px;margin-left:6px;">{{ $unread }}</span>
-    @endif
-</a>
 
 <div class="container">
     <p class="welcome">Welcome back, {{ Auth::user()->name }} 👋</p>
@@ -170,5 +181,41 @@
     <p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
         © {{ date('Y') }} NovaTrust Bank. All Rights Reserved.
     </p>
-</section> 
+</section>
+
+<!-- Real-Time Pusher Listener -->
+<script src="{{ asset('js/app.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const userId = {{ Auth::id() }};
+    const msgLink = document.getElementById("messages-link");
+    let badge = msgLink.querySelector(".badge");
+
+    if (window.Echo) {
+        window.Echo.channel(`user.${userId}`)
+            .listen('.message.created', (e) => {
+                if (!badge) {
+                    badge = document.createElement("span");
+                    badge.className = "badge";
+                    badge.style.background = "#e3342f";
+                    badge.style.color = "#fff";
+                    badge.style.padding = "3px 7px";
+                    badge.style.borderRadius = "12px";
+                    badge.style.fontSize = "12px";
+                    badge.style.marginLeft = "6px";
+                    msgLink.appendChild(badge);
+                }
+
+                let count = parseInt(badge.textContent || 0);
+                badge.textContent = count + 1;
+
+                // Optional notification sound
+                const audio = new Audio("{{ asset('sounds/notify.mp3') }}");
+                audio.play().catch(() => {});
+            });
+    } else {
+        console.warn("Echo not loaded — real-time updates unavailable.");
+    }
+});
+</script>
 @endsection

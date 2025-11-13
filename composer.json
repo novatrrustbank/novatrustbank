@@ -19,7 +19,7 @@
         "mockery/mockery": "^1.5",
         "nunomaduro/collision": "^5.11",
         "phpunit/phpunit": "^9.6"
-    },
+    }, 
     "autoload": {
         "psr-4": {
             "App\\": "app/",

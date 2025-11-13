@@ -34,5 +34,5 @@
             {{ $messages->links() }}
         </div>
     @endif
-</div>
+</div> 
 @endsection

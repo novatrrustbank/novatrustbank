@@ -1,3 +1,6 @@
+Web.php - Fully working 
+
+
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -8,9 +11,6 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Mail;
-use App\Http\Controllers\AdminMessageController;
-use App\Http\Controllers\MessageController;
-use Illuminate\Support\Facades\Schema;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,53 +47,29 @@ Route::middleware('auth')->group(function () {
     // ✅ Secure Upload Routes
     Route::get('/secure_upload', function () {
         return view('secure_upload');
-    })->name('secure.upload');
+    })->name('secure.upload'); // <-- changed this line
 
-    Route::post('/secure_upload', [UploadController::class, 'store'])->name('secure.upload.post');
-    Route::get('/upload_success/{id}', [UploadController::class, 'success'])->name('secure.upload.success');
+    Route::post('/secure_upload', [UploadController::class, 'store'])
+        ->name('secure.upload.post');
 
-    // ✅ User Inbox (Messages)
-    Route::get('/messages', [MessageController::class, 'inbox'])->name('messages.inbox');
-    Route::get('/messages/{id}', [MessageController::class, 'show'])->name('messages.show');
+    Route::get('/upload_success/{id}', [UploadController::class, 'success'])
+        ->name('secure.upload.success');
 });
 
 // === Admin Routes (auth + admin middleware) ===
 Route::middleware(['auth', 'admin'])->group(function () {
-
-    // Admin Dashboard
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-
-    // ✅ Manage Users (View All)
-    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
-
-    // ✅ Update User Balance (Add or Deduct)
-    Route::post('/admin/users/{id}/update-balance', [AdminController::class, 'updateBalance'])->name('admin.updateBalance');
-
-    // ✅ Admin Messages (Send / View)
-    Route::get('/admin/messages', [AdminMessageController::class, 'index'])->name('admin.messages.index');
-    Route::post('/admin/messages', [AdminMessageController::class, 'store'])->name('admin.messages.store');
-    Route::get('/admin/messages/{id}', [AdminMessageController::class, 'show'])->name('admin.messages.show');
 });
 
-// === Test Mail ===
+
 Route::get('/test-mail', function () {
     try {
         Mail::raw('✅ SendGrid test from NovaTrust Bank.', function ($message) {
-            $message->to('collaomn@gmail.com')->subject('SendGrid Test Email');
+            $message->to('collaomn@gmail.com')
+                    ->subject('SendGrid Test Email');
         });
         return '✅ Test email sent successfully!';
     } catch (\Exception $e) {
         return '❌ Error: ' . $e->getMessage();
     }
-
-Route::get('/check-messages-table', function () {
-    try {
-        if (Schema::hasTable('messages')) {
-            return '✅ Messages table exists!';
-        } else {
-            return '❌ Messages table missing!';
-        }
-    } catch (Exception $e) {
-        return '⚠️ Error checking messages table: ' . $e->getMessage();
-    }
-});     
+});

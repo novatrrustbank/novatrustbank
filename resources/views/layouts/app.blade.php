@@ -1,94 +1,29 @@
+My working app blade PHP
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'NovaTrust Bank') }}</title>
-
-    {{-- Bootstrap --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        body {
-            background: #f3f6fa;
-        }
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 22px;
-        }
-        .chat-box {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 10px;
-        }
-    </style>
-
-    @stack('styles')
+    <title>@yield('title', 'NovaTrust Bank')</title>
+    @yield('styles') <!-- Allow each page to insert its own CSS -->
 </head>
-
 <body>
-
-{{-- NAVBAR --}}
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            NovaTrust Bank
-        </a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav ms-auto">
-
-                @auth
-                    {{-- USER NAV --}}
-                    @if(auth()->user()->role === 'user')
-                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
-                    @endif
-
-                    {{-- ADMIN NAV --}}
-                    @if(auth()->user()->role === 'admin')
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats</a></li>
-                    @endif
-
-                    {{-- LOGOUT --}}
-                    <li class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                            @csrf
-                            <button class="btn btn-light btn-sm ms-2">Logout</button>
-                        </form>
-                    </li>
-
-                @endauth
-
-                @guest
-                    <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
-                @endguest
-            </ul>
-        </div>
-    </div>
-</nav>
-
-
-
-{{-- PAGE CONTENT --}}
-<main class="container">
     @yield('content')
-</main>
 
-
-
-{{-- Bootstrap JS --}}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-@stack('scripts')
-
+    <!-- ✅ Tawk.to Live Chat Script -->
+    <script type="text/javascript">
+    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+    (function() {
+        var s1 = document.createElement("script"),
+            s0 = document.getElementsByTagName("script")[0];
+        s1.async = true;
+        s1.src = 'https://embed.tawk.to/69129b3e36dfb3195ff1a2b0/1j9oasreo';
+        s1.charset = 'UTF-8';
+        s1.setAttribute('crossorigin', '*');
+        s0.parentNode.insertBefore(s1, s0);
+    })();
+    </script>
+    <!-- ✅ End of Tawk.to Script -->
 </body>
 </html>

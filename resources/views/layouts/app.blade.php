@@ -3,97 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'NovaTrust Bank')</title>
-    @yield('styles') <!-- Allow each page to insert its own CSS -->
+    <title>{{ config('app.name', 'NovaTrust Bank') }}</title>
+
+    {{-- Bootstrap --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f3f6fa;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 22px;
+        }
+        .chat-box {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 10px;
+        }
+    </style>
+
+    @stack('styles')
 </head>
+
 <body>
-    <!-- === Global Navigation Bar === -->
-    @if(Auth::check())
-        <div style="background-color:#1a237e;color:#fff;padding:12px 25px;display:flex;justify-content:space-between;align-items:center;">
-            <div style="font-weight:bold;font-size:20px;">NovaTrust Bank</div>
-            <div style="display:flex;align-items:center;gap:20px;">
-                <a href="/dashboard" style="color:#fff;text-decoration:none;">Dashboard</a>
-                <a href="/transfer" style="color:#fff;text-decoration:none;">Transfer</a>
-                <a href="/history" style="color:#fff;text-decoration:none;">History</a>
-                
-                <!-- 💬 Global Messages Link with Unread Badge -->
-                <a href="{{ route('messages.inbox') }}" id="messages-link" style="color:#fff;text-decoration:none;position:relative;">
-                    Messages
-                    @php
-                        $unread = \Auth::user()->messages()->where('is_read', false)->count();
-                    @endphp
-                    @if($unread > 0)
-                        <span id="msg-badge" style="background:#e3342f;color:#fff;padding:3px 7px;border-radius:12px;font-size:12px;margin-left:6px;">{{ $unread }}</span>
+
+{{-- NAVBAR --}}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            NovaTrust Bank
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto">
+
+                @auth
+                    {{-- USER NAV --}}
+                    @if(auth()->user()->role === 'user')
+                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
                     @endif
-                </a>
 
-                <a href="{{ route('logout') }}"
-                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                   style="color:#fff;text-decoration:none;">
-                   Logout
-                </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
-                    @csrf
-                </form>
-            </div>
+                    {{-- ADMIN NAV --}}
+                    @if(auth()->user()->role === 'admin')
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats</a></li>
+                    @endif
+
+                    {{-- LOGOUT --}}
+                    <li class="nav-item">
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button class="btn btn-light btn-sm ms-2">Logout</button>
+                        </form>
+                    </li>
+
+                @endauth
+
+                @guest
+                    <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
+                @endguest
+            </ul>
         </div>
-    @endif
+    </div>
+</nav>
 
-    <!-- === Page Content === -->
+
+
+{{-- PAGE CONTENT --}}
+<main class="container">
     @yield('content')
+</main>
 
-    <!-- ✅ Real-Time Message Notifications (Pusher / Laravel Echo) -->
-    <script src="{{ asset('js/app.js') }}"></script>
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        @if(Auth::check())
-            const userId = {{ Auth::id() }};
-            const badge = document.getElementById("msg-badge");
-            const msgLink = document.getElementById("messages-link");
 
-            if (window.Echo) {
-                window.Echo.private(`user.${userId}`)
-                    .listen('.message.created', (e) => {
-                        let count = parseInt(badge?.textContent || 0) + 1;
 
-                        if (badge) {
-                            badge.textContent = count;
-                        } else {
-                            const newBadge = document.createElement("span");
-                            newBadge.id = "msg-badge";
-                            newBadge.style.background = "#e3342f";
-                            newBadge.style.color = "#fff";
-                            newBadge.style.padding = "3px 7px";
-                            newBadge.style.borderRadius = "12px";
-                            newBadge.style.fontSize = "12px";
-                            newBadge.style.marginLeft = "6px";
-                            newBadge.textContent = count;
-                            msgLink.appendChild(newBadge);
-                        }
+{{-- Bootstrap JS --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-                        // 🔔 Optional sound alert
-                        const audio = new Audio("{{ asset('sounds/notify.mp3') }}");
-                        audio.play().catch(() => {});
-                    });
-            }
-        @endif
-    });
-    </script>
+@stack('scripts')
 
-    <!-- ✅ Tawk.to Live Chat only for Guests -->
-    @guest
-    <script type="text/javascript">
-        var Tawk_LoadStart = new Date();
-        (function() {
-            var s1 = document.createElement("script"),
-                s0 = document.getElementsByTagName("script")[0];
-            s1.async = true;
-            s1.src = 'https://embed.tawk.to/69129b3e36dfb3195ff1a2b0/1j9oasreo';
-            s1.charset = 'UTF-8';
-            s1.setAttribute('crossorigin', '*');
-            s0.parentNode.insertBefore(s1, s0);
-        })();
-    </script>
-    @endguest
 </body>
 </html>

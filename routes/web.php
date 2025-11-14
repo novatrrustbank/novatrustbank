@@ -1,6 +1,3 @@
-Web.php - Fully working 
-
-
 <?php
 
 use Illuminate\Support\Facades\Route;

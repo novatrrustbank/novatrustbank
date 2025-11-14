@@ -141,7 +141,6 @@
     </div>
 </div>
 
-<!-- ===== NovaTrust Bank Contact Section ===== -->
 <section style="
     background: linear-gradient(135deg, #1a237e, #283593);
     color: #fff;

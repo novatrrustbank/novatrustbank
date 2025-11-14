@@ -1,5 +1,3 @@
-My working dashboard.blade.php
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

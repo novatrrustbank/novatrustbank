@@ -103,7 +103,7 @@
         <a href="/history">History</a>
     
 <div> 
-💬 Direct Contact Chat Button (Centered + Green) -->
+<--💬 Direct Contact Chat Button (Centered + Green) -->
 <div style="text-align: center; margin: 25px 0;">
     <a href="https://tawk.to/chat/69129b3e36dfb3195ff1a2b0/1j9oasreo"
        target="_blank"

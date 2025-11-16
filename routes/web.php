@@ -7,6 +7,7 @@ use App\Http\Controllers\TransferController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\AdminController;
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,4 +56,17 @@ Route::middleware('auth')->group(function () {
 // === Admin Routes (auth + admin middleware) ===
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+});
+
+
+Route::get('/test-mail', function () {
+    try {
+        Mail::raw('✅ SendGrid test from NovaTrust Bank.', function ($message) {
+            $message->to('collaomn@gmail.com')
+                    ->subject('SendGrid Test Email');
+        });
+        return '✅ Test email sent successfully!';
+    } catch (\Exception $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
 });

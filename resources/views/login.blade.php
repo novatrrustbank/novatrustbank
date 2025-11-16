@@ -84,7 +84,6 @@
 </head>
 <body>
     <div class="navbar">NovaTrust Bank</div>
-
     <div class="container">
         <h2>Login</h2>
 

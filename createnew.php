@@ -1,0 +1,1 @@
+php artisan make:migration create_messages_table --create=messages

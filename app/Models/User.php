@@ -17,6 +17,9 @@ class User extends Authenticatable
         'password',
         'account_number',
         'balance',
+        'is_online',
+        'is_typing',
+        'last_active',
     ];
 
     protected $hidden = [
@@ -26,38 +29,46 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'last_active'       => 'datetime',
+        'is_online'         => 'boolean',
+        'is_typing'         => 'boolean',
     ];
 
     /**
-     * Boot method to auto-generate account number and default balance.
+     * Auto-create account number + default balance
      */
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($user) {
-            // Generate unique account number if not set
+
+            // Create unique account number
             if (empty($user->account_number)) {
                 do {
-                    $account = '203' . rand(1000000, 9999999); // e.g. 2031234567
+                    $account = '203' . rand(1000000, 9999999);
                 } while (self::where('account_number', $account)->exists());
 
                 $user->account_number = $account;
             }
 
-            // Set default balance
+            // Default balance
             if ($user->balance === null) {
                 $user->balance = 0;
             }
+
+            // Default chat fields
+            $user->is_online = false;
+            $user->is_typing = false;
+            $user->last_active = now();
         });
     }
 
     /**
-     * Automatically hash password when setting.
+     * Auto-hash password
      */
     public function setPasswordAttribute($value)
     {
-        // Only hash if not already hashed
         if (strlen($value) < 60 || !str_starts_with($value, '$2y$')) {
             $this->attributes['password'] = bcrypt($value);
         } else {
@@ -66,28 +77,41 @@ class User extends Authenticatable
     }
 
     /**
-     * Relationship: transactions sent by the user.
+     * Transaction relationships
      */
     public function sentTransactions()
     {
         return $this->hasMany(Transaction::class, 'sender_id');
     }
 
-    /**
-     * Relationship: transactions received by the user.
-     */
     public function receivedTransactions()
     {
         return $this->hasMany(Transaction::class, 'recipient_id');
     }
 
-public function messages()
-{
-    return $this->hasMany(\App\Models\Message::class, 'user_id');
-}
+    /**
+     * Chat relationships
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
 
-public function unreadMessages()
-{
-    return $this->messages()->where('is_read', false);
-}
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    /**
+     * Inbox & unread messages shortcut
+     */
+    public function messages()
+    {
+        return $this->hasMany(\App\Models\Message::class, 'user_id');
+    }
+
+    public function unreadMessages()
+    {
+        return $this->messages()->where('is_read', false);
+    }
 }

@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,5 +28,30 @@ class AppServiceProvider extends ServiceProvider
         if (env('APP_ENV') !== 'local') {
             URL::forceScheme('https');
         }
+
+        // Prevent index-size errors on older MySQL versions
+        Schema::defaultStringLength(191);
+
+        // ================================
+        // USER ONLINE STATUS HANDLER
+        // ================================
+        view()->composer('*', function () {
+
+            if (Auth::check()) {
+
+                // Update online status and last active timestamp
+                DB::table('users')
+                    ->where('id', Auth::id())
+                    ->update([
+                        'is_online'   => true,
+                        'last_active' => now(),
+                    ]);
+
+                // Set users offline if inactive for 3+ minutes
+                DB::table('users')
+                    ->where('last_active', '<', Carbon::now()->subMinutes(3))
+                    ->update(['is_online' => false]);
+            }
+        });
     }
 }

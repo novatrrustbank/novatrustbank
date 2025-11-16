@@ -10,11 +10,27 @@ return new class extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('sender_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->text('content');
+
+            // Who sent the message
+            $table->unsignedBigInteger('sender_id');
+
+            // Who received the message
+            $table->unsignedBigInteger('receiver_id');
+
+            // Message content
+            $table->text('content')->nullable();
+
+            // File attachment (optional)
+            $table->string('file_path')->nullable();
+
+            // Read status
             $table->boolean('is_read')->default(false);
+
             $table->timestamps();
+
+            // Foreign keys
+            $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

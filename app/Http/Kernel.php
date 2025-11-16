@@ -13,7 +13,10 @@ class Kernel extends HttpKernel
         // Global middlewares run on every request
         \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
+
+        // CORS (replace Fruitcake if using Laravel 10+)
         \Fruitcake\Cors\HandleCors::class,
+
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,

@@ -1,39 +1,27 @@
-FROM php:8.2-fpm
+# Use official PHP with Apache
+FROM php:8.2-apache
 
-# Install system dependencies
+# Enable Apache rewrite
+RUN a2enmod rewrite
+
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    zip \
-    unzip \
-    libpq-dev
+    git zip unzip
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer -o composer-setup.php \
-    && php composer-setup.php \
-    && mv composer.phar /usr/local/bin/composer \
-    && rm composer-setup.php
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Set working directory
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-# Copy project files
+# Copy project
 COPY . .
 
-# Install PHP dependencies
+# Install vendors
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Copy example env if missing
-RUN cp .env.example .env || true
+# Give Apache permission
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Laravel permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-
-# Generate application key
-RUN php artisan key:generate --force
-
-# Expose port 8000
-EXPOSE 8000
-
-# Start Laravel server
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Expose port
+EXPOSE 80

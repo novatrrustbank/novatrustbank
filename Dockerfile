@@ -25,3 +25,9 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 # Expose port
 EXPOSE 80
+
+RUN a2enmod rewrite
+RUN sed -i 's#/var/www/html#/var/www/public#g' /etc/apache2/sites-available/000-default.conf
+RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
+
+CMD ["apache2ctl", "-D", "FOREGROUND"]

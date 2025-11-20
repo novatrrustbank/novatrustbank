@@ -29,6 +29,9 @@ RUN cp .env.example .env || true
 # Laravel permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
+# Generate application key
+RUN php artisan key:generate --force
+
 # Expose port 8000
 EXPOSE 8000
 

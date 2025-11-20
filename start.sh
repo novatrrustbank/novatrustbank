@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Exit on first error
 set -e
 
 echo "🔹 Installing Composer dependencies..."
@@ -19,5 +18,5 @@ php artisan view:cache || true
 echo "🔹 Running migrations (safe mode)..."
 php artisan migrate --force || true
 
-echo "✅ Starting Laravel on Render's assigned port..."
-php artisan serve --host=0.0.0.0 --port=$PORT
+echo "✅ Starting Laravel on port 8000..."
+php artisan serve --host=0.0.0.0 --port=8000

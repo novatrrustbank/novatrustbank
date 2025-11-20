@@ -34,46 +34,47 @@
 <script>
 (() => {
 
-    const authId  = {{ Auth::id() }};
+    const authId = {{ Auth::id() }};
     const otherId = {{ $admin->id }};
     const chatBox = document.getElementById("chatBox");
-    const csrf = document.querySelector('meta[name="csrf-token"]').content;
 
     const urls = {
-        fetch: "{{ url('/chat/messages') }}/" + otherId + "?last_id=",
-        send: "{{ route('chat.send') }}",
-        typing: "{{ route('chat.typing') }}",
-        typingCheck: "{{ url('/chat/typing') }}/" + otherId,
-        markRead: "{{ route('chat.mark.read') }}",
-        online: "{{ url('/chat/online') }}/" + otherId
-    };
+    fetch: "{{ route('user.chat.messages', ['userId' => 'USER_ID']) }}".replace('USER_ID', otherId) + "?last_id=",
+
+    send: "{{ route('user.chat.send') }}",
+
+    typing: "{{ route('chat.typing') }}",
+
+    typingCheck: "{{ route('chat.typing.status', ['userId' => 'USER_ID']) }}".replace('USER_ID', otherId),
+
+    markRead: "{{ route('chat.mark.read') }}",
+
+    online: "{{ route('chat.online.status', ['userId' => 'USER_ID']) }}".replace('USER_ID', otherId)
+};
+
+
+    const csrf = document.querySelector('meta[name="csrf-token"]').content;
 
     let lastId = 0;
     let typingTimeout;
 
 
+    /* ---------------------- RENDER ---------------------- */
 
-
-    /* =====================================================
-     * RENDER SINGLE MESSAGE (FAST & CLEAN)
-     * ===================================================== */
     function appendMessage(m) {
-
         const wrap = document.createElement("div");
-        wrap.className = m.sender_id == authId ? "text-end mb-3" : "text-start mb-3";
+        wrap.className = (m.sender_id == authId) ? "text-end mb-3" : "text-start mb-3";
 
         let html = `
             <small class="text-muted d-block">
-                ${m.sender_id == authId ? "You" : m.sender_name} •
-                ${new Date(m.created_at).toLocaleString()}
+                ${m.sender_name} - ${new Date(m.created_at).toLocaleString()}
             </small>
         `;
 
         if (m.content) {
             html += `
                 <div class="d-inline-block p-2 rounded"
-                     style="max-width:70%;
-                     background:${m.sender_id == authId ? '#d0ebff' : '#e9ecef'};">
+                     style="max-width:70%; background:${m.sender_id == authId ? '#d0ebff' : '#e9ecef'};">
                     ${m.content}
                 </div>
             `;
@@ -81,9 +82,7 @@
 
         if (m.file_path) {
             html += `
-                <div class="mt-1">
-                    ?? <a href="${m.file_path}" target="_blank">View File</a>
-                </div>
+                <div>?? <a href="${m.file_path}" target="_blank">Attachment</a></div>
             `;
         }
 
@@ -93,18 +92,15 @@
     }
 
 
+    /* ---------------------- FETCH NEW MESSAGES ---------------------- */
 
-
-    /* =====================================================
-     * FETCH ONLY NEW MESSAGES
-     * ===================================================== */
     async function fetchMessages() {
         try {
-            const res = await fetch(urls.fetch + lastId);
+            const res = await fetch(urls.fetch + lastId, { credentials: "same-origin" });
             if (!res.ok) return;
 
             const data = await res.json();
-            if (!Array.isArray(data) || data.length === 0) return;
+            if (!Array.isArray(data) || !data.length) return;
 
             data.forEach(m => {
                 appendMessage(m);
@@ -114,65 +110,57 @@
             markAsRead();
 
         } catch (e) {
-            console.warn("Fetch error:", e);
+            console.error("Fetch error:", e);
         }
     }
 
 
+    /* ---------------------- SEND MESSAGE ---------------------- */
 
-
-    /* =====================================================
-     * SEND MESSAGE (SUPER FAST)
-     * ===================================================== */
-    document.getElementById("chatForm").addEventListener("submit", async (e) => {
+    document.getElementById("chatForm").addEventListener("submit", async function(e) {
         e.preventDefault();
 
         const fd = new FormData();
         fd.append("receiver_id", otherId);
         fd.append("content", content.value);
 
-        if (file.files.length > 0) {
-            fd.append("file", file.files[0]);
-        }
+        const file = document.getElementById("file");
+        if (file.files.length > 0) fd.append("file", file.files[0]);
 
         await fetch(urls.send, {
             method: "POST",
             headers: { "X-CSRF-TOKEN": csrf },
-            body: fd
+            body: fd,
+            credentials: "same-origin"
         });
 
-        // Clear inputs
         content.value = "";
         file.value = "";
 
-        fetchMessages(); // Instant update
+        fetchMessages(); // Instant reflection
     });
 
 
+    /* ---------------------- MARK READ ---------------------- */
 
-
-    /* =====================================================
-     * MARK MESSAGES AS READ
-     * ===================================================== */
     async function markAsRead() {
-        fetch(urls.markRead, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": csrf
-            },
-            body: JSON.stringify({ sender_id: otherId })
-        });
+        try {
+            await fetch(urls.markRead, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrf
+                },
+                body: JSON.stringify({ sender_id: otherId }),
+                credentials: "same-origin"
+            });
+        } catch {}
     }
 
 
+    /* ---------------------- TYPING ---------------------- */
 
-
-    /* =====================================================
-     * TYPING INDICATOR
-     * ===================================================== */
     content.addEventListener("input", () => {
-
         clearTimeout(typingTimeout);
 
         fetch(urls.typing, {
@@ -188,42 +176,40 @@
     });
 
     async function checkTyping() {
-        const res = await fetch(urls.typingCheck);
-        const data = await res.json();
+        try {
+            const res = await fetch(urls.typingCheck);
+            const data = await res.json();
 
-        document.getElementById("typingIndicator").style.display =
-            data.typing ? "inline" : "none";
+            document.getElementById("typingIndicator").style.display =
+                data.typing ? "inline" : "none";
+
+        } catch {}
     }
 
 
+    /* ---------------------- ONLINE ---------------------- */
 
-
-    /* =====================================================
-     * ONLINE STATUS
-     * ===================================================== */
     async function checkOnline() {
-        const res = await fetch(urls.online);
-        const data = await res.json();
+        try {
+            const res = await fetch(urls.online);
+            const data = await res.json();
 
-        const badge = document.getElementById("onlineBadge");
-        badge.className = data.online ? "badge bg-success" : "badge bg-secondary";
-        badge.textContent = data.online ? "Online" : "Offline";
+            const badge = document.getElementById("onlineBadge");
+            badge.className = data.online ? "badge bg-success" : "badge bg-secondary";
+            badge.textContent = data.online ? "Online" : "Offline";
+
+        } catch {}
     }
 
 
+    /* ---------------------- INIT ---------------------- */
 
-
-    /* =====================================================
-     * INIT
-     * ===================================================== */
     (async function init() {
-
         await fetchMessages();
 
-        setInterval(fetchMessages, 1000);    // fast
+        setInterval(fetchMessages, 1200);
         setInterval(checkTyping, 1200);
-        setInterval(checkOnline, 5000);
-
+        setInterval(checkOnline, 6000);
     })();
 
 })();

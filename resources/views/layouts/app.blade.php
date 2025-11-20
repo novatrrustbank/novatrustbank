@@ -49,6 +49,49 @@
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
             padding: 30px;
         }
+
+        /* --- FLOATING BUTTON --- */
+        #floatingChatBtn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 70px;
+            height: 70px;
+            background: #28a745;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 50%;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+            cursor: pointer;
+            z-index: 9999;
+            animation: floatPulse 1.8s infinite;
+        }
+        #floatingChatBtn:hover {
+            background: #1e7e34;
+        }
+        @keyframes floatPulse {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .chat-notify-bubble {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: red;
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-weight: bold;
+            display: none;
+        }
     </style>
 
     @stack('styles')
@@ -102,26 +145,58 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-    window.csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-</script>
-
 @stack('scripts')
 
-<!-- ✅ Tawk.to Live Chat Script -->
-<script type="text/javascript">
-var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-(function() {
-    var s1 = document.createElement("script"),
-        s0 = document.getElementsByTagName("script")[0];
-    s1.async = true;
-    s1.src = 'https://embed.tawk.to/69129b3e36dfb3195ff1a2b0/1j9oasreo';
-    s1.charset = 'UTF-8';
-    s1.setAttribute('crossorigin', '*');
-    s0.parentNode.insertBefore(s1, s0);
-})();
+@auth
+    <a href="{{ route('user.chat') }}" id="floatingChatBtn">
+        Chat
+        <span id="unread-badge" class="chat-notify-bubble">0</span>
+    </a>
+@endauth
+
+<script>
+@if(auth()->check())
+let lastMessageCount = {{ \App\Models\Message::where('receiver_id', auth()->id())->count() }};
+
+setInterval(() => {
+    fetch("{{ route('user.unread.check') }}")
+        .then(res => res.json())
+        .then(data => {
+            if (data.total > lastMessageCount) {
+
+                if (!window.location.href.includes("/user/chat")) {
+                    window.location.href = "{{ route('user.chat') }}";
+                }
+
+                lastMessageCount = data.total;
+            }
+        });
+}, 4000);
+@endif
 </script>
-<!-- End of Tawk.to -->
+
+<script>
+function loadUnreadCount() {
+    fetch("{{ route('messages.unread.count') }}")
+        .then(response => response.json())
+        .then(data => {
+            let badge = document.getElementById('unread-badge');
+            
+            if (!badge) return;
+
+            if (data.unread > 0) {
+                badge.innerText = data.unread;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        })
+        .catch(() => {});
+}
+
+loadUnreadCount();
+setInterval(loadUnreadCount, 10000);
+</script>
 
 </body>
 </html>

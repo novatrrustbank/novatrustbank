@@ -74,7 +74,8 @@
 </style>
 
 <div class="welcome">
-    Welcome back, {{ Auth::user()->name }} ??
+    Welcome back, {{ Auth::user()->name }} 
+
 </div>
 
 <div class="card">

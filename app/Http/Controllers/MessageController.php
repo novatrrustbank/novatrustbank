@@ -39,7 +39,6 @@ class MessageController extends Controller
             'is_read'     => 0,
         ]);
 
-        /** UPDATE ONLINE HEARTBEAT */
         Cache::put("last_seen_" . Auth::id(), Carbon::now()->timestamp, now()->addSeconds(30));
 
         return back();
@@ -71,7 +70,7 @@ class MessageController extends Controller
             return [
                 'id'          => $m->id,
                 'sender_id'   => $m->sender_id,
-                'sender_name' => $m->sender ? $m->sender->name : 'User #'.$m->sender_id,
+                'sender_name' => $m->sender ? $m->sender->name : 'User #' . $m->sender_id,
                 'content'     => $m->content,
                 'file_path'   => $m->file_path ? asset('storage/'.$m->file_path) : null,
                 'is_read'     => $m->is_read,
@@ -86,7 +85,7 @@ class MessageController extends Controller
 
     /**
      * ==================================================
-     * TYPING INDICATOR (User → Admin OR Admin → User)
+     * TYPING INDICATOR
      * ==================================================
      */
     public function typing(Request $request)
@@ -97,7 +96,6 @@ class MessageController extends Controller
 
         Cache::put("typing_{$sender}_{$receiver}", true, now()->addSeconds(4));
 
-        // update online heartbeat
         Cache::put("last_seen_{$sender}", Carbon::now()->timestamp, now()->addSeconds(30));
 
         return response()->json(['ok' => true]);
@@ -108,14 +106,14 @@ class MessageController extends Controller
         $authId   = Auth::id();
         $isTyping = Cache::get("typing_{$userId}_{$authId}", false);
 
-        return response()->json(['typing' => (bool) $isTyping]);
+        return response()->json(['typing' => (bool)$isTyping]);
     }
 
 
 
     /**
      * ==================================================
-     * MARK MESSAGE AS READ
+     * MARK READ
      * ==================================================
      */
     public function markRead(Request $request)
@@ -137,7 +135,7 @@ class MessageController extends Controller
 
     /**
      * ==================================================
-     * ONLINE STATUS (Green Dot)
+     * ONLINE STATUS
      * ==================================================
      */
     public function onlineStatus($userId)
@@ -162,7 +160,7 @@ class MessageController extends Controller
     public function adminIndex()
     {
         if (Auth::user()->role !== 'admin') {
-            abort(403, 'Access denied');
+            abort(403);
         }
 
         $users = User::where('role', 'user')->get();
@@ -173,17 +171,17 @@ class MessageController extends Controller
 
     /**
      * ==================================================
-     * ADMIN OPEN CHAT WITH USER
+     * ADMIN OPEN CHAT
      * ==================================================
      */
     public function adminChat($user_id)
     {
         if (Auth::user()->role !== 'admin') {
-            abort(403, 'Access denied');
+            abort(403);
         }
 
         $admin_id = Auth::id();
-        $user = User::findOrFail($user_id);
+        $user     = User::findOrFail($user_id);
 
         $messages = Message::where(function ($q) use ($admin_id, $user_id) {
                 $q->where('sender_id', $admin_id)
@@ -203,13 +201,22 @@ class MessageController extends Controller
 
     /**
      * ==================================================
-     * USER OPEN CHAT WITH ADMIN
+     * USER CHAT WITH ADMIN
      * ==================================================
      */
     public function userChat()
     {
-        $admin = User::where('role', 'admin')->firstOrFail();
+        $admin   = User::where('role', 'admin')->firstOrFail();
         $user_id = Auth::id();
+
+        Message::where('receiver_id', Auth::id())
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        Message::where('receiver_id', $user_id)
+            ->where('sender_id', $admin->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
 
         $messages = Message::where(function ($q) use ($user_id, $admin) {
                 $q->where('sender_id', $user_id)
@@ -223,5 +230,115 @@ class MessageController extends Controller
             ->get();
 
         return view('user.chat', compact('messages', 'admin'));
+    }
+
+
+
+    /**
+     * ==================================================
+     * CHECK UNREAD COUNT (USER)
+     * ==================================================
+     */
+    public function checkUnread()
+    {
+        $count = Message::where('receiver_id', auth()->id())
+            ->whereNull('read_at')
+            ->count();
+
+        return response()->json([
+            'unread' => $count
+        ]);
+    }
+
+
+
+    /**
+     * ============================================================
+     *   WIDGET CHAT (FINAL, FIXED, SAFE)
+     * ============================================================
+     */
+
+    public function widgetLoad()
+    {
+        $authId = Auth::id();
+        $admin  = User::where('role', 'admin')->firstOrFail();
+
+        $partnerId = ($authId == $admin->id)
+            ? request('user_id')
+            : $admin->id;
+
+        Message::where('receiver_id', $authId)
+            ->where('sender_id', $partnerId)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        $messages = Message::where(function ($q) use ($authId, $partnerId) {
+                $q->where('sender_id', $authId)
+                  ->where('receiver_id', $partnerId);
+            })
+            ->orWhere(function ($q) use ($authId, $partnerId) {
+                $q->where('sender_id', $partnerId)
+                  ->where('receiver_id', $authId);
+            })
+            ->orderBy('created_at', 'ASC')
+            ->get();
+
+        return response()->json($messages);
+    }
+
+
+
+    public function widgetSend(Request $request)
+    {
+        $authId = Auth::id();
+        $admin  = User::where('role', 'admin')->firstOrFail();
+
+        $partnerId = ($authId == $admin->id)
+            ? $request->receiver_id
+            : $admin->id;
+
+        $filePath = null;
+
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('chat_files', 'public');
+        }
+
+        Message::create([
+            'sender_id'   => $authId,
+            'receiver_id' => $partnerId,
+            'content'     => $request->message,
+            'file_path'   => $filePath,
+            'is_read'     => 0,
+        ]);
+
+        return response()->json(['status' => 'ok']);
+    }
+
+
+
+    public function widgetFetch(Request $request)
+    {
+        $authId = Auth::id();
+        $admin  = User::where('role', 'admin')->firstOrFail();
+
+        $partnerId = ($authId == $admin->id)
+            ? $request->receiver_id
+            : $admin->id;
+
+        $lastId = $request->input('last_id', 0);
+
+        $messages = Message::where(function ($q) use ($authId, $partnerId) {
+                $q->where('sender_id', $authId)
+                  ->where('receiver_id', $partnerId);
+            })
+            ->orWhere(function ($q) use ($authId, $partnerId) {
+                $q->where('sender_id', $partnerId)
+                  ->where('receiver_id', $authId);
+            })
+            ->where('id', '>', $lastId)
+            ->orderBy('id', 'ASC')
+            ->get();
+
+        return response()->json($messages);
     }
 }

@@ -17,9 +17,7 @@ class User extends Authenticatable
         'password',
         'account_number',
         'balance',
-        'is_online',
-        'is_typing',
-        'last_active',
+        
     ];
 
     protected $hidden = [
@@ -29,9 +27,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'last_active'       => 'datetime',
-        'is_online'         => 'boolean',
-        'is_typing'         => 'boolean',
+       
     ];
 
     /**
@@ -57,10 +53,7 @@ class User extends Authenticatable
                 $user->balance = 0;
             }
 
-            // Default chat fields
-            $user->is_online = false;
-            $user->is_typing = false;
-            $user->last_active = now();
+           
         });
     }
 

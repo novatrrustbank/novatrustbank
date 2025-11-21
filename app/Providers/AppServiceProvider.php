@@ -43,14 +43,12 @@ class AppServiceProvider extends ServiceProvider
                 DB::table('users')
                     ->where('id', Auth::id())
                     ->update([
-                        'is_online'   => true,
-                        'last_active' => now(),
+                        
                     ]);
 
                 // Set users offline if inactive for 3+ minutes
                 DB::table('users')
-                    ->where('last_active', '<', Carbon::now()->subMinutes(3))
-                    ->update(['is_online' => false]);
+                    
             }
         });
     }

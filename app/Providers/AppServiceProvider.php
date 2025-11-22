@@ -19,9 +19,6 @@ class AppServiceProvider extends ServiceProvider
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
    
         // ================================
         // USER ONLINE STATUS HANDLER

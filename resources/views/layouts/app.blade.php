@@ -62,7 +62,6 @@
             font-size: 16px;
             font-weight: bold;
             border-radius: 50%;
-            text-decoration: none;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -159,16 +158,16 @@
 let lastMessageCount = {{ \App\Models\Message::where('receiver_id', auth()->id())->count() }};
 
 setInterval(() => {
-    fetch("{{ route('user.unread.check') }}")
+    fetch("{{ route('messages.unread.count') }}")
         .then(res => res.json())
         .then(data => {
-            if (data.total > lastMessageCount) {
+            if (data.unread > lastMessageCount) {
 
                 if (!window.location.href.includes("/user/chat")) {
                     window.location.href = "{{ route('user.chat') }}";
                 }
 
-                lastMessageCount = data.total;
+                lastMessageCount = data.unread;
             }
         });
 }, 4000);

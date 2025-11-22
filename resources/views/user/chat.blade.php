@@ -7,7 +7,7 @@
         <h3 class="m-0">Chat with Admin ({{ $admin->name }})</h3>
 
         <div>
-            <span id="onlineBadge" class="badge bg-secondary">Checking�</span>
+            <span id="onlineBadge" class="badge bg-secondary">Checking…</span>
             <small id="typingIndicator" class="text-muted ms-3" style="display:none">Typing...</small>
         </div>
     </div>
@@ -39,18 +39,21 @@
     const chatBox = document.getElementById("chatBox");
 
     const urls = {
-    fetch: "{{ route('user.chat.messages', ['userId' => 'USER_ID']) }}".replace('USER_ID', otherId) + "?last_id=",
+        fetch: "{{ route('user.chat.messages', ['userId' => 'USER_ID']) }}"
+            .replace('USER_ID', otherId) + "?last_id=",
 
-    send: "{{ route('user.chat.send') }}",
+        send: "{{ route('user.chat.send') }}",
 
-    typing: "{{ route('chat.typing') }}",
+        typing: "{{ route('chat.typing') }}",
 
-    typingCheck: "{{ route('chat.typing.status', ['userId' => 'USER_ID']) }}".replace('USER_ID', otherId),
+        typingCheck: "{{ route('chat.typing.status', ['userId' => 'USER_ID']) }}"
+            .replace('USER_ID', otherId),
 
-    markRead: "{{ route('chat.mark.read') }}",
+        markRead: "{{ route('chat.mark.read') }}",
 
-    online: "{{ route('chat.online.status', ['userId' => 'USER_ID']) }}".replace('USER_ID', otherId)
-};
+        online: "{{ route('chat.online.status', ['userId' => 'USER_ID']) }}"
+            .replace('USER_ID', otherId)
+    };
 
 
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
@@ -82,7 +85,7 @@
 
         if (m.file_path) {
             html += `
-                <div>?? <a href="${m.file_path}" target="_blank">Attachment</a></div>
+                <div>📎 <a href="${m.file_path}" target="_blank">Attachment</a></div>
             `;
         }
 
@@ -137,7 +140,7 @@
         content.value = "";
         file.value = "";
 
-        fetchMessages(); // Instant reflection
+        fetchMessages();
     });
 
 

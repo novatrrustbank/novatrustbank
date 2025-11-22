@@ -127,3 +127,87 @@
         e.preventDefault();
 
         if (!content.value.trim() && file.files.length === 0) {
+            return;
+        }
+
+        const fd = new FormData();
+        fd.append("receiver_id", otherId);
+        fd.append("content", content.value);
+        if (file.files.length) fd.append("file", file.files[0]);
+
+        sendMessage(fd).then(() => {
+            content.value = "";
+            file.value = "";
+            fetchMessages();
+        });
+    });
+
+    /* ------------------- TYPING ------------------- */
+
+    async function sendTyping() {
+        try {
+            await fetch(urls.typing, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrf },
+                body: JSON.stringify({ receiver_id: otherId })
+            });
+        } catch {}
+    }
+
+    content.addEventListener("input", () => {
+        clearTimeout(typingTimeout);
+        sendTyping();
+        typingTimeout = setTimeout(() => {}, 1500);
+    });
+
+    async function checkTyping() {
+        try {
+            const res = await fetch(urls.typingCheck);
+            if (!res.ok) return;
+
+            const data = await res.json();
+            document.getElementById('typingIndicator').style.display =
+                data.typing ? "inline" : "none";
+
+        } catch {}
+    }
+
+    /* ------------------- ONLINE ------------------- */
+
+    async function checkOnline() {
+        try {
+            const res = await fetch(urls.online);
+            if (!res.ok) return;
+
+            const data = await res.json();
+            const badge = document.getElementById("onlineBadge");
+
+            badge.className = data.online ? "badge bg-success" : "badge bg-secondary";
+            badge.textContent = data.online ? "Online" : "Offline";
+
+        } catch {}
+    }
+
+    /* ------------------- INIT ------------------- */
+
+    (async function init() {
+        await fetchMessages();
+
+        await fetch(urls.markRead, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrf
+            },
+            body: JSON.stringify({ sender_id: otherId })
+        });
+
+        setInterval(fetchMessages, 1200);
+        setInterval(checkTyping, 1200);
+        setInterval(checkOnline, 6000);
+    })();
+
+})();
+</script>
+
+@endsection

@@ -41,57 +41,43 @@ Route::middleware('auth')->group(function () {
     Route::post('/secure_upload', [UploadController::class, 'store'])->name('secure.upload.post');
     Route::get('/upload_success/{id}', [UploadController::class, 'success'])->name('secure.upload.success');
 
-    // === FLOATING CHAT WIDGET (AUTH REQUIRED) ===
+    // === FLOATING CHAT WIDGET ===
     Route::get('/widget/load', [MessageController::class, 'widgetLoad'])->name('widget.load');
     Route::get('/widget/fetch', [MessageController::class, 'widgetFetch'])->name('widget.fetch');
-
-    // FIXED: Changed URL to avoid conflict with main chat
     Route::post('/widget/send', [MessageController::class, 'widgetSend'])->name('widget.send');
 });
 
-// ====================== MAIN CHAT ======================
-Route::get('/chat', [MessageController::class, 'userChat'])->name('user.chat');
+// ====================== MAIN USER CHAT ======================
+Route::middleware('auth')->group(function () {
+    Route::get('/chat', [MessageController::class, 'userChat'])->name('user.chat');
+    Route::post('/chat/send', [MessageController::class, 'store'])->name('user.chat.send');
+    Route::get('/chat/messages/{userId}', [MessageController::class, 'fetchMessages'])->name('user.chat.messages');
+    Route::get('/chat/fetch/{userId}', [MessageController::class, 'fetchMessages'])->name('chat.fetch');
 
-// MAIN CHAT send route (already working)
-Route::post('/chat/send', [MessageController::class, 'store'])->name('user.chat.send');
+    Route::post('/chat/typing', [MessageController::class, 'typing'])->name('chat.typing');
+    Route::get('/chat/typing/{userId}', [MessageController::class, 'typingStatus'])->name('chat.typing.status');
+    Route::post('/chat/mark-read', [MessageController::class, 'markRead'])->name('chat.mark.read');
 
-// Fetch messages (existing)
-Route::get('/chat/messages/{userId}', [MessageController::class, 'fetchMessages'])->name('user.chat.messages');
+    Route::get('/chat/online/{userId}', [MessageController::class, 'onlineStatus'])->name('chat.online.status');
 
-// ⭐ NEW: User chat fast auto-refresh (used by chat_window.blade)
-Route::get('/chat/fetch/{userId}', [MessageController::class, 'fetchMessages'])->name('chat.fetch');
+    Route::get('/messages/unread/count', [MessageController::class, 'checkUnread'])->name('messages.unread.count');
+});
 
-Route::post('/chat/typing', [MessageController::class, 'typing'])->name('chat.typing');
-Route::get('/chat/typing/{userId}', [MessageController::class, 'typingStatus'])->name('chat.typing.status');
-Route::post('/chat/mark-read', [MessageController::class, 'markRead'])->name('chat.mark.read');
-Route::get('/chat/online/{userId}', [MessageController::class, 'onlineStatus'])->name('chat.online.status');
-
-// Chat with admin
-Route::get('/chat-with-admin', [MessageController::class, 'userChat'])->name('chat.with.admin');
-
-// Check unread messages AJAX route
-Route::get('/messages/unread/count', [MessageController::class, 'checkUnread'])
-    ->middleware('auth')
-    ->name('messages.unread.count');
-
-// ====================== ADMIN ======================
+// ====================== ADMIN CHAT ======================
 Route::middleware(['admin'])->group(function () {
 
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
+    // ⭐ FIXED: Only POST allowed for sending message
     Route::post('/admin/chat/send', [MessageController::class, 'store'])->name('admin.chat.send');
 
+    // ⭐ This will NOT conflict with "send" anymore
     Route::get('/admin/chat/{id}', [MessageController::class, 'adminChat'])->name('admin.chat.window');
 
     Route::get('/admin/chat/{user_id}/refresh', [MessageController::class, 'fetchMessages'])->name('admin.chat.refresh');
 
     Route::get('/admin/chats', [MessageController::class, 'adminIndex'])->name('admin.chats');
 });
-
-// Check unread messages AJAX route
-Route::get('/chat/unread/check', [MessageController::class, 'checkUnread'])
-    ->name('user.unread.check')
-    ->middleware('auth');
 
 // ====================== TEST MAIL ======================
 Route::get('/test-mail', function () {

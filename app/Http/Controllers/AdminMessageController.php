@@ -22,14 +22,14 @@ class AdminMessageController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'subject' => 'nullable|string|max:255',
-            'content' => 'required|string|max:4000',
+            'body' => 'required|string|max:4000',
         ]);
 
         $msg = Message::create([
             'user_id'   => $request->user_id,
             'sender_id' => Auth::id(),
             'subject'   => $request->subject,
-            'content'      => $request->body,
+            'body'      => $request->body,
             'is_read'   => false,
         ]);
 

@@ -146,56 +146,71 @@
 
 @stack('scripts')
 
+<script>
 @auth
-    <a href="{{ route('user.chat') }}" id="floatingChatBtn">
-        Chat
-        <span id="unread-badge" class="chat-notify-bubble">0</span>
-    </a>
-@endauth
-
-<script>
-@if(auth()->check())
-let lastMessageCount = {{ \App\Models\Message::where('receiver_id', auth()->id())->count() }};
-
-setInterval(() => {
-    fetch("{{ route('messages.unread.count') }}")
-        .then(res => res.json())
-        .then(data => {
-            if (data.unread > lastMessageCount) {
-
-                if (!window.location.href.includes("/user/chat")) {
-                    window.location.href = "{{ route('user.chat') }}";
-                }
-
-                lastMessageCount = data.unread;
-            }
-        });
-}, 4000);
-@endif
-</script>
-
-<script>
-function loadUnreadCount() {
-    fetch("{{ route('messages.unread.count') }}")
-        .then(response => response.json())
-        .then(data => {
-            let badge = document.getElementById('unread-badge');
-            
-            if (!badge) return;
-
-            if (data.unread > 0) {
-                badge.innerText = data.unread;
-                badge.style.display = 'inline-block';
-            } else {
-                badge.style.display = 'none';
-            }
-        })
-        .catch(() => {});
+// Example: floating chat button opens chat box
+let floatingChatBtn = document.getElementById('floatingChatBtn');
+if (floatingChatBtn) {
+    floatingChatBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = "{{ route('user.chat') }}";
+    });
 }
 
-loadUnreadCount();
-setInterval(loadUnreadCount, 10000);
-</script>
+// Function to send a chat message
+function sendMessage(receiverId, messageText) {
+    if (!messageText.trim()) return;
 
-</body>
-</html>
+    fetch("{{ route('user.chat.send') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+        },
+        body: JSON.stringify({
+            receiver_id: receiverId,
+            message: messageText
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            // Clear input or append message to chat box
+            const input = document.getElementById('chat-input');
+            if (input) input.value = '';
+
+            // Optionally refresh messages
+            fetchMessages(receiverId);
+        } else {
+            console.error('Message not sent', data);
+        }
+    })
+    .catch(err => console.error('Send message error', err));
+}
+
+// Function to fetch messages
+function fetchMessages(userId) {
+    fetch(`/chat/messages/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+            let chatBox = document.getElementById('chat-box');
+            if (!chatBox) return;
+            
+            chatBox.innerHTML = '';
+            data.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = msg.sender_id === {{ auth()->id() }} ? 'my-message' : 'other-message';
+                div.innerText = msg.message;
+                chatBox.appendChild(div);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+}
+
+// Optional: auto-refresh every 4 seconds
+setInterval(() => {
+    let chatUserId = document.getElementById('chat-user-id')?.value;
+    if (chatUserId) fetchMessages(chatUserId);
+}, 4000);
+@endauth
+</script>

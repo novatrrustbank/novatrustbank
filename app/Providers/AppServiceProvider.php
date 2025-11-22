@@ -5,17 +5,21 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-/*
-view()->composer('*', function () {
-    ...
-});
-*/
+    public function register(): void
+    {
+        //
+    }
+
+    public function boot(): void
+    {
+        // Force HTTPS in production
+        if (env('APP_ENV') !== 'local') {
+            URL::forceScheme('https');
+        }
+
+        Schema::defaultStringLength(191);
+    }
+}

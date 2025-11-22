@@ -216,12 +216,6 @@
     })();
 
 })();
-
 </script>
-
-<div id="chat-box" style="height:300px; overflow-y:auto; border:1px solid #ccc; padding:10px;"></div>
-<input type="hidden" id="chat-user-id" value="{{ $otherUserId ?? '' }}">
-<input type="text" id="chat-input" placeholder="Type your message..." class="form-control mt-2">
-<button class="btn btn-success mt-2" onclick="sendMessage({{ $otherUserId ?? 0 }}, document.getElementById('chat-input').value)">Send</button>
 
 @endsection

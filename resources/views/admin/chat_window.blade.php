@@ -7,7 +7,7 @@
         <h3 class="m-0">Chat with {{ $user->name }}</h3>
 
         <div>
-            <span id="onlineBadge" class="badge bg-secondary">Checking�</span>
+            <span id="onlineBadge" class="badge bg-secondary">Checking…</span>
             <small id="typingIndicator" class="text-muted ms-3" style="display:none">Typing...</small>
         </div>
     </div>
@@ -35,24 +35,28 @@
     const authId = {{ Auth::id() }};
     const otherId = {{ $user->id }};
     const chatBox = document.getElementById('chatBox');
+    const content = document.getElementById('content');
+    const file = document.getElementById('file');
 
     const urls = {
-    fetch: "{{ route('admin.chat.refresh', ['user_id' => 'USER_ID']) }}"
-        .replace('USER_ID', otherId) + "?last_id=",
 
-    send: "{{ route('admin.chat.send') }}",
+        // --- Fetch + last_id
+        fetch: "/admin/chat/" + otherId + "/refresh?last_id=",
 
-    typing: "{{ route('chat.typing') }}",
+        // --- Send message
+        send: "{{ route('admin.chat.send') }}",
 
-    typingCheck: "{{ route('chat.typing.status', ['userId' => 'USER_ID']) }}"
-        .replace('USER_ID', otherId),
+        // --- Typing system
+        typing: "{{ route('chat.typing') }}",
 
-    markRead: "{{ route('chat.mark.read') }}",
+        typingCheck: "{{ route('chat.typing.status', ['userId' => $user->id]) }}",
 
-    online: "{{ route('chat.online.status', ['userId' => 'USER_ID']) }}"
-        .replace('USER_ID', otherId)
-};
+        // --- Mark messages read
+        markRead: "{{ route('chat.mark.read') }}",
 
+        // --- Online check
+        online: "{{ route('chat.online.status', ['userId' => $user->id]) }}"
+    };
 
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
 
@@ -77,7 +81,7 @@
         }
 
         if (m.file_path) {
-            html += `<div>?? <a href="${m.file_path}" target="_blank">Attachment</a></div>`;
+            html += `<div>📎 <a href="${m.file_path}" target="_blank">Attachment</a></div>`;
         }
 
         wrapper.innerHTML = html;
@@ -122,84 +126,4 @@
     document.getElementById("chatForm").addEventListener("submit", e => {
         e.preventDefault();
 
-        const fd = new FormData();
-        fd.append("receiver_id", otherId);
-        fd.append("content", content.value);
-        if (file.files.length) fd.append("file", file.files[0]);
-
-        sendMessage(fd).then(() => {
-            content.value = "";
-            file.value = "";
-            fetchMessages();
-        });
-    });
-
-    /* ------------------- TYPING ------------------- */
-
-    async function sendTyping() {
-        try {
-            await fetch(urls.typing, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrf },
-                body: JSON.stringify({ receiver_id: otherId })
-            });
-        } catch {}
-    }
-
-    content.addEventListener("input", () => {
-        clearTimeout(typingTimeout);
-        sendTyping();
-        typingTimeout = setTimeout(() => {}, 1500);
-    });
-
-    async function checkTyping() {
-        try {
-            const res = await fetch(urls.typingCheck, { credentials: "same-origin" });
-            if (!res.ok) return;
-
-            const data = await res.json();
-            document.getElementById('typingIndicator').style.display =
-                data.typing ? "inline" : "none";
-
-        } catch {}
-    }
-
-    /* ------------------- ONLINE STATUS ------------------- */
-
-    async function checkOnline() {
-        try {
-            const res = await fetch(urls.online, { credentials: "same-origin" });
-            if (!res.ok) return;
-
-            const data = await res.json();
-            const badge = document.getElementById("onlineBadge");
-
-            badge.className = data.online ? "badge bg-success" : "badge bg-secondary";
-            badge.textContent = data.online ? "Online" : "Offline";
-
-        } catch {}
-    }
-
-    /* ------------------- INIT ------------------- */
-
-    (async function init() {
-        await fetchMessages();
-
-        await fetch(urls.markRead, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrf
-            },
-            body: JSON.stringify({ sender_id: otherId })
-        });
-
-        setInterval(fetchMessages, 1200);
-        setInterval(checkTyping, 1200);
-        setInterval(checkOnline, 6000);
-    })();
-
-})();
-</script>
-
-@endsection
+        if (!content.value.trim() && file.files.length === 0) {

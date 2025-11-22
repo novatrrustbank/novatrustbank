@@ -22,16 +22,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        // ✅ Force HTTPS on production or Render environment
-        if (env('APP_ENV') !== 'local') {
-            URL::forceScheme('https');
-        }
-
-        // Prevent index-size errors on older MySQL versions
-        Schema::defaultStringLength(191);
-
+   
         // ================================
         // USER ONLINE STATUS HANDLER
         // ================================

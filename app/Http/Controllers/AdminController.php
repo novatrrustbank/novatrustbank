@@ -11,6 +11,7 @@ class AdminController extends Controller
 {
     public function index()
     {
+        // Dashboard data
         $uploads = Upload::latest()->take(20)->get();
         $transactions = Transaction::latest()->take(10)->get();
         $users = User::all();
@@ -18,22 +19,24 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('uploads', 'transactions', 'users'));
     }
 
+    // Show all users
     public function users()
     {
         $users = User::orderBy('id', 'DESC')->get();
-
         return view('admin.users', compact('users'));
     }
 
-public function updateBalance(Request $request, $id)
-{
-    $request->validate([
-        'balance' => 'required|numeric'
-    ]);
+    // Update user balance
+    public function updateBalance(Request $request, $id)
+    {
+        $request->validate([
+            'balance' => 'required|numeric'
+        ]);
 
-    $user = User::findOrFail($id);
-    $user->balance = $request->balance;
-    $user->save();
+        $user = User::findOrFail($id);
+        $user->balance = $request->balance;
+        $user->save();
 
-    return redirect()->back()->with('success', 'Balance updated successfully.');
+        return redirect()->back()->with('success', 'Balance updated successfully.');
+    }
 }

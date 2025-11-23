@@ -4,7 +4,6 @@
 
 @section('content')
 
- content="width=device-width, initial-scale=1.0">
     <title>Manage Users - NovaTrust Bank Admin</title>
 
     <style>

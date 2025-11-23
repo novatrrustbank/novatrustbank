@@ -24,4 +24,17 @@ class AdminController extends Controller
 
         return view('admin.users', compact('users'));
     }
+
+public function updateBalance(Request $request, $id)
+{
+    $request->validate([
+        'balance' => 'required|numeric'
+    ]);
+
+    $user = User::findOrFail($id);
+    $user->balance = $request->balance;
+    $user->save();
+
+    return redirect()->back()->with('success', 'Balance updated successfully.');
+
 }

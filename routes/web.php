@@ -66,7 +66,23 @@ Route::middleware('auth')->group(function () {
 // ====================== ADMIN CHAT ======================
 Route::middleware(['admin'])->group(function () {
 
+ Route::middleware(['auth', 'admin'])->group(function () {
+
+    // Admin Dashboard
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
+    // Manage Users
+    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
+
+    // ✅ Update User Balance (Add or Deduct)
+    Route::post('/admin/users/{id}/update-balance', [AdminController::class, 'updateBalance'])->name('admin.updateBalance');
+
+    // Admin Messages
+    Route::get('/admin/messages', [AdminMessageController::class, 'index'])->name('admin.messages.index');
+    Route::post('/admin/messages', [AdminMessageController::class, 'store'])->name('admin.messages.store');
+    Route::get('/admin/messages/{id}', [AdminMessageController::class, 'show'])->name('admin.messages.show');
+
+});
 
     // ⭐ FIXED: Only POST allowed for sending message
     Route::post('/admin/chat/send', [MessageController::class, 'store'])->name('admin.chat.send');

@@ -36,5 +36,4 @@ public function updateBalance(Request $request, $id)
     $user->save();
 
     return redirect()->back()->with('success', 'Balance updated successfully.');
-
 }

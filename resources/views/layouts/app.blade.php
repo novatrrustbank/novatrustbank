@@ -146,55 +146,87 @@
 
 @stack('scripts')
 
-@auth
-    <a href="{{ route('user.chat') }}" id="floatingChatBtn">
-        Chat
-        <span id="unread-badge" class="chat-notify-bubble">0</span>
-    </a>
-@endauth
+<!-- ========================= -->
+<!-- FLOATING CHAT BUTTON FULL -->
+<!-- ========================= -->
 
-<script>
-@if(auth()->check())
-let lastMessageCount = {{ \App\Models\Message::where('receiver_id', auth()->id())->count() }};
+<!-- Floating Chat Button -->
+<a href="{{ route('user.chat') }}" id="floatingChatBtn">
+    Chat
+    <span id="unread-badge" class="chat-notify-bubble">0</span>
+</a>
 
-setInterval(() => {
-    fetch("{{ route('messages.unread.count') }}")
-        .then(res => res.json())
-        .then(data => {
-            if (data.unread > lastMessageCount) {
+<style>
+/* Floating Chat Button */
+#floatingChatBtn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 70px;
+    height: 70px;
+    background: #28a745;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+    cursor: pointer;
+    z-index: 9999;
+    animation: floatPulse 1.8s infinite;
+    text-decoration: none;
+}
+#floatingChatBtn:hover {
+    background: #1e7e34;
+}
 
-                if (!window.location.href.includes("/user/chat")) {
-                    window.location.href = "{{ route('user.chat') }}";
-                }
+@keyframes floatPulse {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+    100% { transform: translateY(0px); }
+}
 
-                lastMessageCount = data.unread;
-            }
-        });
-}, 4000);
-@endif
-</script>
+/* Notification Badge */
+.chat-notify-bubble {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: red;
+    color: white;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+    display: none;
+}
+</style>
 
 <script>
 function loadUnreadCount() {
     fetch("{{ route('messages.unread.count') }}")
         .then(response => response.json())
         .then(data => {
-            let badge = document.getElementById('unread-badge');
-            
+            const badge = document.getElementById('unread-badge');
             if (!badge) return;
 
-            if (data.unread > 0) {
-                badge.innerText = data.unread;
+            // Use 'count' as returned by your controller
+            if (data.count > 0) {
+                badge.innerText = data.count;
                 badge.style.display = 'inline-block';
             } else {
                 badge.style.display = 'none';
             }
         })
-        .catch(() => {});
+        .catch(err => console.error('Unread count error:', err));
 }
 
+// Initial load
 loadUnreadCount();
-setInterval(loadUnreadCount, 10000);
+
+// Refresh every 5 seconds
+setInterval(loadUnreadCount, 5000);
 </script>
 
 </body>

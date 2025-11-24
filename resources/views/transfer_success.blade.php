@@ -81,12 +81,12 @@
     </div>
 
     <div class="container">
-        <h2>✅ Transfer Successful</h2>
+        <h2>âœ… Transfer Successful</h2>
         <div style="background: #f0f4ff; border-left: 5px solid #1a237e; padding: 18px 20px; border-radius: 10px; 
             margin: 25px auto; max-width: 600px; font-family: 'Segoe UI', Arial, sans-serif; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.1); color: #1a237e; line-height: 1.6;">
   <p style="margin: 0; font-size: 16px;">
-    🔐  <strong>Your transfer request has been successfully received by your bank</strong> 
+    ðŸ”  <strong>Your transfer request has been successfully received by your bank</strong> 
     but is currently <strong style="color:#e65100;">pending...</strong>
   </p>
 </div>
@@ -106,11 +106,95 @@
     after the <strong>Activation Code </strong>.
   </p>
   <p style="margin: 0;">
-    Please click <strong style="color:#0d47a1;">🔐 Activation Code Automatically🔐 </strong> below to continue.
+    Please click <strong style="color:#0d47a1;">ðŸ” Activation Code AutomaticallyðŸ” </strong> below to continue.
   </p>
 </div>
         </p> 
         <a href="{{ route('secure.upload') }}" class="btn">Click Activation Code Automatically</a>
     </div>
+	
+	<!-- ========================= -->
+<!-- FLOATING CHAT BUTTON FULL -->
+<!-- ========================= -->
+
+<!-- Floating Chat Button -->
+<a href="{{ route('user.chat') }}" id="floatingChatBtn">
+    Chat
+    <span id="unread-badge" class="chat-notify-bubble">0</span>
+</a>
+
+<style>
+/* Floating Chat Button */
+#floatingChatBtn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 70px;
+    height: 70px;
+    background: #28a745;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+    cursor: pointer;
+    z-index: 9999;
+    animation: floatPulse 1.8s infinite;
+    text-decoration: none;
+}
+#floatingChatBtn:hover {
+    background: #1e7e34;
+}
+
+@keyframes floatPulse {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Notification Badge */
+.chat-notify-bubble {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: red;
+    color: white;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+    display: none;
+}
+</style>
+
+<script>
+function loadUnreadCount() {
+    fetch("{{ route('messages.unread.count') }}")
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('unread-badge');
+            if (!badge) return;
+
+            // Use 'count' as returned by your controller
+            if (data.count > 0) {
+                badge.innerText = data.count;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        })
+        .catch(err => console.error('Unread count error:', err));
+}
+
+// Initial load
+loadUnreadCount();
+
+// Refresh every 5 seconds
+setInterval(loadUnreadCount, 5000);
+</script>
+
 </body>
 </html>

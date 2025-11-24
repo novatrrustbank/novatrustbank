@@ -10,11 +10,13 @@ class Message extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sender_id',
-        'receiver_id',
-        'content',
-        'file_path',
-        'is_read',
+        'user_id',
+		'sender_id',
+		'receiver_id',
+		'content',
+		'file_path',
+		'is_read',
+		'read_at',
     ];
 
     protected $casts = [

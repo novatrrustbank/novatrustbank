@@ -16,6 +16,7 @@ class BalanceHelper
         return $data[$userId] ?? 0;
     }
 
+    
     public static function setBalance($userId, $amount)
     {
         $path = storage_path('app/user_balances.json');

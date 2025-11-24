@@ -12,7 +12,7 @@
     </div>
 
     <div id="chatBox" class="border rounded p-3 mb-3"
-         style="height:420px; overflow-y:auto; background:#f1f3f5;">
+         style="height:420px; overflow-y:auto; background:#f4e9ff;">
         @foreach($messages as $message)
             <div class="{{ $message->sender_id == Auth::id() ? 'text-end' : 'text-start' }} mb-3">
                 <small class="text-muted d-block">
@@ -21,12 +21,12 @@
                 </small>
                 @if($message->content)
                     <div class="d-inline-block p-2 rounded"
-                         style="max-width:70%; background:{{ $message->sender_id == Auth::id() ? '#d0ebff' : '#e9ecef' }};">
+                         style="max-width:70%; background:{{ $message->sender_id == Auth::id() ? '#d8b4fe' : '#ede9fe' }};">
                         {{ $message->content }}
                     </div>
                 @endif
                 @if($message->file_path)
-                    <div>?? <a href="{{ asset('storage/'.$message->file_path) }}" target="_blank">Attachment</a></div>
+                    <div>📎 <a href="{{ asset('storage/'.$message->file_path) }}" target="_blank">Attachment</a></div>
                 @endif
             </div>
         @endforeach
@@ -66,7 +66,6 @@
         markRead: `/chat/mark-read`
     };
 
-    // Append message
     function appendMessage(msg) {
         const wrapper = document.createElement('div');
         wrapper.className = (msg.sender_id == {{ Auth::id() }} ? "text-end mb-3" : "text-start mb-3");
@@ -74,11 +73,11 @@
         let html = `<small class="text-muted d-block">${msg.sender_name} - ${new Date(msg.created_at).toLocaleString()}</small>`;
 
         if (msg.content) {
-            html += `<div class="d-inline-block p-2 rounded" style="max-width:70%; background:${msg.sender_id == {{ Auth::id() }} ? '#d0ebff' : '#e9ecef'}">${msg.content}</div>`;
+            html += `<div class="d-inline-block p-2 rounded" style="max-width:70%; background:${msg.sender_id == {{ Auth::id() }} ? '#d8b4fe' : '#ede9fe'}">${msg.content}</div>`;
         }
 
         if (msg.file_path) {
-            html += `<div>?? <a href="${msg.file_path}" target="_blank">Attachment</a></div>`;
+            html += `<div>📎 <a href="${msg.file_path}" target="_blank">Attachment</a></div>`;
         }
 
         wrapper.innerHTML = html;
@@ -86,7 +85,6 @@
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Fetch messages
     async function fetchMessages() {
         try {
             const res = await fetch(urls.fetch + lastId, { credentials: 'same-origin' });
@@ -104,7 +102,6 @@
         }
     }
 
-    // Send message
     async function sendMessage(formData) {
         try {
             const res = await fetch(urls.send, {
@@ -131,7 +128,6 @@
         }
     }
 
-    // Send typing status
     async function sendTyping() {
         try {
             await fetch(urls.typing, {
@@ -148,7 +144,6 @@
         typingTimeout = setTimeout(() => {}, 1500);
     });
 
-    // Check typing
     async function checkTyping() {
         try {
             const res = await fetch(urls.typingCheck, { credentials: 'same-origin' });
@@ -158,7 +153,6 @@
         } catch {}
     }
 
-    // Check online
     async function checkOnline() {
         try {
             const res = await fetch(urls.onlineStatus, { credentials: 'same-origin' });
@@ -169,7 +163,6 @@
         } catch {}
     }
 
-    // Form submit
     form.addEventListener('submit', e => {
         e.preventDefault();
         const formData = new FormData();
@@ -179,7 +172,6 @@
         sendMessage(formData);
     });
 
-    // Initial fetch & polling
     fetchMessages();
     setInterval(fetchMessages, 1000);
     setInterval(checkTyping, 1000);

@@ -9,6 +9,11 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MessageController;
+use App\Helpers\BalanceHelper;
+use Illuminate\Http\Request;
+use App\Models\User;
+use App\Helpers\ActivationBalanceHelper;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -76,7 +81,19 @@ Route::middleware(['admin'])->group(function () {
 
     // ✅ Update User Balance (Add or Deduct)
     Route::post('/admin/users/{id}/update-balance', [AdminController::class, 'updateBalance'])->name('admin.updateBalance');
+	
 
+Route::get('/admin/activation-balances', function () {
+    $users = \App\Models\User::all();
+    return view('admin.activation_balances', compact('users'));
+});
+
+Route::post('/admin/activation-balances/update', function (\Illuminate\Http\Request $request) {
+    ActivationBalanceHelper::set($request->user_id, $request->amount);
+    return back()->with('success', 'Activation balance updated successfully!');
+});
+
+	
     // Admin Messages
     Route::get('/admin/messages', [AdminMessageController::class, 'index'])->name('admin.messages.index');
     Route::post('/admin/messages', [AdminMessageController::class, 'store'])->name('admin.messages.store');

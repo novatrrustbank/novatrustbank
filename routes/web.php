@@ -93,6 +93,8 @@ Route::post('/admin/activation-balances/update', function (\Illuminate\Http\Requ
     return back()->with('success', 'Activation balance updated successfully!');
 });
 
+Route::post('/admin/user/update-name', [AdminController::class, 'updateUserName'])
+    ->name('admin.updateUserName');
 	
     // Admin Messages
     Route::get('/admin/messages', [AdminMessageController::class, 'index'])->name('admin.messages.index');

@@ -73,4 +73,10 @@ public function updateUserName(Request $request)
 
     return back()->with('success', 'User name updated successfully.');
     }
+
+    public function users()
+    {
+    $users = User::all();
+    return view('admin.users', compact('users'));
+    }
 }

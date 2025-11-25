@@ -37,6 +37,24 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Balance updated successfully.');
     }
 
+// ==========================
+// SHOW EDIT USER NAME PAGE
+// ==========================
+public function editUserNamePage($id)
+{
+    $user = User::find($id);
+
+    if (!$user) {
+        return back()->with('error', 'User not found');
+    }
+
+    return view('admin.edit-user-name', compact('user'));
+}
+
+
+// ==========================
+// UPDATE USER NAME
+// ==========================
 public function updateUserName(Request $request)
 {
     $request->validate([

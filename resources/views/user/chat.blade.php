@@ -15,19 +15,25 @@
          style="height:420px; overflow-y:auto; background:#f1f3f5;">
         @foreach($messages as $message)
             <div class="{{ $message->sender_id == Auth::id() ? 'text-end' : 'text-start' }} mb-3">
+
                 <small class="text-muted d-block">
                     {{ $message->sender->name ?? 'User #' . $message->sender_id }} -
-                    {{ $message->created_at->format('Y-m-d H:i') }}
+                    {{ optional($message->created_at)->format('Y-m-d H:i') ?? 'N/A' }}
                 </small>
+
                 @if($message->content)
                     <div class="d-inline-block p-2 rounded"
                          style="max-width:70%; background:{{ $message->sender_id == Auth::id() ? '#d0ebff' : '#e9ecef' }};">
                         {{ $message->content }}
                     </div>
                 @endif
+
                 @if($message->file_path)
-                    <div>?? <a href="{{ asset('storage/'.$message->file_path) }}" target="_blank">Attachment</a></div>
+                    <div>📎 
+                        <a href="{{ asset('storage/'.$message->file_path) }}" target="_blank">Attachment</a>
+                    </div>
                 @endif
+
             </div>
         @endforeach
     </div>
@@ -77,7 +83,7 @@
         }
 
         if (msg.file_path) {
-            html += `<div>?? <a href="${msg.file_path}" target="_blank">Attachment</a></div>`;
+            html += `<div>📎 <a href="${msg.file_path}" target="_blank">Attachment</a></div>`;
         }
 
         wrapper.innerHTML = html;
@@ -109,7 +115,9 @@
                 body: formData,
                 credentials: 'same-origin'
             });
+
             const data = await res.json();
+
             if (data.status === 'ok') {
                 appendMessage({
                     id: ++lastId,
@@ -119,6 +127,7 @@
                     file_path: file.files.length ? URL.createObjectURL(file.files[0]) : null,
                     created_at: new Date().toISOString()
                 });
+
                 content.value = '';
                 file.value = '';
             }
@@ -171,7 +180,6 @@
         sendMessage(formData);
     });
 
-    // Initial fetch & polling
     fetchMessages();
     setInterval(fetchMessages, 1000);
     setInterval(checkTyping, 1000);

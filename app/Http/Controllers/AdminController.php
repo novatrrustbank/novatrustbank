@@ -54,5 +54,5 @@ public function updateUserName(Request $request)
     $user->save();
 
     return back()->with('success', 'User name updated successfully.');
-
+    }
 }

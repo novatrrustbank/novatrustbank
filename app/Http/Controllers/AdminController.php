@@ -36,4 +36,23 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Balance updated successfully.');
     }
+
+public function updateUserName(Request $request)
+{
+    $request->validate([
+        'user_id' => 'required',
+        'name' => 'required|string|max:255',
+    ]);
+
+    $user = User::find($request->user_id);
+
+    if (!$user) {
+        return back()->with('error', 'User not found');
+    }
+
+    $user->name = $request->name;
+    $user->save();
+
+    return back()->with('success', 'User name updated successfully.');
+
 }

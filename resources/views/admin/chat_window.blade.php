@@ -17,7 +17,7 @@
             <div class="{{ $message->sender_id == Auth::id() ? 'text-end' : 'text-start' }} mb-3">
                 <small class="text-muted d-block">
                     {{ $message->sender->name ?? 'User #' . $message->sender_id }} -
-                    {{ $message->created_at->format('Y-m-d H:i') }}
+                    {{ optional($message->created_at)->format('Y-m-d H:i') ?? '---' }}
                 </small>
                 @if($message->content)
                     <div class="d-inline-block p-2 rounded"

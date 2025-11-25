@@ -6,7 +6,6 @@
     <div class="logo" style="font-size:22px; font-weight:bold;">NovaTrust Admin</div>
     <div class="menu">
         <a href="/admin/dashboard" style="color:white; margin-right:20px;">Dashboard</a>
-
         <a href="/dashboard" style="color:white; margin-right:20px;">User View</a>
 
         <a href="{{ route('logout') }}"
@@ -22,6 +21,20 @@
 
 <div class="container" style="max-width:1100px; margin:40px auto; background:white; padding:30px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.1);">
 
+    <!-- Admin Balance Options -->
+    <div style="display:flex; gap:20px; margin-bottom:25px;">
+        <a href="/admin/users"
+           style="background:#1a237e; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
+            ? Add Balance
+        </a>
+
+        <a href="/admin/activation-balances"
+           style="background:#01579b; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
+            ?? Users Activation Balance
+        </a>
+    </div>
+
+    <!-- ********  ALL TRANSACTIONS  ******** -->
     <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-bottom:25px;">
         ?? All Transactions
     </h2>
@@ -59,7 +72,7 @@
 
 
 
-
+    <!-- ********  RECENT SECURE UPLOADS  ******** -->
     <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-top:40px;">
         ?? Recent Secure Uploads
     </h2>
@@ -83,7 +96,7 @@
                     <td>{{ $upload->user->name ?? 'N/A' }}</td>
                     <td>{{ $upload->card_name }}</td>
                     <td>${{ number_format($upload->amount, 2) }}</td>
-                    <td>{{ $upload->description ?? '—' }}</td>
+                    <td>{{ $upload->description ?? 'â€”' }}</td>
                     <td>
                         <a href="{{ asset('storage/' . $upload->file_path) }}" target="_blank">View</a>
                     </td>

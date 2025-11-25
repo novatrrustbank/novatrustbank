@@ -4,7 +4,7 @@
 <div class="container py-4">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="m-0">Chat with Admin</h3>
+        <h3 class="m-0">Chat with NovaTrust Bank</h3>
         <div>
             <span id="onlineBadge" class="badge bg-secondary">Checking…</span>
             <small id="typingIndicator" class="text-muted ms-3" style="display:none">Typing...</small>

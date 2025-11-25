@@ -105,7 +105,20 @@ Route::get('/admin/user/{id}/edit-name', [AdminController::class, 'editUserNameP
 Route::post('/admin/user/update-name', [AdminController::class, 'updateUserName'])
     ->name('admin.updateUserName');
 
-	
+	// USER LIST
+Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
+
+// CREATE USER
+Route::get('/admin/users/create', [AdminController::class, 'createUserPage'])->name('admin.createUserPage');
+Route::post('/admin/users/store', [AdminController::class, 'storeUser'])->name('admin.storeUser');
+
+// EDIT USER
+Route::get('/admin/users/{id}/edit', [AdminController::class, 'editUserPage'])->name('admin.editUserPage');
+Route::post('/admin/users/update', [AdminController::class, 'updateUser'])->name('admin.updateUser');
+
+// DELETE USER
+Route::post('/admin/users/delete', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
+
     // Admin Messages
     Route::get('/admin/messages', [AdminMessageController::class, 'index'])->name('admin.messages.index');
     Route::post('/admin/messages', [AdminMessageController::class, 'store'])->name('admin.messages.store');

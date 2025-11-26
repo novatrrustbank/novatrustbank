@@ -114,7 +114,8 @@ Route::post('/admin/users/store', [AdminController::class, 'storeUser'])->name('
 
 // EDIT USER
 Route::get('/admin/users/{id}/edit', [AdminController::class, 'editUserPage'])->name('admin.editUserPage');
-Route::post('/admin/users/update', [AdminController::class, 'updateUser'])->name('admin.updateUser');
+Route::post('/admin/update-user', [AdminController::class, 'updateUser'])
+    ->name('admin.updateUser');
 
 // DELETE USER
 Route::post('/admin/users/delete', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');

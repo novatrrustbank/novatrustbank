@@ -21,11 +21,6 @@
         </div>
 
         <div class="mb-3">
-            <label>Phone</label>
-            <input type="text" name="phone" value="{{ $user->phone }}" class="form-control">
-        </div>
-
-        <div class="mb-3">
             <label>Balance</label>
             <input type="number" step="0.01" name="balance" value="{{ $user->balance }}" class="form-control">
         </div>

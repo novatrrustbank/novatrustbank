@@ -220,7 +220,7 @@ class MessageController extends Controller
 
     /**
      * ==================================================
-     * UNREAD COUNTER
+     * UNREAD COUNTER 
      * ==================================================
      */
     public function checkUnread()

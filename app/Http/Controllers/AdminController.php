@@ -128,7 +128,7 @@ class AdminController extends Controller
     }
 
     // ==========================
-    // UPDATE USER (NAME, EMAIL, PHONE, BALANCE, PASSWORD)
+    // UPDATE USER (NAME, EMAIL, BALANCE, PASSWORD)
     // ==========================
     public function updateUser(Request $request)
 {
@@ -136,7 +136,6 @@ class AdminController extends Controller
         'user_id' => 'required',
         'name'    => 'required',
         'email'   => 'required|email',
-        'phone'   => 'required',
         'balance' => 'required|numeric',
     ]);
 
@@ -147,7 +146,6 @@ class AdminController extends Controller
     // Update fields
     $user->name = $request->name;
     $user->email = $request->email;
-    $user->phone = $request->phone;
     $user->balance = $request->balance;  // ✅ This will now save correctly
 
     // Password update

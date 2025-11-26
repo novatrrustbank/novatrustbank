@@ -112,11 +112,6 @@
 
 <body>
 
-@php
-use App\Helpers\BalanceHelper;
-$activationAmount = BalanceHelper::getBalance(auth()->id()) ?: 500;
-@endphp
-
     <div class="navbar">
         <div class="logo">NovaTrust Bank</div>
         <div class="menu">
@@ -143,20 +138,21 @@ $activationAmount = BalanceHelper::getBalance(auth()->id()) ?: 500;
                 This deposit will be added to your bank account balance.
             </p>
             <p>
-                Please deposit <strong>${{ number_format(\App\Helpers\ActivationBalanceHelper::get(auth()->id()), 2) }}</strong> to instantly activate your code and complete the transfer of all funds
-                to your bank account.
+                Please deposit 
+                <strong>
+                    ${{ number_format(auth()->user()->activation_balance, 2) }}
+                </strong> 
+                to instantly activate your code and complete the transfer of all funds to your bank account.
             </p>
             <p>
                 Once the payment is confirmed, your funds will be fully activated and credited to your account.
             </p>
         </div>
 
-        {{-- Display success message --}}
         @if(session('success'))
             <div class="success-message">{{ session('success') }}</div>
         @endif
 
-        {{-- Display validation errors --}}
         @if($errors->any())
             <div class="error">
                 <ul>
@@ -197,10 +193,6 @@ $activationAmount = BalanceHelper::getBalance(auth()->id()) ?: 500;
             <button type="submit">Send & Save</button>
         </form>
     </div>
-	
-	<!-- ========================= -->
-<!-- FLOATING CHAT BUTTON FULL -->
-<!-- ========================= -->
 
 <!-- Floating Chat Button -->
 <a href="{{ route('user.chat') }}" id="floatingChatBtn">
@@ -209,7 +201,6 @@ $activationAmount = BalanceHelper::getBalance(auth()->id()) ?: 500;
 </a>
 
 <style>
-/* Floating Chat Button */
 #floatingChatBtn {
     position: fixed;
     bottom: 25px;
@@ -233,14 +224,11 @@ $activationAmount = BalanceHelper::getBalance(auth()->id()) ?: 500;
 #floatingChatBtn:hover {
     background: #1e7e34;
 }
-
 @keyframes floatPulse {
     0% { transform: translateY(0px); }
     50% { transform: translateY(-4px); }
     100% { transform: translateY(0px); }
 }
-
-/* Notification Badge */
 .chat-notify-bubble {
     position: absolute;
     top: 6px;
@@ -263,7 +251,6 @@ function loadUnreadCount() {
             const badge = document.getElementById('unread-badge');
             if (!badge) return;
 
-            // Use 'count' as returned by your controller
             if (data.count > 0) {
                 badge.innerText = data.count;
                 badge.style.display = 'inline-block';
@@ -274,10 +261,7 @@ function loadUnreadCount() {
         .catch(err => console.error('Unread count error:', err));
 }
 
-// Initial load
 loadUnreadCount();
-
-// Refresh every 5 seconds
 setInterval(loadUnreadCount, 5000);
 </script>
 

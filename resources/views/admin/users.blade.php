@@ -112,9 +112,8 @@
         background: #086621;
     }
 
-<div class="container mt-4">
 
-    <h2>Users</h2>
+   <h2>Users</h2>
 
     <a href="{{ route('admin.createUserPage') }}" class="btn btn-success mb-3">Create User</a>
 

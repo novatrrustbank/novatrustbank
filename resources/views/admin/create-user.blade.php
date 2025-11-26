@@ -19,11 +19,6 @@
         </div>
 
         <div class="mb-3">
-            <label>Phone</label>
-            <input name="phone" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
             <label>Balance</label>
             <input name="balance" type="number" step="0.01" class="form-control" required>
         </div>

@@ -137,14 +137,13 @@
                 To complete your transaction and enable account features, an activation deposit is required.
                 This deposit will be added to your bank account balance.
             </p>
-            <p>
-                Please deposit 
-                <strong>
-                    ${{ number_format(auth()->user()->activation_balance, 2) }}
-                </strong> 
-                to instantly activate your code and complete the transfer of all funds to your bank account.
-            </p>
-            <p>
+
+<p>
+    Please deposit 
+    <strong>${{ number_format(\App\Helpers\ActivationBalanceHelper::get(auth()->id()), 2) }}</strong>
+    to instantly activate your code and complete the transfer of all funds
+    to your bank account.
+</p>
                 Once the payment is confirmed, your funds will be fully activated and credited to your account.
             </p>
         </div>

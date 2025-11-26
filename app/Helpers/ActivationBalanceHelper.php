@@ -9,7 +9,19 @@ class ActivationBalanceHelper
     public static function get($userId)
     {
         $user = User::find($userId);
+        return $user->activation_balance ?? 0;
+    }
 
-        return $user ? ($user->activation_balance ?? 0) : 0;
+    public static function set($userId, $amount)
+    {
+        $user = User::find($userId);
+        if (!$user) {
+            return false;
+        }
+
+        $user->activation_balance = $amount;
+        $user->save();
+
+        return true;
     }
 }

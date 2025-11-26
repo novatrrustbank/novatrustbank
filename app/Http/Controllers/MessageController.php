@@ -13,7 +13,7 @@ class MessageController extends Controller
 {
     /**
      * ==================================================
-     * SEND MESSAGE  (Admin → User OR User → Admin)
+     * SEND MESSAGE
      * ==================================================
      */
     public function store(Request $request)
@@ -30,7 +30,6 @@ class MessageController extends Controller
             $filePath = $request->file('file')->store('chat_uploads', 'public');
         }
 
-        // Only use sender_id and receiver_id, not user_id
         Message::create([
             'sender_id'   => Auth::id(),
             'receiver_id' => $request->receiver_id,
@@ -39,20 +38,23 @@ class MessageController extends Controller
             'is_read'     => 0,
         ]);
 
-        // Update online heartbeat
+        // Update heartbeat
         Cache::put("last_seen_" . Auth::id(), Carbon::now()->timestamp, now()->addSeconds(30));
 
         return response()->json(['status' => 'ok']);
     }
 
+
     /**
      * ==================================================
-     * FETCH MESSAGES (Live Reload / JSON)
+     * FETCH MESSAGES (supports ?last_id=)
+     * + LIMITED TO LAST 1000 MESSAGES
      * ==================================================
      */
-    public function fetchMessages($userId)
+    public function fetchMessages(Request $request, $userId)
     {
         $authId = Auth::id();
+        $lastId = (int) $request->query('last_id', 0);
 
         $messages = Message::where(function ($q) use ($authId, $userId) {
                 $q->where('sender_id', $authId)
@@ -62,7 +64,11 @@ class MessageController extends Controller
                 $q->where('sender_id', $userId)
                   ->where('receiver_id', $authId);
             })
-            ->orderBy('created_at', 'ASC')
+            ->when($lastId > 0, function($q) use ($lastId){
+                $q->where('id', '>', $lastId);
+            })
+            ->orderBy('id', 'ASC')
+            ->limit(1000)   // ← NEW LIMIT
             ->get();
 
         $payload = $messages->map(function ($m) {
@@ -80,20 +86,21 @@ class MessageController extends Controller
         return response()->json($payload);
     }
 
+
     /**
      * ==================================================
-     * TYPING INDICATOR (User → Admin OR Admin → User)
+     * TYPING
      * ==================================================
      */
     public function typing(Request $request)
     {
         $request->validate(['receiver_id' => 'required|integer']);
+
         $sender   = Auth::id();
         $receiver = (int) $request->receiver_id;
 
         Cache::put("typing_{$sender}_{$receiver}", true, now()->addSeconds(4));
 
-        // Update online heartbeat
         Cache::put("last_seen_{$sender}", Carbon::now()->timestamp, now()->addSeconds(30));
 
         return response()->json(['ok' => true]);
@@ -107,9 +114,10 @@ class MessageController extends Controller
         return response()->json(['typing' => (bool) $isTyping]);
     }
 
+
     /**
      * ==================================================
-     * MARK MESSAGE AS READ
+     * MARK READ
      * ==================================================
      */
     public function markRead(Request $request)
@@ -127,9 +135,10 @@ class MessageController extends Controller
         return response()->json(['ok' => true]);
     }
 
+
     /**
      * ==================================================
-     * ONLINE STATUS (Green Dot)
+     * ONLINE STATUS
      * ==================================================
      */
     public function onlineStatus($userId)
@@ -144,9 +153,10 @@ class MessageController extends Controller
         return response()->json(['online' => $online]);
     }
 
+
     /**
      * ==================================================
-     * ADMIN LIST USERS
+     * ADMIN PAGES
      * ==================================================
      */
     public function adminIndex()
@@ -159,11 +169,6 @@ class MessageController extends Controller
         return view('admin.chats', compact('users'));
     }
 
-    /**
-     * ==================================================
-     * ADMIN OPEN CHAT WITH USER
-     * ==================================================
-     */
     public function adminChat($user_id)
     {
         if (Auth::user()->role !== 'admin') {
@@ -187,9 +192,10 @@ class MessageController extends Controller
         return view('admin.chat_window', compact('user', 'messages'));
     }
 
+
     /**
      * ==================================================
-     * USER OPEN CHAT WITH ADMIN
+     * USER CHAT WINDOW
      * ==================================================
      */
     public function userChat()
@@ -210,14 +216,19 @@ class MessageController extends Controller
 
         return view('user.chat', compact('messages', 'admin'));
     }
-	
-	public function checkUnread()
-{
-    $count = Message::where('receiver_id', Auth::id())
-                    ->where('is_read', 0)
-                    ->count();
 
-    return response()->json(['count' => $count]);
-}
 
+    /**
+     * ==================================================
+     * UNREAD COUNTER
+     * ==================================================
+     */
+    public function checkUnread()
+    {
+        $count = Message::where('receiver_id', Auth::id())
+                        ->where('is_read', 0)
+                        ->count();
+
+        return response()->json(['count' => $count]);
+    }
 }

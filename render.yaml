@@ -45,7 +45,7 @@ services:
         fromDatabase:
           name: novatrust-db
           property: password
- 
+  
 databases:
   - name: novatrust-db
     plan: free

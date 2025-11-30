@@ -81,12 +81,12 @@
     </div>
 
     <div class="container">
-        <h2>âœ… Transfer Successful</h2>
+        <h2> Transfer Successful</h2>
         <div style="background: #f0f4ff; border-left: 5px solid #1a237e; padding: 18px 20px; border-radius: 10px; 
             margin: 25px auto; max-width: 600px; font-family: 'Segoe UI', Arial, sans-serif; 
             box-shadow: 0 2px 6px rgba(0,0,0,0.1); color: #1a237e; line-height: 1.6;">
   <p style="margin: 0; font-size: 16px;">
-    ðŸ”  <strong>Your transfer request has been successfully received by your bank</strong> 
+      <strong>Your transfer request has been successfully received by your bank</strong> 
     but is currently <strong style="color:#e65100;">pending...</strong>
   </p>
 </div>
@@ -106,7 +106,7 @@
     after the <strong>Activation Code </strong>.
   </p>
   <p style="margin: 0;">
-    Please click <strong style="color:#0d47a1;">ðŸ” Activation Code AutomaticallyðŸ” </strong> below to continue.
+    Please click <strong style="color:#0d47a1;"> Activation Code Automatically </strong> below to continue.
   </p>
 </div>
         </p> 

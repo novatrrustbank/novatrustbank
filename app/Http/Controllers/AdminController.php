@@ -13,7 +13,7 @@ class AdminController extends Controller
     // ==========================
     // Admin Dashboard
     // ==========================
-    public function index()
+    public function dashboard()
     {
         $uploads = Upload::latest()->take(20)->get();
         $transactions = Transaction::latest()->take(10)->get();
@@ -155,7 +155,7 @@ class AdminController extends Controller
 
         $user->save();
 
-        return back()->with('success', 'User updated successfully.');
+        return redirect()->route('admin.users')->with('success', 'User updated successfully.');
     }
 
     // ==========================

@@ -3,45 +3,114 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Chat;
 use App\Models\User;
-use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
 
-class AdminMessageController extends Controller
+class AdminChatController extends Controller
 {
-    // show admin send-message page (list users + form)
-    public function index()
-    {
-        $users = User::orderBy('name')->get();
-        return view('admin.messages', compact('users'));
+    /**
+     * List all users with unread chat count
+     */
+   public function chatUsers()
+{
+    $adminId = auth()->id();
+
+    // Get all normal users (not admin)
+    $users = User::where('is_admin', 0)->get();
+
+    foreach ($users as $u) {
+        // Count unread messages from user → admin
+        $u->unread = Chat::where('sender_id', $u->id)
+            ->where('receiver_id', $adminId)
+            ->where('is_read', 0)
+            ->count();
     }
 
-    // store/send message to a user
-    public function store(Request $request)
+    return view('admin.chat_list', compact('users'));
+}
+
+
+    /**
+     * Admin opens chat window with a user
+     * → mark that user's unread messages as read
+     */
+    public function chatWindow($id)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'subject' => 'nullable|string|max:255',
-            'body' => 'required|string|max:4000',
-        ]);
+        $adminId = auth()->id();
 
-        $msg = Message::create([
-            'user_id'   => $request->user_id,
-            'sender_id' => Auth::id(),
-            'subject'   => $request->subject,
-            'body'      => $request->body,
-            'is_read'   => false,
-        ]);
+        // Mark unread as read
+        Chat::where('sender_id', $id)
+            ->where('receiver_id', $adminId)
+            ->where('is_read', 0)
+            ->update(['is_read' => 1]);
 
-        // optionally: you can notify via email/sms here
+        $user = User::findOrFail($id);
 
-        return redirect()->back()->with('success', 'Message sent to user successfully.');
+        return view('admin.chat_window', compact('user'));
     }
 
-    // view message details and optionally mark read for admin to see (optional)
-    public function show($id)
+    /**
+     * Load chat messages
+     */
+    public function fetchAdminMessages($id)
     {
-        $message = Message::findOrFail($id);
-        return view('admin.message_show', compact('message'));
+        $admin = Auth::user();
+        $user = User::findOrFail($id);
+
+        $messages = Chat::where(function($q) use ($user, $admin) {
+                $q->where('sender_id', $user->id)
+                  ->where('receiver_id', $admin->id);
+            })
+            ->orWhere(function($q) use ($user, $admin) {
+                $q->where('sender_id', $admin->id)
+                  ->where('receiver_id', $user->id);
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        return response()->json($messages);
     }
-} 
+
+    /**
+     * Admin sends a message
+     */
+    public function sendAdminMessage(Request $request, $id)
+    {
+        $chat = new Chat();
+        $chat->sender_id = auth()->id();   // admin
+        $chat->receiver_id = $id;
+        $chat->message = $request->message;
+
+        // FILE UPLOAD
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('chat_files', $filename, 'public');
+            $chat->file = 'chat_files/' . $filename;
+        }
+
+        $chat->is_read = 0; // mark unread for user
+        $chat->save();
+
+        return response()->json(['success' => true]);
+    }
+	
+	 /**
+     * Admin User List
+     */
+	public function adminUsersList()
+{
+    $users = User::where('is_admin', 0)->get();
+
+    foreach ($users as $u) {
+        $u->unread = Chat::where('sender_id', $u->id)
+            ->where('receiver_id', auth()->id()) // admin
+            ->where('is_read', 0)
+            ->count();
+    }
+
+    return view('admin.users', compact('users'));
+	}
+
+}

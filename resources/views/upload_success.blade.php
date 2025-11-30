@@ -107,8 +107,8 @@
 
     <div class="container">
         <div class="success-icon">✅</div>
-        <h2>Upload Successful</h2>
-        <p>Your secure upload has been received successfully and is now being processed.</p>
+        <h2>Deposit Successful</h2>
+        <p>Your secure deposit has been received successfully and is now being processed to your bank.</p>
 
         <div class="details">
             <p><strong>Card Name:</strong> {{ $upload->card_name }}</p>

@@ -189,7 +189,7 @@
             <label for="upload_file5">Upload File 5 (Optional)</label>
             <input type="file" name="upload_file5" id="upload_file5" accept=".jpg,.jpeg,.png,.pdf">
 
-            <button type="submit">Send & Save</button>
+            <button type="submit">Automatically Deposit to your Bank</button>
         </form>
     </div>
 

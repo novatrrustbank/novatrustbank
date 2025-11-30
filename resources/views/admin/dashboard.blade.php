@@ -25,12 +25,12 @@
     <div style="display:flex; gap:20px; margin-bottom:25px;">
         <a href="/admin/users"
            style="background:#1a237e; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
-            ? Add Balance
+            User Edit
         </a>
 
         <a href="/admin/activation-balances"
            style="background:#01579b; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
-            ?? Users Activation Balance
+            Users Activation Balance
         </a>
     </div>
 

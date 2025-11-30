@@ -8,27 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('messages', function (Blueprint $table) {
+        Schema::create('chats', function (Blueprint $table) {
             $table->id();
-
-            // Who sent the message
             $table->unsignedBigInteger('sender_id');
-
-            // Who received the message
             $table->unsignedBigInteger('receiver_id');
-
-            // Message content
-            $table->text('content')->nullable();
-
-            // File attachment (optional)
-            $table->string('file_path')->nullable();
-
-            // Read status
-            $table->boolean('is_read')->default(false);
-
+            $table->text('message');
             $table->timestamps();
+			$table->string('file')->nullable();
 
-            // Foreign keys
             $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
         });
@@ -36,6 +23,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('messages');
+        Schema::dropIfExists('chats');
     }
 };

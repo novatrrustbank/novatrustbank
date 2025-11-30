@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            $table->string('file_pat')->nullable(); // to store file name or path
+        Schema::table('chats', function (Blueprint $table) {
+            $table->string('file')->nullable();
         });
     }
 
     public function down(): void
     {
-        Schema::table('messages', function (Blueprint $table) {
-            $table->dropColumn('file_pat');
+        Schema::table('chats', function (Blueprint $table) {
+            $table->dropColumn('file');
         });
     }
 };

@@ -11,13 +11,15 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-protected $fillable = [
-    'name',
-    'email',         
-    'password',
-    'account_number',
-    'balance',
-];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'account_number',
+        'balance',
+        'is_admin',
+    ];
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -25,7 +27,6 @@ protected $fillable = [
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-       
     ];
 
     /**
@@ -37,7 +38,7 @@ protected $fillable = [
 
         static::creating(function ($user) {
 
-            // Create unique account number
+            // Generate unique account number
             if (empty($user->account_number)) {
                 do {
                     $account = '203' . rand(1000000, 9999999);
@@ -50,8 +51,6 @@ protected $fillable = [
             if ($user->balance === null) {
                 $user->balance = 0;
             }
-
-           
         });
     }
 
@@ -81,28 +80,28 @@ protected $fillable = [
     }
 
     /**
-     * Chat relationships
+     * CHAT SYSTEM RELATIONSHIPS
+     * -------------------------------------
      */
+
+    // Messages the user sent
     public function sentMessages()
     {
-        return $this->hasMany(Message::class, 'sender_id');
+        return $this->hasMany(Chat::class, 'sender_id');
     }
 
+    // Messages the user received
     public function receivedMessages()
     {
-        return $this->hasMany(Message::class, 'receiver_id');
+        return $this->hasMany(Chat::class, 'receiver_id');
     }
 
     /**
-     * Inbox & unread messages shortcut
+     * Unread chat messages
      */
-    public function messages()
+    public function unreadChats()
     {
-        return $this->hasMany(\App\Models\Message::class, 'user_id');
-    }
-
-    public function unreadMessages()
-    {
-        return $this->messages()->where('is_read', false);
+        return $this->hasMany(Chat::class, 'receiver_id')
+            ->where('is_read', 0);
     }
 }

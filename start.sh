@@ -10,6 +10,8 @@ php artisan optimize:clear || true
 echo "🔹 Creating storage link..."
 php artisan storage:link || true
 
+startCommand: ./start.sh
+
 echo "🔹 Caching configuration..."
 php artisan config:cache || true
 php artisan route:cache || true

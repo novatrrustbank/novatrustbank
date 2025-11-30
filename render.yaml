@@ -3,8 +3,19 @@ services:
     name: novatrust-bank
     env: php
     plan: free
-    buildCommand: ""
+
+    disk:
+      name: uploads
+      mountPath: /var/www/html/storage/app/public
+      sizeGB: 1
+
+    buildCommand: |
+      composer install
+      php artisan key:generate --force
+      php artisan storage:link
+
     startCommand: ./start.sh
+
     envVars:
       - key: APP_ENV
         value: production
@@ -37,4 +48,4 @@ services:
 
 databases:
   - name: novatrust-db
-    plan: free 
+    plan: free

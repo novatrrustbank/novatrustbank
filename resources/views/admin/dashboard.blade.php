@@ -2,6 +2,15 @@
 
 @section('content')
 
+<style>
+.chat-image {
+    max-width: 250px;
+    max-height: 250px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+</style>
+
 <div class="navbar" style="background:#1a237e; color:white; padding:15px 30px; display:flex; justify-content:space-between;">
     <div class="logo" style="font-size:22px; font-weight:bold;">NovaTrust Admin</div>
     <div class="menu">
@@ -36,7 +45,7 @@
 
     <!-- ********  ALL TRANSACTIONS  ******** -->
     <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-bottom:25px;">
-        ?? All Transactions
+        📄 All Transactions
     </h2>
 
     @if($transactions->isEmpty())
@@ -74,7 +83,7 @@
 
     <!-- ********  RECENT SECURE UPLOADS  ******** -->
     <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-top:40px;">
-        ?? Recent Secure Uploads
+        📎 Recent Secure Uploads
     </h2>
 
     <table style="width:100%; border-collapse:collapse;">
@@ -97,9 +106,21 @@
                     <td>{{ $upload->card_name }}</td>
                     <td>${{ number_format($upload->amount, 2) }}</td>
                     <td>{{ $upload->description ?? '—' }}</td>
+
+                    <!-- FIXED: Same Working Chat Image Path -->
                     <td>
-                        <a href="{{ asset('storage/' . $upload->file_path) }}" target="_blank">View</a>
+                        @php
+                            $file = $upload->file_path;
+                            $isImage = preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $file);
+                        @endphp
+
+                        @if($isImage)
+                            <img src="/chat-file/{{ $file }}" class="chat-image">
+                        @else
+                            <a href="/chat-file/{{ $file }}" target="_blank">Download</a>
+                        @endif
                     </td>
+
                     <td>{{ $upload->created_at->format('Y-m-d H:i') }}</td>
                 </tr>
             @empty

@@ -10,6 +10,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AdminChatController;
 use App\Helpers\ActivationBalanceHelper;
+use Illuminate\Support\Facades\Storage;
 
 // =========================
 // Public Routes
@@ -44,6 +45,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/secure_upload', fn() => view('secure_upload'))->name('secure.upload');
     Route::post('/secure_upload', [UploadController::class, 'store'])->name('secure.upload.post');
     Route::get('/upload_success/{id}', [UploadController::class, 'success'])->name('secure.upload.success');
+	
+	
+	// File
+	Route::get('/chat-file/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+
+    if (!file_exists($fullPath)) {
+        abort(404, "File not found");
+    }
+
+    return response()->file($fullPath);
+	})->where('path', '.*');
+
 
     // ============================
     // USER LIVE CHAT

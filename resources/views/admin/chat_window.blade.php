@@ -29,6 +29,15 @@
         background: #e5ddd5;
     }
 
+	.chat-image {
+    width: 250px;       /* WhatsApp-style width */
+    height: auto;       /* Keep correct aspect ratio */
+    max-height: 250px;  /* Limit very tall images */
+    border-radius: 12px;
+    object-fit: cover;
+    display: block;
+	}
+
     .msg-right {
         max-width: 75%;
         background: #dcf8c6;
@@ -109,7 +118,7 @@ function loadMessages() {
                     let f = msg.file.toLowerCase();
 
                     if (f.match(/\.(jpg|jpeg|png|gif)$/)) {
-                        html += `<br><img src="/storage/${msg.file}" style="max-width:150px; margin-top:8px; border-radius:6px;">`;
+                        html += `<br><img src="/chat-file/${msg.file}" class="chat-image">`;
                     } else {
                         html += `<br><a href="/storage/${msg.file}" target="_blank">📎 Download file</a>`;
                     }

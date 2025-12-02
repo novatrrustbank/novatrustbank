@@ -84,11 +84,9 @@ class AdminChatController extends Controller
 
         // FILE UPLOAD
         if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('chat_files', $filename, 'public');
-            $chat->file = 'chat_files/' . $filename;
-        }
+    $path = $request->file('file')->store('chat_files', 'public');
+    $chat->file = $path; // only store path like chat_files/abc.png
+}
 
         $chat->is_read = 0; // mark unread for user
         $chat->save();

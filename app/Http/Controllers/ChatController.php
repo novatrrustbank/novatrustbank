@@ -55,12 +55,11 @@ class ChatController extends Controller
         $chat->message = $request->message;
 
         // File upload
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('chat_files', $filename, 'public');
-            $chat->file = 'chat_files/' . $filename;
-        }
+       if ($request->hasFile('file')) {
+    $path = $request->file('file')->store('chat_files', 'public');
+    $chat->file = $path; // only store path like chat_files/abc.png
+	}
+
 
         // Mark unread for admin
         $chat->is_read = 0;

@@ -2,24 +2,20 @@
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cross-Origin Resource Sharing (CORS) Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Here you may configure your settings for cross-origin resource sharing
-    | or "CORS". This determines what cross-origin operations may execute
-    | in web browsers. You are free to adjust these settings as needed.
-    |
-    | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
-    |
-    */
-
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => [
+        'api/*',
+        'sanctum/csrf-cookie',
+        '/login',
+        '/logout',
+        '/session-test',
+    ],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    // Allow your exact domain (not "*") so cookies work
+    'allowed_origins' => [
+        'https://novatrustbank.onrender.com',
+    ],
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +25,7 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    // MUST be true for cookies to work
+    'supports_credentials' => true,
 
 ];

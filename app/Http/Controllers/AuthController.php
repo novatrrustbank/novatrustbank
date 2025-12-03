@@ -17,43 +17,29 @@ class AuthController extends Controller
 
     // ===== Process Login =====
     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|string',
+    ]);
 
-        $user = User::where('email', $request->email)->first();
+    $user = User::where('email', $request->email)->first();
 
-        if ($user) {
-            // ✅ Try hashed password first
-            if (Hash::check($request->password, $user->password)) {
-                Auth::login($user);
-                $request->session()->regenerate();
-
-                // ✅ Redirect based on admin status
-                if ($user->is_admin == 1) {
-                    return redirect()->intended('/admin/dashboard');
-                }
-
-                return redirect()->intended('/dashboard');
-            }
-
-            // ✅ Fallback for plain-text password (demo use only)
-            if ($user->password === $request->password) {
-                Auth::login($user);
-                $request->session()->regenerate();
-
-                if ($user->is_admin == 1) {
-                    return redirect()->intended('/admin/dashboard');
-                }
-
-                return redirect()->intended('/dashboard');
-            }
-        }
-
+    if (!$user || !Hash::check($request->password, $user->password)) {
         return back()->withErrors(['email' => 'Invalid credentials.']);
     }
+
+    Auth::login($user);
+    $request->session()->regenerate();
+
+    // 🔥 ALWAYS FORCE REDIRECT
+    if ($user->is_admin == 1) {
+        return redirect('/admin/dashboard');  // For admin
+    }
+
+    return redirect('/dashboard');  // For normal user
+}
+
 
     // ===== Logout =====
     public function logout(Request $request)

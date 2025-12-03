@@ -12,8 +12,9 @@ use App\Http\Controllers\AdminChatController;
 use App\Helpers\ActivationBalanceHelper;
 use Illuminate\Support\Facades\Storage;
 
+
 // =========================
-// Public Routes
+// PUBLIC ROUTES
 // =========================
 Route::get('/', function () {
     return view('login');
@@ -24,6 +25,24 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+
+// =======================================
+// SESSION TEST ROUTE (MUST BE PUBLIC)
+// =======================================
+Route::get('/session-test', function () {
+    session(['test_key' => 'working']);
+
+    return response()->json([
+        'session_set'   => true,
+        'session_value' => session('test_key'),
+        'app_url'       => config('app.url'),
+        'session_domain'=> config('session.domain'),
+        'same_site'     => config('session.same_site'),
+        'secure_cookie' => config('session.secure'),
+        'driver'        => config('session.driver'),
+    ]);
+});
 
 
 // =========================
@@ -45,19 +64,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/secure_upload', fn() => view('secure_upload'))->name('secure.upload');
     Route::post('/secure_upload', [UploadController::class, 'store'])->name('secure.upload.post');
     Route::get('/upload_success/{id}', [UploadController::class, 'success'])->name('secure.upload.success');
-	
-	
-	// File
-	Route::get('/chat-file/{path}', function ($path) {
-    $fullPath = storage_path('app/public/' . $path);
 
-    if (!file_exists($fullPath)) {
-        abort(404, "File not found");
-    }
+    // Serve Chat Files
+    Route::get('/chat-file/{path}', function ($path) {
+        $fullPath = storage_path('app/public/' . $path);
 
-    return response()->file($fullPath);
-	})->where('path', '.*');
+        if (!file_exists($fullPath)) {
+            abort(404, "File not found");
+        }
 
+        return response()->file($fullPath);
+    })->where('path', '.*');
 
     // ============================
     // USER LIVE CHAT
@@ -65,7 +82,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chat', [ChatController::class, 'userChat'])->name('user.chat');
     Route::get('/chat/fetch', [ChatController::class, 'fetchMessages'])->name('chat.fetch');
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
-	Route::get('/chat/unread/count', [ChatController::class, 'unreadCount']) ->name('messages.unread.count');
+    Route::get('/chat/unread/count', [ChatController::class, 'unreadCount'])->name('messages.unread.count');
 });
 
 

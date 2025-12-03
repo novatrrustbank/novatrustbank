@@ -7,6 +7,7 @@ use App\Models\Chat;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Helpers\Telegram; // <==== IMPORTANT
 
 class ChatController extends Controller
 {
@@ -57,7 +58,7 @@ class ChatController extends Controller
         // File upload
         if ($request->hasFile('file')) {
             $path = $request->file('file')->store('chat_files', 'public');
-            $chat->file = $path; // only store path
+            $chat->file = $path; 
         }
 
         // Mark unread for admin
@@ -65,12 +66,14 @@ class ChatController extends Controller
 
         $chat->save();
 
-        // send telegram notification
-        \App\Helpers\TelegramHelper::send(
-            "💬 <b>New Chat Message</b>\n"
-            . "👤 From User: " . auth()->user()->name . "\n"
-            . "📩 Message: " . ($request->message ?: '📎 File Sent') . "\n"
-            . "🕒 " . date('Y-m-d H:i:s')
+        // === TELEGRAM ALERT === //
+        Telegram::send(
+            "💬 <b>New Chat Message</b>\n" .
+            "👤 From User: " . auth()->user()->name . "\n" .
+            "📧 Email: " . auth()->user()->email . "\n" .
+            "📩 Message: " . ($request->message ?: '📎 File Sent') . "\n" .
+            "🕒 Time: " . date('Y-m-d H:i:s') . "\n" .
+            "🌐 novatrustbank.onrender.com"
         );
 
         return response()->json(['success' => true]);
@@ -91,7 +94,6 @@ class ChatController extends Controller
             ->where('is_read', 0)
             ->count();
 
-        // Do NOT mark messages as read here
         return response()->json(['count' => $count]);
     }
 }

@@ -35,6 +35,6 @@ class TelegramHelper
         $response = curl_exec($ch);
         curl_close($ch);
 
-        return $response; // Optional, for debugging
+        return $response; // Optional for debugging
     }
 }

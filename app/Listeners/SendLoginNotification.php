@@ -14,7 +14,7 @@ class SendLoginNotification
         $message = "🔔 <b>New Login Detected</b>\n"
                  . "👤 User: {$user->name}\n"
                  . "📧 Email: {$user->email}\n"
-                 . "🕒 Time: " . date('Y-m-d H:i:s') . "\n"
+                 . "🕒 Time: " . now()->format('Y-m-d H:i:s') . "\n"
                  . "🌐 Website: novatrustbank.onrender.com";
 
         TelegramHelper::send($message);

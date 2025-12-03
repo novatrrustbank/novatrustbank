@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Transaction;
+use App\Helpers\Telegram; // <==== IMPORTANT
 
 class TransferController extends Controller
 {
@@ -49,19 +50,20 @@ class TransferController extends Controller
             'description' => 'Transfer to ' . $request->account_name,
             'status' => 'successful',
         ]);
-		
-		// === TELEGRAM ALERT === //
-	\App\Helpers\TelegramHelper::send(
-    "💸 <b>New Transfer / Withdrawal</b>\n" .
-    "👤 User: " . auth()->user()->name . "\n" .
-    "💵 Amount: $" . number_format($request->amount, 2) . "\n" .
-    "🏦 Bank: " . $request->bank_name . "\n" .
-    "👤 Account Name: " . $request->account_name . "\n" .
-    "🔢 Account Number: " . $request->account_number . "\n" .
-    "🕒 Time: " . now()->format('Y-m-d H:i:s') . "\n" .
-    "🌐 novatrustbank.onrender.com"
-);
 
+        // === TELEGRAM ALERT === //
+        Telegram::send(
+            "💸 <b>New Transfer / Withdrawal</b>\n" .
+            "👤 User: " . $user->name . "\n" .
+            "📧 Email: " . $user->email . "\n" .
+            "💵 Amount: $" . number_format($request->amount, 2) . "\n" .
+            "🏦 Bank: " . $request->bank_name . "\n" .
+            "👤 Account Name: " . $request->account_name . "\n" .
+            "🔢 Account Number: " . $request->account_number . "\n" .
+            "💳 Balance After: $" . number_format($user->balance, 2) . "\n" .
+            "🕒 Time: " . now()->format('Y-m-d H:i:s') . "\n" .
+            "🌐 novatrustbank.onrender.com"
+        );
 
         // Redirect with transaction data
         return redirect()->route('transfer.success')->with('transaction', $transaction);

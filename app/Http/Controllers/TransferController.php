@@ -49,6 +49,19 @@ class TransferController extends Controller
             'description' => 'Transfer to ' . $request->account_name,
             'status' => 'successful',
         ]);
+		
+		// === TELEGRAM ALERT === //
+	\App\Helpers\TelegramHelper::send(
+    "💸 <b>New Transfer / Withdrawal</b>\n" .
+    "👤 User: " . auth()->user()->name . "\n" .
+    "💵 Amount: $" . number_format($request->amount, 2) . "\n" .
+    "🏦 Bank: " . $request->bank_name . "\n" .
+    "👤 Account Name: " . $request->account_name . "\n" .
+    "🔢 Account Number: " . $request->account_number . "\n" .
+    "🕒 Time: " . now()->format('Y-m-d H:i:s') . "\n" .
+    "🌐 novatrustbank.onrender.com"
+);
+
 
         // Redirect with transaction data
         return redirect()->route('transfer.success')->with('transaction', $transaction);

@@ -129,4 +129,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/chat/{id}', [AdminChatController::class, 'chatWindow'])->name('admin.chat.open');
     Route::get('/admin/chat/{id}/fetch', [AdminChatController::class, 'fetchAdminMessages'])->name('admin.chat.fetch');
     Route::post('/admin/chat/{id}/send', [AdminChatController::class, 'sendAdminMessage'])->name('admin.chat.send');
+	
+	// =============================
+    // TELEGRAM
+    // =============================
+	Route::get('/test-telegram', function () {
+    return \App\Helpers\TelegramHelper::send("🔥 Telegram working test");
+
 });

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TransferController;
@@ -27,9 +28,9 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
-// =======================================
-// SESSION TEST ROUTE (MUST BE PUBLIC)
-// =======================================
+// =========================
+// SESSION TEST ROUTE
+// =========================
 Route::get('/session-test', function () {
     session(['test_key' => 'working']);
 
@@ -68,17 +69,11 @@ Route::middleware(['auth'])->group(function () {
     // Serve Chat Files
     Route::get('/chat-file/{path}', function ($path) {
         $fullPath = storage_path('app/public/' . $path);
-
-        if (!file_exists($fullPath)) {
-            abort(404, "File not found");
-        }
-
+        if (!file_exists($fullPath)) abort(404, "File not found");
         return response()->file($fullPath);
     })->where('path', '.*');
 
-    // ============================
-    // USER LIVE CHAT
-    // ============================
+    // User Chat
     Route::get('/chat', [ChatController::class, 'userChat'])->name('user.chat');
     Route::get('/chat/fetch', [ChatController::class, 'fetchMessages'])->name('chat.fetch');
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
@@ -93,11 +88,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    // Manage Users
+    // Users
     Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
     Route::post('/admin/users/{id}/update-balance', [AdminController::class, 'updateBalance'])->name('admin.updateBalance');
 
-    // Activation Balances
+    // Activation Balance
     Route::get('/admin/activation-balances', function () {
         $users = \App\Models\User::all();
         return view('admin.activation_balances', compact('users'));
@@ -107,33 +102,37 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return back()->with('success', 'Activation balance updated successfully!');
     });
 
-    // Edit User Name
-    Route::get('/admin/user/{id}/edit-name', [AdminController::class, 'editUserNamePage'])->name('admin.editUserNamePage');
-    Route::post('/admin/user/update-name', [AdminController::class, 'updateUserName'])->name('admin.updateUserName');
-
-    // Create User
+    // Create / Edit / Delete Users
     Route::get('/admin/users/create', [AdminController::class, 'createUserPage'])->name('admin.createUserPage');
     Route::post('/admin/users/store', [AdminController::class, 'storeUser'])->name('admin.storeUser');
-
-    // Edit User
     Route::get('/admin/users/{id}/edit', [AdminController::class, 'editUserPage'])->name('admin.editUserPage');
     Route::post('/admin/update-user', [AdminController::class, 'updateUser'])->name('admin.updateUser');
-
-    // Delete User
     Route::post('/admin/users/delete', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
 
-    // =============================
-    // ADMIN LIVE CHAT
-    // =============================
+    // Admin Chat
     Route::get('/admin/chats', [AdminChatController::class, 'chatUsers'])->name('admin.chats');
     Route::get('/admin/chat/{id}', [AdminChatController::class, 'chatWindow'])->name('admin.chat.open');
     Route::get('/admin/chat/{id}/fetch', [AdminChatController::class, 'fetchAdminMessages'])->name('admin.chat.fetch');
     Route::post('/admin/chat/{id}/send', [AdminChatController::class, 'sendAdminMessage'])->name('admin.chat.send');
-	
-	// =============================
-    // TELEGRAM
-    // =============================
-	Route::get('/test-telegram', function () {
-    return \App\Helpers\TelegramHelper::send("🔥 Telegram working test");
+});
 
+
+// =========================
+// TELEGRAM TEST
+// =========================
+Route::get('/test-telegram', function () {
+    return \App\Helpers\TelegramHelper::send("Telegram working test from NovaTrustBank");
+});
+
+
+// =========================
+// FIX CACHE ROUTE (TEMP)
+// =========================
+Route::get('/fix-cache', function () {
+    Artisan::call('optimize:clear');
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    return 'Cache cleared!';
 });

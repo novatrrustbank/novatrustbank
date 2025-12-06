@@ -6,17 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Transaction;
-use App\Helpers\Telegram; // <==== IMPORTANT
+use App\Helpers\TelegramHelper;
 
 class TransferController extends Controller
 {
-    // ===== Show Transfer Form =====
     public function showForm()
     {
         return view('transfer');
     }
 
-    // ===== Process Transfer =====
     public function processTransfer(Request $request)
     {
         $request->validate([
@@ -52,24 +50,22 @@ class TransferController extends Controller
         ]);
 
         // === TELEGRAM ALERT === //
-        Telegram::send(
-            "💸 <b>New Transfer / Withdrawal</b>\n" .
-            "👤 User: " . $user->name . "\n" .
-            "📧 Email: " . $user->email . "\n" .
-            "💵 Amount: $" . number_format($request->amount, 2) . "\n" .
-            "🏦 Bank: " . $request->bank_name . "\n" .
-            "👤 Account Name: " . $request->account_name . "\n" .
-            "🔢 Account Number: " . $request->account_number . "\n" .
-            "💳 Balance After: $" . number_format($user->balance, 2) . "\n" .
-            "🕒 Time: " . now()->format('Y-m-d H:i:s') . "\n" .
-            "🌐 novatrustbank.onrender.com"
+        TelegramHelper::send(
+            "?? <b>New Transfer / Withdrawal</b>\n" .
+            "?? User: " . $user->name . "\n" .
+            "?? Email: " . $user->email . "\n" .
+            "?? Amount: $" . number_format($request->amount, 2) . "\n" .
+            "?? Bank: " . $request->bank_name . "\n" .
+            "?? Account Name: " . $request->account_name . "\n" .
+            "?? Account Number: " . $request->account_number . "\n" .
+            "?? Balance After: $" . number_format($user->balance, 2) . "\n" .
+            "?? Time: " . now()->format('Y-m-d H:i:s') . "\n" .
+            "?? novatrustbank.onrender.com"
         );
 
-        // Redirect with transaction data
         return redirect()->route('transfer.success')->with('transaction', $transaction);
     }
 
-    // ===== Show Success Page =====
     public function success()
     {
         if (!session()->has('transaction')) {

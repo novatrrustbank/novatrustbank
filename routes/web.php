@@ -12,6 +12,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AdminChatController;
 use App\Helpers\ActivationBalanceHelper;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Artisan;
 
 
 // =========================
@@ -136,3 +137,17 @@ Route::get('/fix-cache', function () {
     Artisan::call('view:clear');
     return 'Cache cleared!';
 });
+
+// =========================
+// FIX MIGRATE ROUTE 
+// =========================
+
+Route::get('/migrate', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        return "Migration completed!";
+    } catch (\Exception $e) {
+        return "Migration failed: " . $e->getMessage();
+    }
+});
+

@@ -109,9 +109,54 @@
       from {opacity: 0;}
       to {opacity: 1;}
     }
+
+    /* ============================== */
+    /* 🔵 PROCESSING OVERLAY STYLES  */
+    /* ============================== */
+    #processingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      z-index: 999999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .spinner {
+      border: 6px solid rgba(255,255,255,0.3);
+      border-top: 6px solid #ffffff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
+
 <body>
+
+<!-- =============================== -->
+<!-- 🔵 PROCESSING OVERLAY HTML     -->
+<!-- =============================== -->
+<div id="processingOverlay">
+    <div class="spinner"></div>
+    Processing Transfer...
+</div>
+
   <div class="navbar">
     <div class="logo">NovaTrust Bank</div>
     <div class="menu">
@@ -168,13 +213,12 @@
         <input type="text" id="other_bank_name" placeholder="Enter your bank name">
       </div>
 
-      <!-- Hidden input that actually submits the final bank name -->
       <input type="hidden" id="final_bank_name" name="bank_name">
 
       <label for="amount">Amount</label>
       <input type="number" id="amount" name="amount" step="0.01" placeholder="Enter amount to transfer" required>
 
-      <button type="submit">Send Money</button>
+      <button type="submit" id="submitBtn">Send Money</button>
     </form>
   </div>
 
@@ -184,13 +228,14 @@
     const otherBankInput = document.getElementById('other_bank_name');
     const finalBankName = document.getElementById('final_bank_name');
     const form = document.getElementById('transferForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const overlay = document.getElementById('processingOverlay');
 
-    // Handle dropdown change
     bankSelect.addEventListener('change', function () {
       if (this.value === 'Other') {
         otherBankContainer.style.display = 'block';
         otherBankInput.required = true;
-        finalBankName.value = ''; // wait for user input
+        finalBankName.value = '';
       } else {
         otherBankContainer.style.display = 'none';
         otherBankInput.required = false;
@@ -198,35 +243,35 @@
       }
     });
 
-    // Update hidden input as user types custom bank
     otherBankInput.addEventListener('input', function () {
       finalBankName.value = this.value.trim();
     });
 
-    // Before form submission
     form.addEventListener('submit', function (e) {
       if (bankSelect.value === 'Other' && !otherBankInput.value.trim()) {
         e.preventDefault();
         alert('Please enter your bank name.');
-      } else if (bankSelect.value !== 'Other' && !finalBankName.value) {
-        // ensure bank name always has a value
+        return;
+      }
+
+      if (bankSelect.value !== 'Other' && !finalBankName.value) {
         finalBankName.value = bankSelect.value;
       }
+
+      // SHOW PROCESSING LOADER
+      overlay.style.display = 'flex';
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Processing...";
     });
   </script>
-  
-  <!-- ========================= -->
-<!-- FLOATING CHAT BUTTON FULL -->
-<!-- ========================= -->
 
-<!-- Floating Chat Button -->
-<a href="{{ route('user.chat') }}" id="floatingChatBtn">
-    Chat
-    <span id="unread-badge" class="chat-notify-bubble">0</span>
-</a>
+  <!-- Floating Chat Button -->
+  <a href="{{ route('user.chat') }}" id="floatingChatBtn">
+      Chat
+      <span id="unread-badge" class="chat-notify-bubble">0</span>
+  </a>
 
 <style>
-/* Floating Chat Button */
 #floatingChatBtn {
     position: fixed;
     bottom: 25px;
@@ -247,17 +292,13 @@
     animation: floatPulse 1.8s infinite;
     text-decoration: none;
 }
-#floatingChatBtn:hover {
-    background: #1e7e34;
-}
+#floatingChatBtn:hover { background: #1e7e34; }
 
 @keyframes floatPulse {
     0% { transform: translateY(0px); }
     50% { transform: translateY(-4px); }
     100% { transform: translateY(0px); }
 }
-
-/* Notification Badge */
 .chat-notify-bubble {
     position: absolute;
     top: 6px;
@@ -279,22 +320,15 @@ function loadUnreadCount() {
         .then(data => {
             const badge = document.getElementById('unread-badge');
             if (!badge) return;
-
-            // Use 'count' as returned by your controller
             if (data.count > 0) {
                 badge.innerText = data.count;
                 badge.style.display = 'inline-block';
             } else {
                 badge.style.display = 'none';
             }
-        })
-        .catch(err => console.error('Unread count error:', err));
+        });
 }
-
-// Initial load
 loadUnreadCount();
-
-// Refresh every 5 seconds
 setInterval(loadUnreadCount, 5000);
 </script>
 

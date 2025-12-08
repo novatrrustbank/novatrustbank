@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TransferController;
@@ -12,6 +11,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\AdminChatController;
 use App\Helpers\ActivationBalanceHelper;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Artisan;
 
 // =========================
 // PUBLIC ROUTES

@@ -127,21 +127,8 @@ Route::get('/test-telegram', function () {
 
 
 // =========================
-// FIX CACHE ROUTE (TEMP)
+// FIX MIGRATE ROUTE
 // =========================
-Route::get('/fix-cache', function () {
-    Artisan::call('optimize:clear');
-    Artisan::call('config:clear');
-    Artisan::call('cache:clear');
-    Artisan::call('route:clear');
-    Artisan::call('view:clear');
-    return 'Cache cleared!';
-});
-
-// =========================
-// FIX MIGRATE ROUTE 
-// =========================
-
 Route::get('/migrate', function () {
     try {
         Artisan::call('migrate', ['--force' => true]);
@@ -150,11 +137,11 @@ Route::get('/migrate', function () {
         return "Migration failed: " . $e->getMessage();
     }
 });
-	
-// =========================
-// FIX DB
-// =========================
 
+
+// =========================
+// FIX DB (REAL WORKING VERSION)
+// =========================
 Route::get('/fix-db', function () {
     try {
 
@@ -169,7 +156,6 @@ Route::get('/fix-db', function () {
 
         if ($duplicates->count() > 0) {
             foreach ($duplicates as $dup) {
-                // Delete all except first ID
                 DB::table('users')->where('email', $dup->email)
                     ->whereNotIn('id', function ($query) use ($dup) {
                         $query->select(DB::raw('MIN(id)'))
@@ -182,7 +168,7 @@ Route::get('/fix-db', function () {
             }
         }
 
-        // 2. Try to run normal migrations
+        // 2. Run normal migrations
         Artisan::call('migrate', ['--force' => true]);
 
         return response()->json([
@@ -193,15 +179,16 @@ Route::get('/fix-db', function () {
 
     } catch (\Exception $e) {
 
-        // 3. If migrate fails → force repair by running migrate:fresh
+        // 3. If migrate fails → migrate:fresh
         try {
             Artisan::call('migrate:fresh', ['--force' => true]);
 
             return response()->json([
                 'status' => 'partial-fix',
                 'error' => $e->getMessage(),
-                'message' => 'Duplicates removed. Migration error repaired by wiping & refreshing DB!'
+                'message' => 'Migration error repaired by wiping & refreshing DB!'
             ]);
+
         } catch (\Exception $e2) {
             return response()->json([
                 'status' => 'failed',
@@ -212,27 +199,23 @@ Route::get('/fix-db', function () {
     }
 });
 
-// =========================
-// FIX-DB
-// =========================
 
-Route::get('/fix-db', function () {
-    try {
-        Artisan::call('config:clear');
-        Artisan::call('cache:clear');
-        Artisan::call('route:clear');
-        Artisan::call('view:clear');
-        Artisan::call('config:cache');
-
-        return response()->json([
-            "status" => "success",
-            "message" => "Cache cleared successfully"
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            "status" => "failed",
-            "error" => $e->getMessage()
-        ]);
-    }
+// =========================
+// CLEAR CACHE (RENAMED, NO CONFLICT)
+// =========================
+Route::get('/clear-cache', function () {
+    Artisan::call('optimize:clear');
+    return "Cache cleared!";
 });
 
+
+// =========================
+// VIEW LOG FILE
+// =========================
+Route::get('/logs', function () {
+    $log = storage_path('logs/laravel.log');
+    if (!file_exists($log)) {
+        return "No log file found";
+    }
+    return nl2br(file_get_contents($log));
+});

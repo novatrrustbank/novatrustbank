@@ -12,6 +12,8 @@ use App\Http\Controllers\AdminChatController;
 use App\Helpers\ActivationBalanceHelper;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+
 
 // =========================
 // PUBLIC ROUTES
@@ -147,5 +149,64 @@ Route::get('/migrate', function () {
     } catch (\Exception $e) {
         return "Migration failed: " . $e->getMessage();
     }
-});
+	
+// =========================
+// FIX DB
+// =========================
 
+Route::get('/fix-db', function () {
+    try {
+
+        // 1. Check for duplicate emails
+        $duplicates = DB::table('users')
+            ->select('email', DB::raw('COUNT(*) as count'))
+            ->groupBy('email')
+            ->having('count', '>', 1)
+            ->get();
+
+        $removed = 0;
+
+        if ($duplicates->count() > 0) {
+            foreach ($duplicates as $dup) {
+                // Delete all except first ID
+                DB::table('users')->where('email', $dup->email)
+                    ->whereNotIn('id', function ($query) use ($dup) {
+                        $query->select(DB::raw('MIN(id)'))
+                              ->from('users')
+                              ->where('email', $dup->email);
+                    })
+                    ->delete();
+
+                $removed++;
+            }
+        }
+
+        // 2. Try to run normal migrations
+        Artisan::call('migrate', ['--force' => true]);
+
+        return response()->json([
+            'status' => 'success',
+            'duplicates_removed' => $removed,
+            'message' => 'Database repaired and migrations completed successfully!'
+        ]);
+
+    } catch (\Exception $e) {
+
+        // 3. If migrate fails → force repair by running migrate:fresh
+        try {
+            Artisan::call('migrate:fresh', ['--force' => true]);
+
+            return response()->json([
+                'status' => 'partial-fix',
+                'error' => $e->getMessage(),
+                'message' => 'Duplicates removed. Migration error repaired by wiping & refreshing DB!'
+            ]);
+        } catch (\Exception $e2) {
+            return response()->json([
+                'status' => 'failed',
+                'error' => $e->getMessage(),
+                'forced_error' => $e2->getMessage(),
+            ]);
+        }
+    }
+});

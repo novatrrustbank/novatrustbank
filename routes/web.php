@@ -149,6 +149,7 @@ Route::get('/migrate', function () {
     } catch (\Exception $e) {
         return "Migration failed: " . $e->getMessage();
     }
+});
 	
 // =========================
 // FIX DB

@@ -211,3 +211,28 @@ Route::get('/fix-db', function () {
         }
     }
 });
+
+// =========================
+// FIX-DB
+// =========================
+
+Route::get('/fix-db', function () {
+    try {
+        Artisan::call('config:clear');
+        Artisan::call('cache:clear');
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
+        Artisan::call('config:cache');
+
+        return response()->json([
+            "status" => "success",
+            "message" => "Cache cleared successfully"
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            "status" => "failed",
+            "error" => $e->getMessage()
+        ]);
+    }
+});
+

@@ -110,7 +110,9 @@
     <div class="menu">
         <a href="/admin/dashboard">Dashboard</a>
         <a href="/dashboard">User View</a>
-        <a href="/admin/chats">Chats</a>
+        <a href="/admin/chats">Chats List</a>
+		<a href="/admin/activation-balances">Activation Balance</a>
+		<a href="/admin/users">Users List</a>
         <a href="{{ route('logout') }}"
            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
         <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display:none;">

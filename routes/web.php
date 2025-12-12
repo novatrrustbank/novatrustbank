@@ -129,12 +129,26 @@ Route::get('/test-telegram', function () {
 // =========================
 // FIX MIGRATE ROUTE
 // =========================
-Route::get('/run-migrate', function () {
+Route::get('/fix-migrate-reset', function () {
     try {
+        // 1. Delete migration history
+        \DB::statement('DROP TABLE IF EXISTS migrations;');
+        
+        // 2. Recreate migrations table
+        \Artisan::call('migrate:install');
+
+        // 3. Run all migrations fresh
         \Artisan::call('migrate', ['--force' => true]);
-        return ['status' => 'success', 'message' => Artisan::output()];
+
+        return [
+            'status' => 'success',
+            'message' => Artisan::output()
+        ];
     } catch (\Exception $e) {
-        return ['status' => 'failed', 'error' => $e->getMessage()];
+        return [
+            'status' => 'failed',
+            'error' => $e->getMessage()
+        ];
     }
 });
 

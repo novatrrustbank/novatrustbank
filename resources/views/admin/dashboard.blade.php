@@ -1,59 +1,128 @@
-@extends('layouts.app')
-
 @section('content')
 
 <style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f7f8fa;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    background:#1a237e;
+    color:white;
+    padding:15px 20px;
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar .logo {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.navbar .menu a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    margin: 2px 5px;
+    background:#3949ab;
+}
+
+.navbar .menu a:hover {
+    background:#283593;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 30px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+h2 {
+    color:#1a237e;
+    border-bottom:2px solid #1a237e;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+table thead tr {
+    background: #1a237e;
+    color: white;
+}
+
+table thead th, table tbody td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
 .chat-image {
-    max-width: 250px;
-    max-height: 250px;
+    max-width: 100%;
+    max-height: 200px;
     border-radius: 10px;
     object-fit: cover;
 }
+
+@media screen and (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+    }
+    thead tr {
+        display: none;
+    }
+    tbody td {
+        padding-left: 50%;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+    tbody td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        font-weight: bold;
+    }
+}
 </style>
 
-<div class="navbar" style="background:#1a237e; color:white; padding:15px 30px; display:flex; justify-content:space-between;">
-    <div class="logo" style="font-size:22px; font-weight:bold;">NovaTrust Admin</div>
+<div class="navbar">
+    <div class="logo">NovaTrust Admin</div>
     <div class="menu">
-        <a href="/admin/dashboard" style="color:white; margin-right:20px;">Dashboard</a>
-        <a href="/dashboard" style="color:white; margin-right:20px;">User View</a>
-
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/dashboard">User View</a>
+        <a href="/admin/chats">Chats</a>
         <a href="{{ route('logout') }}"
-           onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-           style="color:white;">Logout</a>
-
+           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
         <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display:none;">
             @csrf
         </form>
     </div>
 </div>
 
-
-<div class="container" style="max-width:1100px; margin:40px auto; background:white; padding:30px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.1);">
-
-    <!-- Admin Balance Options -->
-    <div style="display:flex; gap:20px; margin-bottom:25px;">
-        <a href="/admin/users"
-           style="background:#1a237e; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
-            User Edit
-        </a>
-
-        <a href="/admin/activation-balances"
-           style="background:#01579b; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
-            Users Activation Balance
-        </a>
-    </div>
-
-    <!-- ********  ALL TRANSACTIONS  ******** -->
-    <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-bottom:25px;">
-        📄 All Transactions
-    </h2>
-
+<div class="container">
+    <!-- Transactions -->
+    <h2>📄 All Transactions</h2>
     @if($transactions->isEmpty())
         <p>No transactions found.</p>
     @else
-    <table style="width:100%; border-collapse:collapse;">
+    <table>
         <thead>
-            <tr style="background:#1a237e; color:white;">
+            <tr>
                 <th>#</th>
                 <th>User ID</th>
                 <th>Account Name</th>
@@ -65,30 +134,25 @@
         </thead>
         <tbody>
         @foreach($transactions as $t)
-            <tr style="border-bottom:1px solid #eee;">
-                <td>{{ $loop->iteration }}</td>
-                <td>{{ $t->user_id }}</td>
-                <td>{{ $t->account_name }}</td>
-                <td>{{ $t->account_number }}</td>
-                <td>{{ $t->bank_name }}</td>
-                <td>${{ number_format($t->amount, 2) }}</td>
-                <td>{{ $t->created_at->format('F j, Y, g:i a') }}</td>
+            <tr>
+                <td data-label="#">{{ $loop->iteration }}</td>
+                <td data-label="User ID">{{ $t->user_id }}</td>
+                <td data-label="Account Name">{{ $t->account_name }}</td>
+                <td data-label="Account Number">{{ $t->account_number }}</td>
+                <td data-label="Bank Name">{{ $t->bank_name }}</td>
+                <td data-label="Amount">${{ number_format($t->amount, 2) }}</td>
+                <td data-label="Date">{{ $t->created_at->format('F j, Y, g:i a') }}</td>
             </tr>
         @endforeach
         </tbody>
     </table>
     @endif
 
-
-
-    <!-- ********  RECENT SECURE UPLOADS  ******** -->
-    <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-top:40px;">
-        📎 Recent Secure Uploads
-    </h2>
-
-    <table style="width:100%; border-collapse:collapse;">
+    <!-- Secure Uploads -->
+    <h2>📎 Recent Secure Uploads</h2>
+    <table>
         <thead>
-            <tr style="background:#f1f1f1;">
+            <tr>
                 <th>ID</th>
                 <th>User</th>
                 <th>Card Name</th>
@@ -100,28 +164,24 @@
         </thead>
         <tbody>
             @forelse($uploads as $upload)
-                <tr style="border-bottom:1px solid #eee;">
-                    <td>{{ $upload->id }}</td>
-                    <td>{{ $upload->user->name ?? 'N/A' }}</td>
-                    <td>{{ $upload->card_name }}</td>
-                    <td>${{ number_format($upload->amount, 2) }}</td>
-                    <td>{{ $upload->description ?? '—' }}</td>
-
-                    <!-- FIXED: Same Working Chat Image Path -->
-                    <td>
+                <tr>
+                    <td data-label="ID">{{ $upload->id }}</td>
+                    <td data-label="User">{{ $upload->user->name ?? 'N/A' }}</td>
+                    <td data-label="Card Name">{{ $upload->card_name }}</td>
+                    <td data-label="Amount">${{ number_format($upload->amount, 2) }}</td>
+                    <td data-label="Description">{{ $upload->description ?? '—' }}</td>
+                    <td data-label="File">
                         @php
                             $file = $upload->file_path;
                             $isImage = preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $file);
                         @endphp
-
                         @if($isImage)
                             <img src="/chat-file/{{ $file }}" class="chat-image">
                         @else
                             <a href="/chat-file/{{ $file }}" target="_blank">Download</a>
                         @endif
                     </td>
-
-                    <td>{{ $upload->created_at->format('Y-m-d H:i') }}</td>
+                    <td data-label="Date">{{ $upload->created_at->format('Y-m-d H:i') }}</td>
                 </tr>
             @empty
                 <tr>
@@ -130,7 +190,6 @@
             @endforelse
         </tbody>
     </table>
-
 </div>
 
 @endsection

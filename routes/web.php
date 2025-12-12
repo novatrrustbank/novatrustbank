@@ -129,12 +129,12 @@ Route::get('/test-telegram', function () {
 // =========================
 // FIX MIGRATE ROUTE
 // =========================
-Route::get('/migrate', function () {
+Route::get('/run-migrate', function () {
     try {
-        Artisan::call('migrate', ['--force' => true]);
-        return "Migration completed!";
+        \Artisan::call('migrate', ['--force' => true]);
+        return ['status' => 'success', 'message' => Artisan::output()];
     } catch (\Exception $e) {
-        return "Migration failed: " . $e->getMessage();
+        return ['status' => 'failed', 'error' => $e->getMessage()];
     }
 });
 

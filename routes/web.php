@@ -152,6 +152,25 @@ Route::get('/fix-migrate-reset', function () {
     }
 });
 
+// =========================
+// RUN MIGRATE ROUTE
+// =========================
+Route::get('/run-migrate', function () {
+    try {
+        \Artisan::call('migrate', ['--force' => true]);
+
+        return response()->json([
+            'status' => 'success',
+            'output' => Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'failed',
+            'error' => $e->getMessage()
+        ]);
+    }
+});
+
 
 // =========================
 // FIX DB (REAL WORKING VERSION)

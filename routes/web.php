@@ -142,60 +142,25 @@ Route::get('/migrate', function () {
 // =========================
 // FIX DB (REAL WORKING VERSION)
 // =========================
+
 Route::get('/fix-db', function () {
     try {
+        // Clear cache
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
 
-        // 1. Check for duplicate emails
-        $duplicates = DB::table('users')
-            ->select('email', DB::raw('COUNT(*) as count'))
-            ->groupBy('email')
-            ->having('count', '>', 1)
-            ->get();
-
-        $removed = 0;
-
-        if ($duplicates->count() > 0) {
-            foreach ($duplicates as $dup) {
-                DB::table('users')->where('email', $dup->email)
-                    ->whereNotIn('id', function ($query) use ($dup) {
-                        $query->select(DB::raw('MIN(id)'))
-                              ->from('users')
-                              ->where('email', $dup->email);
-                    })
-                    ->delete();
-
-                $removed++;
-            }
-        }
-
-        // 2. Run normal migrations
-        Artisan::call('migrate', ['--force' => true]);
+        // Run migrations
+        Artisan::call('migrate --force');
 
         return response()->json([
             'status' => 'success',
-            'duplicates_removed' => $removed,
-            'message' => 'Database repaired and migrations completed successfully!'
+            'message' => 'Database migrated and cache cleared.'
         ]);
-
     } catch (\Exception $e) {
-
-        // 3. If migrate fails → migrate:fresh
-        try {
-            Artisan::call('migrate:fresh', ['--force' => true]);
-
-            return response()->json([
-                'status' => 'partial-fix',
-                'error' => $e->getMessage(),
-                'message' => 'Migration error repaired by wiping & refreshing DB!'
-            ]);
-
-        } catch (\Exception $e2) {
-            return response()->json([
-                'status' => 'failed',
-                'error' => $e->getMessage(),
-                'forced_error' => $e2->getMessage(),
-            ]);
-        }
+        return response()->json([
+            'status' => 'failed',
+            'error' => $e->getMessage()
+        ]);
     }
 });
 

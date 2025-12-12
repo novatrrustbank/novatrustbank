@@ -39,68 +39,7 @@
         .navbar .menu a:hover {
             background:#283593;
         }
-
-        .container {
-            max-width: 1100px;
-            margin: 30px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-        }
-
-        h2 {
-            color:#1a237e;
-            border-bottom:2px solid #1a237e;
-            padding-bottom: 8px;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-
-        table thead tr {
-            background: #1a237e;
-            color: white;
-        }
-
-        table thead th, table tbody td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        .chat-image {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 10px;
-            object-fit: cover;
-        }
-
-        @media screen and (max-width: 768px) {
-            table, thead, tbody, th, td, tr {
-                display: block;
-                width: 100%;
-            }
-            thead tr {
-                display: none;
-            }
-            tbody td {
-                padding-left: 50%;
-                position: relative;
-                border: none;
-                border-bottom: 1px solid #ddd;
-            }
-            tbody td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                font-weight: bold;
-            }
-        }
+        
     </style>
 </head>
 <body>

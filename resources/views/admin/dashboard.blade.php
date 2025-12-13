@@ -124,7 +124,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.users') }}">Users</a>
+                    <a class="nav-link" href="{{ route('admin.users') }}">Users List</a>
                 </li>
 
                 <li class="nav-item">

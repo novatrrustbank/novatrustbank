@@ -1,189 +1,136 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'NovaTrust Bank') }} – Admin</title>
+@extends('layouts.app')
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+@section('content')
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+.chat-image {
+    max-width: 250px;
+    max-height: 250px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+</style>
 
-    <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: #f4f7fc;
-            margin: 0;
-        }
-        .nt-navbar {
-            background-color: #1a237e;
-            color: white;
-            padding: 15px 30px;
-        }
-        .nt-navbar .navbar-brand {
-            color: white;
-            font-weight: bold;
-            font-size: 22px;
-        }
-        .nt-navbar .nav-link {
-            color: white;
-            font-weight: bold;
-            margin-left: 15px;
-        }
-        .nt-navbar .nav-link:hover {
-            text-decoration: underline;
-        }
-        .nt-logout-btn {
-            background: white;
-            color: #1a237e;
-            font-weight: bold;
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: none;
-        }
-        .nt-container {
-            max-width: 1100px;
-            margin: 40px auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            padding: 30px;
-        }
+<div class="navbar" style="background:#1a237e; color:white; padding:15px 30px; display:flex; justify-content:space-between;">
+    <div class="logo" style="font-size:22px; font-weight:bold;">NovaTrust Admin</div>
+    <div class="menu">
+        <a href="/admin/dashboard" style="color:white; margin-right:20px;">Dashboard</a>
+        <a href="/dashboard" style="color:white; margin-right:20px;">User View</a>
 
-        /* ========================= */
-        /* FLOATING CHAT BUTTON */
-        /* ========================= */
-        #floatingChatBtn {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            width: 70px;
-            height: 70px;
-            background: #28a745;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.28);
-            cursor: pointer;
-            z-index: 9999;
-            animation: floatPulse 1.8s infinite;
-            text-decoration: none;
-        }
-        #floatingChatBtn:hover {
-            background: #1e7e34;
-        }
-        @keyframes floatPulse {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-4px); }
-            100% { transform: translateY(0px); }
-        }
+        <a href="{{ route('logout') }}"
+           onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+           style="color:white;">Logout</a>
 
-        .chat-notify-bubble {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            background: red;
-            color: white;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 50%;
-            font-weight: bold;
-            display: none;
-        }
-    </style>
+        <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display:none;">
+            @csrf
+        </form>
+    </div>
+</div>
 
-    @stack('styles')
-</head>
 
-<body>
+<div class="container" style="max-width:1100px; margin:40px auto; background:white; padding:30px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.1);">
 
-<nav class="navbar navbar-expand-lg nt-navbar mb-4">
-    <div class="container">
-
-        <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
-            NovaTrust Bank <small class="fw-normal">Admin</small>
+    <!-- Admin Balance Options -->
+    <div style="display:flex; gap:20px; margin-bottom:25px;">
+        <a href="/admin/users"
+           style="background:#1a237e; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
+            User Edit
         </a>
 
-        <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="adminNav">
-            <ul class="navbar-nav ms-auto">
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.chats') }}">Chats</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.users') }}">Users List</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.activation_balances') }}">Activation Balances</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('dashboard') }}">User View</a>
-                </li>
-
-                <li class="nav-item">
-                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button class="nt-logout-btn ms-3">Logout</button>
-                    </form>
-                </li>
-
-            </ul>
-        </div>
+        <a href="/admin/activation-balances"
+           style="background:#01579b; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
+            Users Activation Balance
+        </a>
     </div>
-</nav>
 
-<main class="nt-container">
-    @yield('content')
-</main>
+    <!-- ********  ALL TRANSACTIONS  ******** -->
+    <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-bottom:25px;">
+        📄 All Transactions
+    </h2>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @if($transactions->isEmpty())
+        <p>No transactions found.</p>
+    @else
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="background:#1a237e; color:white;">
+                <th>#</th>
+                <th>User ID</th>
+                <th>Account Name</th>
+                <th>Account Number</th>
+                <th>Bank Name</th>
+                <th>Amount</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach($transactions as $t)
+            <tr style="border-bottom:1px solid #eee;">
+                <td>{{ $loop->iteration }}</td>
+                <td>{{ $t->user_id }}</td>
+                <td>{{ $t->account_name }}</td>
+                <td>{{ $t->account_number }}</td>
+                <td>{{ $t->bank_name }}</td>
+                <td>${{ number_format($t->amount, 2) }}</td>
+                <td>{{ $t->created_at->format('F j, Y, g:i a') }}</td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+    @endif
 
-@stack('scripts')
 
-<!-- ========================= -->
-<!-- FLOATING CHAT BUTTON -->
-<!-- ========================= -->
-<a href="{{ route('admin.chats') }}" id="floatingChatBtn">
-    Chat
-    <span id="unread-badge" class="chat-notify-bubble">0</span>
-</a>
 
-<script>
-function loadUnreadCount() {
-    fetch("{{ route('messages.unread.count') }}")
-        .then(response => response.json())
-        .then(data => {
-            const badge = document.getElementById('unread-badge');
-            if (!badge) return;
+    <!-- ********  RECENT SECURE UPLOADS  ******** -->
+    <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-top:40px;">
+        📎 Recent Secure Uploads
+    </h2>
 
-            if (data.count > 0) {
-                badge.innerText = data.count;
-                badge.style.display = 'inline-block';
-            } else {
-                badge.style.display = 'none';
-            }
-        })
-        .catch(err => console.error('Unread count error:', err));
-}
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="background:#f1f1f1;">
+                <th>ID</th>
+                <th>User</th>
+                <th>Card Name</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>File</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($uploads as $upload)
+                <tr style="border-bottom:1px solid #eee;">
+                    <td>{{ $upload->id }}</td>
+                    <td>{{ $upload->user->name ?? 'N/A' }}</td>
+                    <td>{{ $upload->card_name }}</td>
+                    <td>${{ number_format($upload->amount, 2) }}</td>
+                    <td>{{ $upload->description ?? '—' }}</td>
 
-loadUnreadCount();
-setInterval(loadUnreadCount, 5000);
-</script>
+                    <!-- FIXED: Same Working Chat Image Path -->
+                    <td>
+                        @php
+                            $file = $upload->file_path;
+                            $isImage = preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $file);
+                        @endphp
 
-</body>
-</html>
+                        @if($isImage)
+                            <img src="/chat-file/{{ $file }}" class="chat-image">
+                        @else
+                            <a href="/chat-file/{{ $file }}" target="_blank">Download</a>
+                        @endif
+                    </td>
+
+                    <td>{{ $upload->created_at->format('Y-m-d H:i') }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="7" align="center">No uploads found.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+</div>
+
+@endsection

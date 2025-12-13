@@ -101,7 +101,7 @@
 <nav class="navbar navbar-expand-lg nt-navbar mb-4">
     <div class="container">
         <a class="navbar-brand"
-            href="{{ auth()->check() ? (auth()->user()->role === 'Admin' ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
+            href="{{ auth()->check() ? (auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
             NovaTrust Bank
         </a>
 
@@ -112,7 +112,7 @@
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav ms-auto">
                 @auth
-                    @if(auth()->user()->role === 'Admin')
+                    @if(auth()->user()->role === 'user')
                         <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>

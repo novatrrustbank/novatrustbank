@@ -109,36 +109,26 @@
 
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav ms-auto">
-                @auth
-                    {{-- User-only links --}}
-                    @if(auth()->user()->role === 'user')
+                
                         <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
-                    @endif
-
-                    {{-- Admin-only links --}}
-                    @if(auth()->user()->role === 'admin')
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats List</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users List</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.activation_balances') }}">Activation Balance</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">User View</a></li>
-                    @endif
-
-                    {{-- Logout --}}
+                    
                     <li class="nav-item">
                         <form action="{{ route('logout') }}" method="POST" class="d-inline">
                             @csrf
                             <button class="nt-logout-btn ms-3">Logout</button>
                         </form>
                     </li>
-                @endauth
-
-                @guest
+                
                     <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
-                @endguest
+                
             </ul>
         </div>
     </div>

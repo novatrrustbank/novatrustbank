@@ -101,7 +101,7 @@
 <nav class="navbar navbar-expand-lg nt-navbar mb-4">
     <div class="container">
         <a class="navbar-brand"
-            href="{{ auth()->check() ? (auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
+            href="{{ auth()->check() ? (auth()->user()->role === 'Admin' ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
             NovaTrust Bank
         </a>
 
@@ -117,7 +117,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
                     @endif
-                    @if(auth()->user()->role === 'admin')
+                    @if(auth()->user()->role === 'Admin')
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats List</a></li>
 						<li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users List</a></li>

@@ -98,44 +98,40 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg nt-navbar mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark nt-navbar mb-4">
     <div class="container">
         <a class="navbar-brand"
-            href="{{ auth()->check() ? (auth()->user()->role === 'Admin' ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
+           href="{{ auth()->check() ? (auth()->user()->is_admin ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
             NovaTrust Bank
         </a>
 
-        <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav ms-auto">
                 @auth
-                    @if(auth()->user()->role === 'Admin')
+                    @if(!auth()->user()->is_admin)
                         <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
                     @endif
-                    @if(auth()->user()->role === 'Admin')
+
+                    @if(auth()->user()->is_admin)
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats List</a></li>
-						<li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users List</a></li>
-						<li class="nav-item"><a class="nav-link" href="{{ route('admin.activation_balances') }}">Activation Balance</a></li>
-						<li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">User View</a></li>
-						
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users List</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.activation_balances') }}">Activation Balance</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">User View</a></li>
                     @endif
+
                     <li class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button class="nt-logout-btn ms-3">Logout</button>
                         </form>
                     </li>
-                @endauth
-
-                @guest
-                    <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
                 @endauth
             </ul>
         </div>

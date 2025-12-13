@@ -23,29 +23,62 @@ services:
         sync: false
       - key: APP_DEBUG
         value: false
+      - key: APP_NAME
+        value: NovaTrustBank
+      - key: APP_URL
+        value: https://novatrustbank.onrender.com
+      - key: CACHE_DRIVER
+        value: file
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://novatrustbank.onrender.com
+
+      # --- PostgreSQL Neon Database ---
       - key: DB_CONNECTION
-        value: mysql
+        value: pgsql
       - key: DB_HOST
-        fromDatabase:
-          name: novatrust-db
-          property: host
+        value: ep-calm-frog-ahfjj5vo-pooler.c-3.us-east-1.aws.neon.tech
       - key: DB_PORT
-        fromDatabase:
-          name: novatrust-db
-          property: port
+        value: 5432
       - key: DB_DATABASE
-        fromDatabase:
-          name: novatrust-db
-          property: database
+        value: neondb
       - key: DB_USERNAME
-        fromDatabase:
-          name: novatrust-db
-          property: user
+        value: neondb_owner
       - key: DB_PASSWORD
-        fromDatabase:
-          name: novatrust-db
-          property: password
-  
-databases:
-  - name: novatrust-db
-    plan: free
+        value: npg_TQ1gBOwA9rCa
+      - key: DB_SCHEMA
+        value: public
+      - key: DATABASE_URL
+        value: "postgresql://neondb_owner:npg_TQ1gBOwA9rCa@ep-calm-frog-ahfjj5vo-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+      - key: FILESYSTEM_DISK
+        value: s3
+      - key: LOG_CHANNEL
+        value: stack
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: SESSION_DRIVER
+        value: file
+      - key: SESSION_COOKIE
+        value: novatrustbank_session
+      - key: SESSION_DOMAIN
+        value: novatrustbank.onrender.com
+      - key: SESSION_ENCRYPT
+        value: false
+      - key: SESSION_HTTP_ONLY
+        value: true
+      - key: SESSION_LIFETIME
+        value: 120
+      - key: SESSION_PATH
+        value: /
+      - key: SESSION_SAME_SITE
+        value: None
+      - key: SESSION_SECURE_COOKIE
+        value: true
+
+      # --- Upload / Post size fix ---
+      - key: PHP_UPLOAD_MAX_FILESIZE
+        value: 20M
+      - key: PHP_POST_MAX_SIZE
+        value: 20M
+
+databases: []

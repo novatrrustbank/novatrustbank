@@ -117,13 +117,14 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
                     @endif
-                    @if(auth()->user()->role === 'admin')
-                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats List</a></li>
-						<li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users List</a></li>
-						<li class="nav-item"><a class="nav-link" href="{{ route('admin.activation_balances') }}">Activation Balance</a></li>
-						<li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">User View</a></li>
-                    @endif
+                    @if(auth()->user()->is_admin)
+     <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats List</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users List</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ route('admin.activation_balances') }}">Activation Balance</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">User View</a></li>
+@endif
+
                     <li class="nav-item">
                         <form action="{{ route('logout') }}" method="POST" class="d-inline">
                             @csrf

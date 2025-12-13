@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'NovaTrust Bank') }} – Admin</title>
+    <title>{{ config('app.name', 'NovaTrust Bank') }}</title>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -42,7 +42,7 @@
             border: none;
         }
         .nt-container {
-            max-width: 1100px;
+            max-width: 900px;
             margin: 40px auto;
             background: white;
             border-radius: 10px;
@@ -50,9 +50,7 @@
             padding: 30px;
         }
 
-        /* ========================= */
-        /* FLOATING CHAT BUTTON */
-        /* ========================= */
+        /* Floating Chat Button */
         #floatingChatBtn {
             position: fixed;
             bottom: 25px;
@@ -73,15 +71,12 @@
             animation: floatPulse 1.8s infinite;
             text-decoration: none;
         }
-        #floatingChatBtn:hover {
-            background: #1e7e34;
-        }
+        #floatingChatBtn:hover { background: #1e7e34; }
         @keyframes floatPulse {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-4px); }
             100% { transform: translateY(0px); }
         }
-
         .chat-notify-bubble {
             position: absolute;
             top: 6px;
@@ -103,45 +98,47 @@
 
 <nav class="navbar navbar-expand-lg nt-navbar mb-4">
     <div class="container">
-
-        <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
-            NovaTrust Bank <small class="fw-normal">Admin</small>
+        <a class="navbar-brand"
+           href="{{ auth()->check() ? (auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
+            NovaTrust Bank
         </a>
 
-        <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
+        <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="adminNav">
+        <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav ms-auto">
+                @auth
+                    {{-- User-only links --}}
+                    @if(auth()->user()->role === 'user')
+                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
+                    @endif
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard</a>
-                </li>
+                    {{-- Admin-only links --}}
+                    @if(auth()->user()->role === 'admin')
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats List</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users List</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.activation_balances') }}">Activation Balance</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">User View</a></li>
+                    @endif
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.chats') }}">Chats</a>
-                </li>
+                    {{-- Logout --}}
+                    <li class="nav-item">
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button class="nt-logout-btn ms-3">Logout</button>
+                        </form>
+                    </li>
+                @endauth
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.users') }}">Users</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.activation_balances') }}">Activation Balances</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('dashboard') }}">User View</a>
-                </li>
-
-                <li class="nav-item">
-                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button class="nt-logout-btn ms-3">Logout</button>
-                    </form>
-                </li>
-
+                @guest
+                    <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
+                @endguest
             </ul>
         </div>
     </div>
@@ -155,10 +152,8 @@
 
 @stack('scripts')
 
-<!-- ========================= -->
-<!-- FLOATING CHAT BUTTON -->
-<!-- ========================= -->
-<a href="{{ route('admin.chats') }}" id="floatingChatBtn">
+<!-- Floating Chat Button -->
+<a href="{{ route('user.chat') }}" id="floatingChatBtn">
     Chat
     <span id="unread-badge" class="chat-notify-bubble">0</span>
 </a>
@@ -170,7 +165,6 @@ function loadUnreadCount() {
         .then(data => {
             const badge = document.getElementById('unread-badge');
             if (!badge) return;
-
             if (data.count > 0) {
                 badge.innerText = data.count;
                 badge.style.display = 'inline-block';
@@ -180,7 +174,6 @@ function loadUnreadCount() {
         })
         .catch(err => console.error('Unread count error:', err));
 }
-
 loadUnreadCount();
 setInterval(loadUnreadCount, 5000);
 </script>

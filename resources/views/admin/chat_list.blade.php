@@ -2,57 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>NovaTrust Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+        }
+        .nt-navbar {
+            background-color: #1a237e;
+            color: white;
+            padding: 15px 30px;
+        }
+        .nt-navbar .navbar-brand {
+            color: white;
+            font-weight: bold;
+            font-size: 22px;
+        }
+        .nt-navbar .nav-link {
+            color: white;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+        .nt-navbar .nav-link:hover {
+            text-decoration: underline;
+        }
+        .nt-logout-btn {
+            background: white;
+            color: #1a237e;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+        }
+        .nt-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
 
-<style>
-.navbar {
-    background:#1a237e;
-    color:white;
-    padding:15px 20px;
-    display:flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.navbar .logo {
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.navbar .menu a {
-    color: white;
-    text-decoration: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    margin: 2px 5px;
-    background:#3949ab;
-}
-
-.navbar .menu a:hover {
-    background:#283593;
-}
-</style>
-
-</head>
-<body>
-
-<div class="navbar">
-    <div class="logo">NovaTrust Admin</div>
-    <div class="menu">
-        <a href="/admin/dashboard">Dashboard</a>
-        <a href="/dashboard">User View</a>
-        <a href="/admin/chats">Chats List</a>
-        <a href="/admin/activation-balances">Activation Balance</a>
-        <a href="/admin/users">Users List</a>
-        <a href="{{ route('logout') }}"
-           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
-        <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display:none;">
-            @csrf
-        </form>
-    </div>
-</div>
-
+        
+    </style>
+	
 <div class="container">
     <h3>Users Messaging Support</h3>
 

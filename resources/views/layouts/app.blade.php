@@ -99,11 +99,7 @@
 <nav class="navbar navbar-expand-lg nt-navbar mb-4">
     <div class="container">
         <a class="navbar-brand"
-           href="{{ auth()->check()
-                ? (strtolower(auth()->user()->role) === 'admin'
-                    ? route('admin.dashboard')
-                    : route('dashboard'))
-                : route('login') }}">
+           href="{{ auth()->check() ? (auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
             NovaTrust Bank
         </a>
 
@@ -115,14 +111,14 @@
             <ul class="navbar-nav ms-auto">
                 @auth
                     {{-- User-only links --}}
-                     @if(strtolower(auth()->user()->role) === 'user')
+                    @if(auth()->user()->role === 'user')
                         <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
                     @endif
 
                     {{-- Admin-only links --}}
-                    @if(strtolower(auth()->user()->role) === 'admin')
+                    @if(auth()->user()->role === 'admin')
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats List</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users List</a></li>

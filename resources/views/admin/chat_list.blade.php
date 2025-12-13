@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'NovaTrust Bank') }}</title>
+    <title>NovaTrust Admin Dashboard</title>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -101,7 +101,7 @@
 <nav class="navbar navbar-expand-lg nt-navbar mb-4">
     <div class="container">
         <a class="navbar-brand"
-            href="{{ auth()->check() ? (auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
+            href="{{ auth()->check() ? (auth()->user()->role === 'Admin' ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
             NovaTrust Bank
         </a>
 
@@ -112,12 +112,12 @@
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav ms-auto">
                 @auth
-                    @if(auth()->user()->role === 'user')
+                    @if(auth()->user()->role === 'Admin')
                         <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
                     @endif
-                    @if(auth()->user()->role === 'admin')
+                    @if(auth()->user()->role === 'Admin')
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats List</a></li>
 						<li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users List</a></li>
@@ -136,7 +136,7 @@
                 @guest
                     <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
-                @endguest
+                @endauth
             </ul>
         </div>
     </div>

@@ -15,6 +15,8 @@
             background-color: #f4f7fc;
             margin: 0;
         }
+
+        /* NAVBAR */
         .nt-navbar {
             background-color: #1a237e;
             color: white;
@@ -41,6 +43,8 @@
             border-radius: 6px;
             border: none;
         }
+
+        /* CONTENT */
         .nt-container {
             max-width: 900px;
             margin: 40px auto;
@@ -72,11 +76,13 @@
             text-decoration: none;
         }
         #floatingChatBtn:hover { background: #1e7e34; }
+
         @keyframes floatPulse {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-4px); }
             100% { transform: translateY(0px); }
         }
+
         .chat-notify-bubble {
             position: absolute;
             top: 6px;
@@ -96,37 +102,51 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg nt-navbar mb-4">
-    <div class="container">
-        <a class="navbar-brand"
-           href="{{ auth()->check() ? (auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard')) : route('login') }}">
-            NovaTrust Bank
+{{-- TOP NAVBAR --}}
+<nav class="navbar navbar-expand-lg nt-navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ route('dashboard') }}">
+            {{ config('app.name', 'NovaTrust Bank') }}
         </a>
 
-        <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav ms-auto">
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+
                 @auth
-                    {{-- User-only links --}}
-                    @if(auth()->user()->role === 'admin')
-                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
+                    {{-- ADMIN LINKS --}}
+                    @if(auth()->user()->is_admin)
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'text-warning' : '' }}"
+                               href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.chats*') ? 'text-warning' : '' }}"
+                               href="{{ route('admin.chats') }}">Chats</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.users*') ? 'text-warning' : '' }}"
+                               href="{{ route('admin.users') }}">Users</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.activation_balances*') ? 'text-warning' : '' }}"
+                               href="{{ route('admin.activation_balances') }}">Activation Balances</a>
+                        </li>
                     @endif
 
-                    {{-- admin-only links --}}
-                    @if(auth()->user()->role === 'admin')
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats List</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users List</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('admin.activation_balances') }}">Activation Balance</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">User View</a></li>
-                    @endif
+                    {{-- USER DASHBOARD --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'text-warning' : '' }}"
+                           href="{{ route('dashboard') }}">Dashboard</a>
+                    </li>
 
-                    {{-- Logout --}}
+                    {{-- LOGOUT --}}
                     <li class="nav-item">
                         <form action="{{ route('logout') }}" method="POST" class="d-inline">
                             @csrf
@@ -136,14 +156,20 @@
                 @endauth
 
                 @guest
-                    <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">Register</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('register') }}">Register</a>
+                    </li>
                 @endguest
+
             </ul>
         </div>
     </div>
 </nav>
 
+{{-- MAIN CONTENT --}}
 <main class="nt-container">
     @yield('content')
 </main>
@@ -152,7 +178,7 @@
 
 @stack('scripts')
 
-<!-- Floating Chat Button -->
+{{-- FLOATING CHAT --}}
 <a href="{{ route('user.chat') }}" id="floatingChatBtn">
     Chat
     <span id="unread-badge" class="chat-notify-bubble">0</span>
@@ -172,13 +198,13 @@ function loadUnreadCount() {
                 badge.style.display = 'none';
             }
         })
-        .catch(err => console.error('Unread count error:', err));
+        .catch(err => console.error(err));
 }
 loadUnreadCount();
 setInterval(loadUnreadCount, 5000);
 </script>
 
-<!--Start of Tawk.to Script-->
+<!-- Tawk.to -->
 <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
 (function(){
@@ -190,7 +216,6 @@ s1.setAttribute('crossorigin','*');
 s0.parentNode.insertBefore(s1,s0);
 })();
 </script>
-<!--End of Tawk.to Script-->
 
 </body>
 </html>

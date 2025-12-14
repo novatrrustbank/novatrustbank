@@ -117,7 +117,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>
                     @endif
 
-                    {{-- Admin-only links --}}
+                    {{-- admin-only links --}}
                     @if(auth()->user()->role === 'admin')
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('admin.chats') }}">Chats List</a></li>

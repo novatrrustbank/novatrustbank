@@ -111,7 +111,7 @@
             <ul class="navbar-nav ms-auto">
                 @auth
                     {{-- User-only links --}}
-                    @if(auth()->user()->role === 'user')
+                    @if(auth()->user()->role === 'admin')
                         <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('history') }}">History</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('user.chat') }}">Chat</a></li>

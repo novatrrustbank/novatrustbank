@@ -102,7 +102,7 @@
 
 <body>
 
-{{-- TOP NAVBAR --}}
+{{-- TOP NAVBAR (VISIBLE TO EVERYONE) --}}
 <nav class="navbar navbar-expand-lg nt-navbar">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ route('dashboard') }}">
@@ -116,53 +116,46 @@
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ms-auto align-items-center">
 
-                @auth
-                    {{-- ADMIN LINKS --}}
-                    @if(auth()->user()->is_admin)
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'text-warning' : '' }}"
-                               href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
-                        </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'text-warning' : '' }}"
+                       href="{{ route('admin.dashboard') }}">
+                        Admin Dashboard
+                    </a>
+                </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.chats*') ? 'text-warning' : '' }}"
-                               href="{{ route('admin.chats') }}">Chats</a>
-                        </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.chats*') ? 'text-warning' : '' }}"
+                       href="{{ route('admin.chats') }}">
+                        Admin Chats
+                    </a>
+                </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.users*') ? 'text-warning' : '' }}"
-                               href="{{ route('admin.users') }}">Users</a>
-                        </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.users*') ? 'text-warning' : '' }}"
+                       href="{{ route('admin.users') }}">
+                        Admin Users
+                    </a>
+                </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.activation_balances*') ? 'text-warning' : '' }}"
-                               href="{{ route('admin.activation_balances') }}">Activation Balances</a>
-                        </li>
-                    @endif
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.activation_balances*') ? 'text-warning' : '' }}"
+                       href="{{ route('admin.activation_balances') }}">
+                        Activation Balances
+                    </a>
+                </li>
 
-                    {{-- USER DASHBOARD --}}
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'text-warning' : '' }}"
-                           href="{{ route('dashboard') }}">Dashboard</a>
-                    </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'text-warning' : '' }}"
+                       href="{{ route('dashboard') }}">
+                        Dashboard
+                    </a>
+                </li>
 
-                    {{-- LOGOUT --}}
-                    <li class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                            @csrf
-                            <button class="nt-logout-btn ms-3">Logout</button>
-                        </form>
-                    </li>
-                @endauth
-
-                @guest
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('login') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('register') }}">Register</a>
-                    </li>
-                @endguest
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('logout') }}">
+                        Logout
+                    </a>
+                </li>
 
             </ul>
         </div>

@@ -161,7 +161,7 @@
             Admin Users
         </a>
 
-        <a href="{{ route('admin.activation_balances') }}"
+        <a href="{{ route('admin.activation-balances') }}"
            class="{{ request()->routeIs('admin.activation_balances*') ? 'active' : '' }}">
             Activation Balances
         </a>

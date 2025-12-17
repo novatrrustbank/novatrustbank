@@ -94,14 +94,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/users/{id}/update-balance', [AdminController::class, 'updateBalance'])->name('admin.updateBalance');
 
     // Activation Balance
-    Route::get('/admin/activation-balances', function () {
-        $users = \App\Models\User::all();
-        return view('admin.activation_balances', compact('users'));
-    });
-    Route::post('/admin/activation-balances/update', function (\Illuminate\Http\Request $request) {
-        ActivationBalanceHelper::set($request->user_id, $request->amount);
-        return back()->with('success', 'Activation balance updated successfully!');
-    });
+	Route::get('/admin/activation-balances', function () {
+    $users = \App\Models\User::all();
+    return view('admin.activation_balances', compact('users'));
+})->name('admin.activation-balances');
+
+	Route::post('/admin/activation-balances/update', function (\Illuminate\Http\Request $request) {
+    ActivationBalanceHelper::set($request->user_id, $request->amount);
+    return back()->with('success', 'Activation balance updated successfully!');
+})->name('admin.activation-balances.update');
 
     // Create / Edit / Delete Users
     Route::get('/admin/users/create', [AdminController::class, 'createUserPage'])->name('admin.createUserPage');

@@ -11,37 +11,6 @@
 }
 </style>
 
-<div class="navbar" style="background:#1a237e; color:white; padding:15px 30px; display:flex; justify-content:space-between;">
-    <div class="logo" style="font-size:22px; font-weight:bold;">NovaTrust Admin</div>
-    <div class="menu">
-        <a href="/admin/dashboard" style="color:white; margin-right:20px;">Dashboard</a>
-        <a href="/dashboard" style="color:white; margin-right:20px;">User View</a>
-
-        <a href="{{ route('logout') }}"
-           onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-           style="color:white;">Logout</a>
-
-        <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display:none;">
-            @csrf
-        </form>
-    </div>
-</div>
-
-
-<div class="container" style="max-width:1100px; margin:40px auto; background:white; padding:30px; border-radius:10px; box-shadow:0 3px 8px rgba(0,0,0,0.1);">
-
-    <!-- Admin Balance Options -->
-    <div style="display:flex; gap:20px; margin-bottom:25px;">
-        <a href="/admin/users"
-           style="background:#1a237e; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
-            User Edit
-        </a>
-
-        <a href="/admin/activation-balances"
-           style="background:#01579b; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
-            Users Activation Balance
-        </a>
-    </div>
 
     <!-- ********  ALL TRANSACTIONS  ******** -->
     <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-bottom:25px;">

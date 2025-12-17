@@ -28,12 +28,23 @@
             background: #0f172a;
             color: #fff;
             padding: 20px;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
         }
 
         .sidebar h3 {
             font-size: 20px;
             margin-bottom: 30px;
             font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed h3 span {
+            display: none;
         }
 
         .sidebar-section {
@@ -41,22 +52,34 @@
             color: #94a3b8;
             text-transform: uppercase;
             margin: 20px 0 8px;
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .sidebar-section {
+            display: none;
         }
 
         .sidebar a {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             padding: 12px 14px;
             color: #e5e7eb;
             text-decoration: none;
             border-radius: 8px;
             margin-bottom: 6px;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .sidebar a:hover,
         .sidebar a.active {
             background: #1e293b;
             color: #38bdf8;
+        }
+
+        .sidebar.collapsed a span {
+            display: none;
         }
 
         /* MAIN */
@@ -70,9 +93,20 @@
         .topbar {
             background: #1a237e;
             color: white;
-            padding: 15px 30px;
+            padding: 15px 20px;
             font-size: 18px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
         }
 
         /* CONTENT */
@@ -109,10 +143,6 @@
             animation: floatPulse 1.8s infinite;
         }
 
-        #floatingChatBtn:hover {
-            background: #1e7e34;
-        }
-
         @keyframes floatPulse {
             0% { transform: translateY(0); }
             50% { transform: translateY(-4px); }
@@ -141,40 +171,37 @@
 <div class="layout">
 
     {{-- SIDEBAR --}}
-    <aside class="sidebar">
-        <h3>{{ config('app.name', 'NovaTrust Bank') }}</h3>
+    <aside class="sidebar" id="sidebar">
+        <h3>
+            🏦 <span>{{ config('app.name', 'NovaTrust Bank') }}</span>
+        </h3>
 
         <div class="sidebar-section">Admin</div>
 
-        <a href="{{ route('admin.dashboard') }}"
-           class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-            Admin Dashboard
+        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            📊 <span>Admin Dashboard</span>
         </a>
 
-        <a href="{{ route('admin.chats') }}"
-           class="{{ request()->routeIs('admin.chats*') ? 'active' : '' }}">
-            Admin Chats
+        <a href="{{ route('admin.chats') }}" class="{{ request()->routeIs('admin.chats*') ? 'active' : '' }}">
+            💬 <span>Admin Chats</span>
         </a>
 
-        <a href="{{ route('admin.users') }}"
-           class="{{ request()->routeIs('admin.users*') ? 'active' : '' }}">
-            Admin Users
+        <a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users*') ? 'active' : '' }}">
+            👥 <span>Admin Users</span>
         </a>
 
-        <a href="{{ route('admin.activation-balances') }}"
-           class="{{ request()->routeIs('admin.activation_balances*') ? 'active' : '' }}">
-            Activation Balances
+        <a href="{{ route('admin.activation-balances') }}" class="{{ request()->routeIs('admin.activation-balances*') ? 'active' : '' }}">
+            💰 <span>Activation Balances</span>
         </a>
 
         <div class="sidebar-section">User</div>
 
-        <a href="{{ route('dashboard') }}"
-           class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            Dashboard
+        <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+            🏠 <span>Dashboard</span>
         </a>
 
         <a href="{{ route('logout') }}">
-            Logout
+            🚪 <span>Logout</span>
         </a>
     </aside>
 
@@ -182,6 +209,7 @@
     <div class="main">
 
         <header class="topbar">
+            <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
             Welcome to {{ config('app.name', 'NovaTrust Bank') }}
         </header>
 
@@ -205,6 +233,10 @@
 </a>
 
 <script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
 function loadUnreadCount() {
     fetch("{{ route('messages.unread.count') }}")
         .then(res => res.json())

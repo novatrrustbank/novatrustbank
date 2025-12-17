@@ -16,109 +16,40 @@
             background: #f4f7fc;
         }
 
-        /* LAYOUT */
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* SIDEBAR */
-        .sidebar {
-            width: 260px;
-            background: #0f172a;
-            color: #fff;
-            padding: 20px;
-            transition: width 0.3s ease;
-            overflow: hidden;
-        }
-
-        .sidebar.collapsed {
-            width: 80px;
-        }
-
-        .sidebar h3 {
-            font-size: 20px;
-            margin-bottom: 30px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
-        .sidebar.collapsed h3 span {
-            display: none;
-        }
-
-        .sidebar-section {
-            font-size: 12px;
-            color: #94a3b8;
-            text-transform: uppercase;
-            margin: 20px 0 8px;
-            white-space: nowrap;
-        }
-
-        .sidebar.collapsed .sidebar-section {
-            display: none;
-        }
-
-        .sidebar a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 14px;
-            color: #e5e7eb;
-            text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 6px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .sidebar a:hover,
-        .sidebar a.active {
-            background: #1e293b;
-            color: #38bdf8;
-        }
-
-        .sidebar.collapsed a span {
-            display: none;
-        }
-
-        /* MAIN */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
         /* TOP BAR */
-        .topbar {
-            background: #1a237e;
-            color: white;
-            padding: 15px 20px;
-            font-size: 18px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .nt-navbar {
+            background-color: #1a237e;
+            padding: 15px 30px;
         }
 
-        .toggle-btn {
-            background: none;
-            border: none;
+        .nt-navbar .navbar-brand {
             color: white;
+            font-weight: bold;
             font-size: 22px;
-            cursor: pointer;
+        }
+
+        .nt-navbar .nav-link {
+            color: white;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .nt-navbar .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        .nav-link.active {
+            color: #ffd54f !important;
         }
 
         /* CONTENT */
-        .content {
-            padding: 30px;
-        }
-
-        .content-box {
+        .nt-container {
+            max-width: 1100px;
+            margin: 40px auto;
             background: white;
-            padding: 30px;
             border-radius: 10px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            padding: 30px;
         }
 
         /* FLOATING CHAT */
@@ -168,60 +99,70 @@
 
 <body>
 
-<div class="layout">
-
-    {{-- SIDEBAR --}}
-    <aside class="sidebar" id="sidebar">
-        <h3>
-            🏦 <span>{{ config('app.name', 'NovaTrust Bank') }}</span>
-        </h3>
-
-        <div class="sidebar-section">Admin</div>
-
-        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-            📊 <span>Admin Dashboard</span>
+{{-- TOP NAVBAR --}}
+<nav class="navbar navbar-expand-lg nt-navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ route('dashboard') }}">
+            {{ config('app.name', 'NovaTrust Bank') }}
         </a>
 
-        <a href="{{ route('admin.chats') }}" class="{{ request()->routeIs('admin.chats*') ? 'active' : '' }}">
-            💬 <span>Admin Chats</span>
-        </a>
+        <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#topNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-        <a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users*') ? 'active' : '' }}">
-            👥 <span>Admin Users</span>
-        </a>
+        <div class="collapse navbar-collapse" id="topNav">
+            <ul class="navbar-nav ms-auto">
 
-        <a href="{{ route('admin.activation-balances') }}" class="{{ request()->routeIs('admin.activation-balances*') ? 'active' : '' }}">
-            💰 <span>Activation Balances</span>
-        </a>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                       href="{{ route('admin.dashboard') }}">
+                        Admin Dashboard
+                    </a>
+                </li>
 
-        <div class="sidebar-section">User</div>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.chats*') ? 'active' : '' }}"
+                       href="{{ route('admin.chats') }}">
+                        Admin Chats
+                    </a>
+                </li>
 
-        <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            🏠 <span>Dashboard</span>
-        </a>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}"
+                       href="{{ route('admin.users') }}">
+                        Admin Users
+                    </a>
+                </li>
 
-        <a href="{{ route('logout') }}">
-            🚪 <span>Logout</span>
-        </a>
-    </aside>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.activation-balances*') ? 'active' : '' }}"
+                       href="{{ route('admin.activation-balances') }}">
+                        Activation Balances
+                    </a>
+                </li>
 
-    {{-- MAIN --}}
-    <div class="main">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                       href="{{ route('dashboard') }}">
+                        Dashboard
+                    </a>
+                </li>
 
-        <header class="topbar">
-            <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
-            Welcome to {{ config('app.name', 'NovaTrust Bank') }}
-        </header>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('logout') }}">
+                        Logout
+                    </a>
+                </li>
 
-        <section class="content">
-            <div class="content-box">
-                @yield('content')
-            </div>
-        </section>
-
+            </ul>
+        </div>
     </div>
+</nav>
 
-</div>
+{{-- MAIN CONTENT --}}
+<main class="nt-container">
+    @yield('content')
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 @stack('scripts')
@@ -233,10 +174,6 @@
 </a>
 
 <script>
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('collapsed');
-}
-
 function loadUnreadCount() {
     fetch("{{ route('messages.unread.count') }}")
         .then(res => res.json())

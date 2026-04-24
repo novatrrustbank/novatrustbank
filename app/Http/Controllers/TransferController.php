@@ -42,8 +42,10 @@ class TransferController extends Controller
                 return back()->with('error', 'Insufficient balance.');
             }
 
+            $senderTransaction = null;
+
             // 🔒 SAFE TRANSACTION
-            DB::transaction(function () use ($user, $receiver, $request) {
+            DB::transaction(function () use ($user, $receiver, $request, &$senderTransaction) {
 
                 // ➖ Debit sender
                 $user->balance -= $request->amount;
@@ -54,12 +56,12 @@ class TransferController extends Controller
                 $receiver->save();
 
                 // 📄 Sender transaction (DEBIT)
-                Transaction::create([
+                $senderTransaction = Transaction::create([
                     'user_id' => $user->id,
                     'sender_id' => $user->id,
                     'receiver_id' => $receiver->id,
                     'account_number' => $receiver->account_number,
-                    'account_name' => $receiver->name,
+                    'account_name' => $receiver->name, // ✅ always use real name
                     'bank_name' => 'Internal Transfer',
                     'type' => 'debit',
                     'amount' => $request->amount,
@@ -84,14 +86,12 @@ class TransferController extends Controller
                 ]);
             });
 
-            return redirect()->route('transfer.success')->with('transaction', [
-                'amount' => $request->amount,
-                'account_name' => $receiver->name
-            ]);
+            // ✅ RETURN FULL MODEL (FIXES 500 ERROR)
+            return redirect()->route('transfer.success')->with('transaction', $senderTransaction);
         }
 
         // ================================
-        // 🔴 EXTERNAL TRANSFER (UNCHANGED)
+        // 🔴 EXTERNAL TRANSFER
         // ================================
 
         if ($user->balance < $request->amount) {

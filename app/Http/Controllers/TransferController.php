@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Transaction;
 use App\Helpers\TelegramHelper;
@@ -25,6 +26,73 @@ class TransferController extends Controller
         ]);
 
         $user = Auth::user();
+
+        // 🔍 CHECK FOR INTERNAL TRANSFER
+        $receiver = User::where('account_number', $request->account_number)->first();
+
+        if ($receiver) {
+
+            // ❌ Prevent sending to yourself
+            if ($receiver->id === $user->id) {
+                return back()->with('error', 'You cannot transfer to yourself.');
+            }
+
+            // ❌ Check balance
+            if ($user->balance < $request->amount) {
+                return back()->with('error', 'Insufficient balance.');
+            }
+
+            // 🔒 SAFE TRANSACTION
+            DB::transaction(function () use ($user, $receiver, $request) {
+
+                // ➖ Debit sender
+                $user->balance -= $request->amount;
+                $user->save();
+
+                // ➕ Credit receiver
+                $receiver->balance += $request->amount;
+                $receiver->save();
+
+                // 📄 Sender transaction (DEBIT)
+                Transaction::create([
+                    'user_id' => $user->id,
+                    'sender_id' => $user->id,
+                    'receiver_id' => $receiver->id,
+                    'account_number' => $receiver->account_number,
+                    'account_name' => $receiver->name,
+                    'bank_name' => 'Internal Transfer',
+                    'type' => 'debit',
+                    'amount' => $request->amount,
+                    'balance_after' => $user->balance,
+                    'description' => 'Transfer to ' . $receiver->name,
+                    'status' => 'successful',
+                ]);
+
+                // 📄 Receiver transaction (CREDIT)
+                Transaction::create([
+                    'user_id' => $receiver->id,
+                    'sender_id' => $user->id,
+                    'receiver_id' => $receiver->id,
+                    'account_number' => $receiver->account_number,
+                    'account_name' => $receiver->name,
+                    'bank_name' => 'Internal Transfer',
+                    'type' => 'credit',
+                    'amount' => $request->amount,
+                    'balance_after' => $receiver->balance,
+                    'description' => 'Received from ' . $user->name,
+                    'status' => 'successful',
+                ]);
+            });
+
+            return redirect()->route('transfer.success')->with('transaction', [
+                'amount' => $request->amount,
+                'account_name' => $receiver->name
+            ]);
+        }
+
+        // ================================
+        // 🔴 EXTERNAL TRANSFER (UNCHANGED)
+        // ================================
 
         if ($user->balance < $request->amount) {
             return back()->with('error', 'Insufficient balance.');
@@ -51,16 +119,16 @@ class TransferController extends Controller
 
         // === TELEGRAM ALERT === //
         TelegramHelper::send(
-            "?? <b>New Transfer / Withdrawal</b>\n" .
-            "?? User: " . $user->name . "\n" .
-            "?? Email: " . $user->email . "\n" .
-            "?? Amount: $" . number_format($request->amount, 2) . "\n" .
-            "?? Bank: " . $request->bank_name . "\n" .
-            "?? Account Name: " . $request->account_name . "\n" .
-            "?? Account Number: " . $request->account_number . "\n" .
-            "?? Balance After: $" . number_format($user->balance, 2) . "\n" .
-            "?? Time: " . now()->format('Y-m-d H:i:s') . "\n" .
-            "?? novatrustbank.onrender.com"
+            "💸 <b>New Transfer / Withdrawal</b>\n" .
+            "👤 User: " . $user->name . "\n" .
+            "📧 Email: " . $user->email . "\n" .
+            "💰 Amount: $" . number_format($request->amount, 2) . "\n" .
+            "🏦 Bank: " . $request->bank_name . "\n" .
+            "👤 Account Name: " . $request->account_name . "\n" .
+            "🔢 Account Number: " . $request->account_number . "\n" .
+            "📊 Balance After: $" . number_format($user->balance, 2) . "\n" .
+            "⏰ Time: " . now()->format('Y-m-d H:i:s') . "\n" .
+            "🌐 novatrustbank.onrender.com"
         );
 
         return redirect()->route('transfer.success')->with('transaction', $transaction);

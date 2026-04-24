@@ -10,18 +10,13 @@ class HistoryController extends Controller
 {
     public function index()
     {
-        $transactions = Transaction::where(function ($query) {
-                // Show ONLY sender's debits
-                $query->where('sender_id', Auth::id())
-                      ->where('type', 'debit');
+        $userId = Auth::id();
 
-                // OR show ONLY receiver's credits
-                $query->orWhere(function ($q) {
-                    $q->where('receiver_id', Auth::id())
-                      ->where('type', 'credit');
-                });
+        $transactions = Transaction::where(function ($query) use ($userId) {
+                $query->where('sender_id', $userId)
+                      ->orWhere('receiver_id', $userId);
             })
-            ->latest()
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('history', compact('transactions'));

@@ -10,12 +10,10 @@ class HistoryController extends Controller
 {
     public function index()
     {
-        $userId = Auth::id();
+        $userId = Auth::guard('web')->id(); // force correct guard
 
-        $transactions = Transaction::where(function ($query) use ($userId) {
-                $query->where('sender_id', $userId)
-                      ->orWhere('receiver_id', $userId);
-            })
+        $transactions = Transaction::where('sender_id', $userId)
+            ->orWhere('receiver_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
 

@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Transaction;
-use App\Helpers\TelegramHelper;
 
 class TransferController extends Controller
 {
@@ -19,18 +18,18 @@ class TransferController extends Controller
     {
         $request->validate([
             'account_number' => 'required|string',
-            'account_name' => 'required|string',
-            'bank_name' => 'required|string',
-            'amount' => 'required|numeric|min:1',
+            'account_name'   => 'required|string',
+            'bank_name'      => 'required|string',
+            'amount'         => 'required|numeric|min:1',
         ]);
 
         $user = Auth::user();
 
-        // 🔍 Check if internal user exists
+        // 🔍 Find receiver
         $receiver = User::where('account_number', $request->account_number)->first();
 
         // ================================
-        // 🟢 INTERNAL TRANSFER (FIXED)
+        // 🟢 INTERNAL TRANSFER
         // ================================
         if ($receiver) {
 
@@ -44,31 +43,32 @@ class TransferController extends Controller
 
             try {
 
-                // Refresh values
+                // Refresh
                 $user = $user->fresh();
                 $receiver = $receiver->fresh();
 
                 // Update balances
-                $user->balance = ($user->balance ?? 0) - $request->amount;
-                $receiver->balance = ($receiver->balance ?? 0) + $request->amount;
+                $user->balance -= $request->amount;
+                $receiver->balance += $request->amount;
 
                 $user->save();
                 $receiver->save();
 
-                // ✅ ONLY ONE TRANSACTION (VERY IMPORTANT)
+                // 💥 SINGLE TRANSACTION RECORD (IMPORTANT FIX)
                 $transaction = Transaction::create([
-                    'sender_id' => $user->id,
-                    'receiver_id' => $receiver->id,
-                    'account_number' => $receiver->account_number,
-                    'account_name' => $receiver->name,
-                    'bank_name' => 'Internal Transfer',
-                    'amount' => $request->amount,
-                    'balance_after' => $user->balance,
-                    'description' => 'Transfer to ' . $receiver->name,
-                    'status' => 'successful',
+                    'sender_id'      => $user->id,
+                    'receiver_id'    => $receiver->id,
+                    'account_number'  => $receiver->account_number,
+                    'account_name'    => $receiver->name,
+                    'bank_name'       => 'Internal Transfer',
+                    'amount'          => $request->amount,
+                    'balance_after'   => $user->balance,
+                    'description'     => 'Transfer to ' . $receiver->name,
+                    'status'          => 'successful',
                 ]);
 
-                return redirect()->route('transfer.success')->with('transaction', $transaction);
+                return redirect()->route('transfer.success')
+                    ->with('transaction', $transaction);
 
             } catch (\Exception $e) {
                 return back()->with('error', $e->getMessage());
@@ -83,31 +83,34 @@ class TransferController extends Controller
             return back()->with('error', 'Insufficient balance.');
         }
 
-        $user->balance = ($user->balance ?? 0) - $request->amount;
+        $user->balance -= $request->amount;
         $user->save();
 
         $transaction = Transaction::create([
-            'sender_id' => $user->id,
-            'receiver_id' => null,
-            'account_number' => $request->account_number,
-            'account_name' => $request->account_name,
-            'bank_name' => $request->bank_name,
-            'amount' => $request->amount,
-            'balance_after' => $user->balance,
-            'description' => 'Transfer to ' . $request->account_name,
-            'status' => 'successful',
+            'sender_id'      => $user->id,
+            'receiver_id'    => null,
+            'account_number'  => $request->account_number,
+            'account_name'    => $request->account_name,
+            'bank_name'       => $request->bank_name,
+            'amount'          => $request->amount,
+            'balance_after'   => $user->balance,
+            'description'     => 'Transfer to ' . $request->account_name,
+            'status'          => 'successful',
         ]);
 
-        return redirect()->route('transfer.success')->with('transaction', $transaction);
+        return redirect()->route('transfer.success')
+            ->with('transaction', $transaction);
     }
 
     public function success()
     {
         if (!session()->has('transaction')) {
-            return redirect('/transfer')->with('error', 'No recent transaction found.');
+            return redirect('/transfer')
+                ->with('error', 'No recent transaction found.');
         }
 
-        $transaction = session('transaction');
-        return view('transfer_success', compact('transaction'));
+        return view('transfer_success', [
+            'transaction' => session('transaction')
+        ]);
     }
 }

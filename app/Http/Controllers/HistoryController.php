@@ -10,7 +10,10 @@ class HistoryController extends Controller
 {
     public function index()
     {
-        $transactions = Transaction::where('sender_id', Auth::id())
+        $transactions = Transaction::where(function ($query) {
+                $query->where('sender_id', Auth::id())
+                      ->orWhere('receiver_id', Auth::id());
+            })
             ->with('recipient')
             ->latest()
             ->get();

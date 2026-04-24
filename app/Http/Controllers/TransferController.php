@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Transaction;
 use App\Helpers\TelegramHelper;
@@ -30,72 +29,70 @@ class TransferController extends Controller
         // 🔍 Check if internal user exists
         $receiver = User::where('account_number', $request->account_number)->first();
 
-        //
+        // ================================
+        // 🟢 INTERNAL TRANSFER (FIXED)
+        // ================================
+        if ($receiver) {
 
- ================================
-// 🟢 INTERNAL TRANSFER (NO TRANSACTION)
-// ================================
-if ($receiver) {
+            if ($receiver->id === $user->id) {
+                return back()->with('error', 'You cannot transfer to yourself.');
+            }
 
-    if ($receiver->id === $user->id) {
-        return back()->with('error', 'You cannot transfer to yourself.');
-    }
+            if (($user->balance ?? 0) < $request->amount) {
+                return back()->with('error', 'Insufficient balance.');
+            }
 
-    if (($user->balance ?? 0) < $request->amount) {
-        return back()->with('error', 'Insufficient balance.');
-    }
+            try {
 
-    try {
+                // Refresh values
+                $user = $user->fresh();
+                $receiver = $receiver->fresh();
 
-        // Refresh values
-        $user = $user->fresh();
-        $receiver = $receiver->fresh();
+                // Update balances safely
+                $user->balance = ($user->balance ?? 0) - $request->amount;
+                $receiver->balance = ($receiver->balance ?? 0) + $request->amount;
 
-        // Update balances
-        $user->balance = ($user->balance ?? 0) - $request->amount;
-        $receiver->balance = ($receiver->balance ?? 0) + $request->amount;
+                $user->save();
+                $receiver->save();
 
-        $user->save();
-        $receiver->save();
+                // Sender transaction
+                $transaction = Transaction::create([
+                    'user_id' => $user->id,
+                    'sender_id' => $user->id,
+                    'receiver_id' => $receiver->id,
+                    'account_number' => $receiver->account_number,
+                    'account_name' => $receiver->name,
+                    'bank_name' => 'Internal Transfer',
+                    'type' => 'debit',
+                    'amount' => $request->amount,
+                    'balance_after' => $user->balance,
+                    'description' => 'Transfer to ' . $receiver->name,
+                    'status' => 'successful',
+                ]);
 
-        // Sender transaction
-        $transaction = Transaction::create([
-            'user_id' => $user->id,
-            'sender_id' => $user->id,
-            'receiver_id' => $receiver->id,
-            'account_number' => $receiver->account_number,
-            'account_name' => $receiver->name,
-            'bank_name' => 'Internal Transfer',
-            'type' => 'debit',
-            'amount' => $request->amount,
-            'balance_after' => $user->balance,
-            'description' => 'Transfer to ' . $receiver->name,
-            'status' => 'successful',
-        ]);
+                // Receiver transaction
+                Transaction::create([
+                    'user_id' => $receiver->id,
+                    'sender_id' => $user->id,
+                    'receiver_id' => $receiver->id,
+                    'account_number' => $receiver->account_number,
+                    'account_name' => $receiver->name,
+                    'bank_name' => 'Internal Transfer',
+                    'type' => 'credit',
+                    'amount' => $request->amount,
+                    'balance_after' => $receiver->balance,
+                    'description' => 'Received from ' . $user->name,
+                    'status' => 'successful',
+                ]);
 
-        // Receiver transaction
-        Transaction::create([
-            'user_id' => $receiver->id,
-            'sender_id' => $user->id,
-            'receiver_id' => $receiver->id,
-            'account_number' => $receiver->account_number,
-            'account_name' => $receiver->name,
-            'bank_name' => 'Internal Transfer',
-            'type' => 'credit',
-            'amount' => $request->amount,
-            'balance_after' => $receiver->balance,
-            'description' => 'Received from ' . $user->name,
-            'status' => 'successful',
-        ]);
+                return redirect()->route('transfer.success')->with('transaction', $transaction);
 
-        return redirect()->route('transfer.success')->with('transaction', $transaction);
+            } catch (\Exception $e) {
+                return back()->with('error', $e->getMessage());
+            }
+        }
 
-    } catch (\Exception $e) {
-        return back()->with('error', $e->getMessage());
-    }
-}
-
- ================================
+        // ================================
         // 🔴 EXTERNAL TRANSFER
         // ================================
 

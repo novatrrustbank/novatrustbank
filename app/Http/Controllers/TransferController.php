@@ -48,40 +48,23 @@ class TransferController extends Controller
                 $user = $user->fresh();
                 $receiver = $receiver->fresh();
 
-                // Update balances safely
+                // Update balances
                 $user->balance = ($user->balance ?? 0) - $request->amount;
                 $receiver->balance = ($receiver->balance ?? 0) + $request->amount;
 
                 $user->save();
                 $receiver->save();
 
-                // Sender transaction
+                // ✅ ONLY ONE TRANSACTION (VERY IMPORTANT)
                 $transaction = Transaction::create([
-                    'user_id' => $user->id,
                     'sender_id' => $user->id,
                     'receiver_id' => $receiver->id,
                     'account_number' => $receiver->account_number,
                     'account_name' => $receiver->name,
                     'bank_name' => 'Internal Transfer',
-                    'type' => 'debit',
                     'amount' => $request->amount,
                     'balance_after' => $user->balance,
                     'description' => 'Transfer to ' . $receiver->name,
-                    'status' => 'successful',
-                ]);
-
-                // Receiver transaction
-                Transaction::create([
-                    'user_id' => $receiver->id,
-                    'sender_id' => $user->id,
-                    'receiver_id' => $receiver->id,
-                    'account_number' => $receiver->account_number,
-                    'account_name' => $receiver->name,
-                    'bank_name' => 'Internal Transfer',
-                    'type' => 'credit',
-                    'amount' => $request->amount,
-                    'balance_after' => $receiver->balance,
-                    'description' => 'Received from ' . $user->name,
                     'status' => 'successful',
                 ]);
 
@@ -104,25 +87,16 @@ class TransferController extends Controller
         $user->save();
 
         $transaction = Transaction::create([
-            'user_id' => $user->id,
             'sender_id' => $user->id,
             'receiver_id' => null,
             'account_number' => $request->account_number,
             'account_name' => $request->account_name,
             'bank_name' => $request->bank_name,
-            'type' => 'debit',
             'amount' => $request->amount,
             'balance_after' => $user->balance,
             'description' => 'Transfer to ' . $request->account_name,
             'status' => 'successful',
         ]);
-
-        // Optional: disable if causing issues
-        /*
-        TelegramHelper::send(
-            "💸 Transfer\nUser: {$user->name}\nAmount: {$request->amount}"
-        );
-        */
 
         return redirect()->route('transfer.success')->with('transaction', $transaction);
     }

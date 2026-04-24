@@ -30,7 +30,7 @@ class TransferController extends Controller
         // 🔍 Check if internal user exists
         $receiver = User::where('account_number', $request->account_number)->first();
 
-        // =//
+        //
 
  ================================
 // 🟢 INTERNAL TRANSFER (NO TRANSACTION)

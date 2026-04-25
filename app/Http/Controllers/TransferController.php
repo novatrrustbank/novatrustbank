@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Transaction;
+use App\Helpers\TelegramHelper;
 
 class TransferController extends Controller
 {
@@ -98,6 +99,21 @@ class TransferController extends Controller
             'status'          => 'successful',
         ]);
 
+        
+            DB::commit();
+
+            // === TELEGRAM ALERT === //
+            TelegramHelper::send(
+                "💸 <b>New Transfer</b>\n" .
+                "👤 Sender: " . $sender->name . "\n" .
+                "👤 Receiver: " . $receiver->name . "\n" .
+                "💰 Amount: ₦" . number_format($request->amount, 2) . "\n" .
+                "🏦 Bank: NovaTrust Bank\n" .
+                "🔢 Account: " . $receiver->account_number . "\n" .
+                "💼 Sender Balance: ₦" . number_format($sender->balance, 2) . "\n" .
+                "⏱ Time: " . now()->format('Y-m-d H:i:s')
+            );
+        
         return redirect()->route('transfer.success')
             ->with('transaction', $transaction);
     }

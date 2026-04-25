@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
@@ -8,7 +9,10 @@ class TransactionController extends Controller
 {
     public function index()
     {
-        $transactions = Transaction::where('sender_id', Auth::id())
+        $userId = Auth::id();
+
+        $transactions = Transaction::where('sender_id', $userId)
+            ->orWhere('receiver_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
 

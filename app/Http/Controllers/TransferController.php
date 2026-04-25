@@ -70,10 +70,10 @@ class TransferController extends Controller
                 TelegramHelper::send(
                     "🔔 <b>New Internal Transfer</b>\n" .
                     "👤 User: " . $user->name . "\n" .
-                    "💰 Amount: ₦" . number_format($request->amount, 2) . "\n" .
+                    "💰 Amount: $" . number_format($request->amount, 2) . "\n" .
                     "🏦 Receiver: " . $receiver->name . "\n" .
                     "🏦 Account: " . $receiver->account_number . "\n" .
-                    "💳 Balance After: ₦" . number_format($user->balance, 2) . "\n" .
+                    "💳 Balance After: $" . number_format($user->balance, 2) . "\n" .
                     "🕒 Time: " . now()->format('Y-m-d H:i:s')
                 );
 
@@ -113,11 +113,11 @@ class TransferController extends Controller
             "🔔 <b>New External Transfer</b>\n" .
             "👤 User: " . $user->name . "\n" .
             "📧 Email: " . $user->email . "\n" .
-            "💰 Amount: ₦" . number_format($request->amount, 2) . "\n" .
+            "💰 Amount: $" . number_format($request->amount, 2) . "\n" .
             "🏦 Bank: " . $request->bank_name . "\n" .
             "👤 Account Name: " . $request->account_name . "\n" .
             "🔢 Account Number: " . $request->account_number . "\n" .
-            "💳 Balance After: ₦" . number_format($user->balance, 2) . "\n" .
+            "💳 Balance After: $" . number_format($user->balance, 2) . "\n" .
             "🕒 Time: " . now()->format('Y-m-d H:i:s')
         );
 

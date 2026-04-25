@@ -56,7 +56,7 @@ class TransferController extends Controller
                 $receiver->save();
 
                 // 🔴 DEBIT TRANSACTION (SENDER)
-                Transaction::create([
+                $debitTransaction = Transaction::create([
                     'sender_id'       => $sender->id,
                     'receiver_id'     => $receiver->id,
                     'account_number'  => $receiver->account_number,
@@ -95,7 +95,7 @@ class TransferController extends Controller
                 );
 
                 return redirect()->route('transfer.success')
-                    ->with('transaction', 'Transfer successful');
+                    ->with('transaction', $debitTransaction);
 
             } catch (\Exception $e) {
                 return back()->with('error', $e->getMessage());
@@ -113,7 +113,7 @@ class TransferController extends Controller
         $sender->balance -= $amount;
         $sender->save();
 
-        Transaction::create([
+        $transaction = Transaction::create([
             'sender_id'       => $sender->id,
             'receiver_id'     => null,
             'account_number'  => $request->account_number,
@@ -138,11 +138,18 @@ class TransferController extends Controller
         );
 
         return redirect()->route('transfer.success')
-            ->with('transaction', 'Transfer successful');
+            ->with('transaction', $transaction);
     }
 
     public function success()
     {
-        return view('transfer_success');
+        if (!session()->has('transaction')) {
+            return redirect('/transfer')
+                ->with('error', 'No recent transaction found.');
+        }
+
+        return view('transfer_success', [
+            'transaction' => session('transaction')
+        ]);
     }
 }

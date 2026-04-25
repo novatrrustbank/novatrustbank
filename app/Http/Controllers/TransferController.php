@@ -95,7 +95,7 @@ class TransferController extends Controller
                 );
 
                 return redirect()->route('transfer.success')
-                    ->with('transaction', $debitTransaction);
+                    ->with('transaction', $debitTransaction->toArray());
 
             } catch (\Exception $e) {
                 return back()->with('error', $e->getMessage());
@@ -138,14 +138,18 @@ class TransferController extends Controller
         );
 
         return redirect()->route('transfer.success')
-            ->with('transaction', $transaction);
+            ->with('transaction', $transaction->toArray());
     }
 
-    // ✅ FIXED SUCCESS METHOD (NO MORE ERROR MESSAGE)
+    // ✅ FIXED SUCCESS METHOD
     public function success()
     {
-        return view('transfer_success', [
-            'transaction' => session('transaction')
-        ]);
+        $transaction = session('transaction');
+
+        if (is_array($transaction)) {
+            $transaction = (object) $transaction;
+        }
+
+        return view('transfer_success', compact('transaction'));
     }
 }

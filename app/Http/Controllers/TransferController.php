@@ -1,10 +1,9 @@
-<?php
+<?php 
 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Transaction;
 
@@ -24,105 +23,94 @@ class TransferController extends Controller
             'amount'         => 'required|numeric|min:1',
         ]);
 
-        $sender = Auth::user();
+        $user = Auth::user();
 
+        // 🔍 Find receiver
         $receiver = User::where('account_number', $request->account_number)->first();
 
-        // ❌ prevent self transfer
-        if ($receiver && $receiver->id === $sender->id) {
-            return back()->with('error', 'You cannot transfer to yourself.');
+        // ================================
+        // 🟢 INTERNAL TRANSFER
+        // ================================
+        if ($receiver) {
+
+            if ($receiver->id === $user->id) {
+                return back()->with('error', 'You cannot transfer to yourself.');
+            }
+
+            if (($user->balance ?? 0) < $request->amount) {
+                return back()->with('error', 'Insufficient balance.');
+            }
+
+            try {
+
+                // Refresh
+                $user = $user->fresh();
+                $receiver = $receiver->fresh();
+
+                // Update balances
+                $user->balance -= $request->amount;
+                $receiver->balance += $request->amount;
+
+                $user->save();
+                $receiver->save();
+
+                // 💥 SINGLE TRANSACTION RECORD (IMPORTANT FIX)
+                $transaction = Transaction::create([
+                    'sender_id'      => $user->id,
+                    'receiver_id'    => $receiver->id,
+                    'account_number'  => $receiver->account_number,
+                    'account_name'    => $receiver->name,
+                    'bank_name'       => 'Internal Transfer',
+                    'amount'          => $request->amount,
+                    'balance_after'   => $user->balance,
+                    'description'     => 'Transfer to ' . $receiver->name,
+                    'status'          => 'successful',
+                ]);
+
+                return redirect()->route('transfer.success')
+                    ->with('transaction', $transaction);
+
+            } catch (\Exception $e) {
+                return back()->with('error', $e->getMessage());
+            }
         }
 
-        // ❌ insufficient balance check
-        if (($sender->balance ?? 0) < $request->amount) {
+        // ================================
+        // 🔴 EXTERNAL TRANSFER
+        // ================================
+
+        if (($user->balance ?? 0) < $request->amount) {
             return back()->with('error', 'Insufficient balance.');
         }
 
-        try {
+        $user->balance -= $request->amount;
+        $user->save();
 
-            DB::beginTransaction();
+        $transaction = Transaction::create([
+            'sender_id'      => $user->id,
+            'receiver_id'    => null,
+            'account_number'  => $request->account_number,
+            'account_name'    => $request->account_name,
+            'bank_name'       => $request->bank_name,
+            'amount'          => $request->amount,
+            'balance_after'   => $user->balance,
+            'description'     => 'Transfer to ' . $request->account_name,
+            'status'          => 'successful',
+        ]);
 
-            $sender = $sender->fresh();
-            $amount = $request->amount;
-
-            // =========================
-            // 🟢 INTERNAL TRANSFER
-            // =========================
-            if ($receiver) {
-
-                $receiver = $receiver->fresh();
-
-                // update balances
-                $sender->balance -= $amount;
-                $receiver->balance += $amount;
-
-                $sender->save();
-                $receiver->save();
-
-                // 🔴 DEBIT (sender record)
-                Transaction::create([
-                    'sender_id'     => $sender->id,
-                    'receiver_id'   => $receiver->id,
-                    'account_number'=> $receiver->account_number,
-                    'account_name'  => $receiver->name,
-                    'bank_name'     => 'Internal Transfer',
-                    'amount'        => $amount,
-                    'balance_after' => $sender->balance,
-                    'type'          => 'debit',
-                    'description'   => 'Transfer to ' . $receiver->name,
-                    'status'        => 'successful',
-                ]);
-
-                // 🟢 CREDIT (receiver record)
-                Transaction::create([
-                    'sender_id'     => $sender->id,
-                    'receiver_id'   => $receiver->id,
-                    'account_number'=> $sender->account_number,
-                    'account_name'  => $sender->name,
-                    'bank_name'     => 'Internal Transfer',
-                    'amount'        => $amount,
-                    'balance_after' => $receiver->balance,
-                    'type'          => 'credit',
-                    'description'   => 'Received from ' . $sender->name,
-                    'status'        => 'successful',
-                ]);
-            }
-
-            // =========================
-            // 🔴 EXTERNAL TRANSFER
-            // =========================
-            else {
-
-                $sender->balance -= $amount;
-                $sender->save();
-
-                Transaction::create([
-                    'sender_id'     => $sender->id,
-                    'receiver_id'   => null,
-                    'account_number'=> $request->account_number,
-                    'account_name'  => $request->account_name,
-                    'bank_name'     => $request->bank_name,
-                    'amount'        => $amount,
-                    'balance_after' => $sender->balance,
-                    'type'          => 'debit',
-                    'description'   => 'Transfer to ' . $request->account_name,
-                    'status'        => 'successful',
-                ]);
-            }
-
-            DB::commit();
-
-            return redirect()->route('transfer.success')
-                ->with('success', 'Transfer completed successfully.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Transaction failed: ' . $e->getMessage());
-        }
+        return redirect()->route('transfer.success')
+            ->with('transaction', $transaction);
     }
 
     public function success()
     {
-        return view('transfer_success');
+        if (!session()->has('transaction')) {
+            return redirect('/transfer')
+                ->with('error', 'No recent transaction found.');
+        }
+
+        return view('transfer_success', [
+            'transaction' => session('transaction')
+        ]);
     }
 }

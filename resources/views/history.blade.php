@@ -131,11 +131,12 @@
         @foreach($transactions as $transaction)
           <tr>
 
+            {{-- DATE --}}
             <td>
               {{ $transaction->created_at->format('M d, Y - h:i A') }}
             </td>
 
-            {{-- TYPE (FIXED) --}}
+            {{-- TYPE --}}
             <td>
               @if($transaction->sender_id == Auth::id())
                 <span class="debit">Debit</span>
@@ -147,18 +148,22 @@
             {{-- AMOUNT --}}
             <td class="{{ $transaction->sender_id == Auth::id() ? 'debit' : 'credit' }}">
               @if($transaction->sender_id == Auth::id())
-                -
+                - ${{ number_format($transaction->amount, 2) }}
               @else
-                +
+                + ${{ number_format($transaction->amount, 2) }}
               @endif
-              ${{ number_format($transaction->amount, 2) }}
             </td>
 
+            {{-- BALANCE AFTER (FIXED DISPLAY LOGIC) --}}
             <td>
-              ${{ number_format($transaction->balance_after, 2) }}
+              @if($transaction->sender_id == Auth::id())
+                ${{ number_format($transaction->balance_after, 2) }}
+              @else
+                ${{ number_format($transaction->balance_after, 2) }}
+              @endif
             </td>
 
-            {{-- DESCRIPTION (FIXED) --}}
+            {{-- DESCRIPTION (FIXED CLARITY) --}}
             <td>
               @if($transaction->sender_id == Auth::id())
                 Transfer to {{ $transaction->account_name }}
@@ -167,6 +172,7 @@
               @endif
             </td>
 
+            {{-- STATUS --}}
             <td>
               {{ ucfirst($transaction->status) }}
             </td>

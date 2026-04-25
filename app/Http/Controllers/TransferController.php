@@ -141,9 +141,11 @@ class TransferController extends Controller
             ->with('transaction', $transaction);
     }
 
+    // ✅ FIXED SUCCESS METHOD (NO MORE ERROR MESSAGE)
     public function success()
-{
-    return view('transfer_success', [
-        'transaction' => session('transaction')
-    ]);
+    {
+        return view('transfer_success', [
+            'transaction' => session('transaction')
+        ]);
+    }
 }

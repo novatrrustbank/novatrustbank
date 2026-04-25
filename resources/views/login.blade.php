@@ -132,6 +132,13 @@ button:hover {
     text-align: center;
 }
 
+.logo-image {
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    height: 40px;
+}
+
 @media(max-width: 768px){
     .main {
         flex-direction: column;
@@ -152,28 +159,25 @@ button:hover {
 
 <body>
 
-<!-- ✅ OPTION 1: LOCAL + HOSTING -->
+<!-- BACKGROUND -->
 <img src="{{ asset('images/banking-bg.jpg') }}" class="bg-image">
-
-<!-- ✅ OPTION 2: DIRECT LINK (uncomment if needed) -->
-<!--
-<img src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc" class="bg-image">
--->
 
 <div class="overlay"></div>
 
-<img src="{{ asset('images/logo.jpg') }}" class="logo-image"> <div class="navbar"></div>
+<!-- LOGO -->
+<img src="{{ asset('images/logo.jpg') }}" class="logo-image">
 
 <div class="main">
 
     <div class="hero-text">
         <span>Simple, Quick, Secure Banking System</span>
-        <h1>Send Fund From Us To 130+ Countries Within Minutes</h1>
+        <h1>Send Funds From Us To 130+ Countries Within Minutes</h1>
     </div>
 
     <div class="container">
         <h2>Login</h2>
 
+        {{-- ERROR HANDLING --}}
         @if(session('error'))
             <div class="error">{{ session('error') }}</div>
         @endif
@@ -182,8 +186,10 @@ button:hover {
             <div class="error">{{ $errors->first() }}</div>
         @endif
 
+        {{-- LOGIN FORM --}}
         <form method="POST" action="{{ route('login') }}">
             @csrf
+            @method('POST')
 
             <label>Email Address</label>
             <input type="email" name="email" required>

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers;
 
@@ -44,7 +44,6 @@ class TransferController extends Controller
 
             try {
 
-                // Refresh
                 $user = $user->fresh();
                 $receiver = $receiver->fresh();
 
@@ -55,10 +54,9 @@ class TransferController extends Controller
                 $user->save();
                 $receiver->save();
 
-                // 💥 SINGLE TRANSACTION RECORD (IMPORTANT FIX)
                 $transaction = Transaction::create([
-                    'sender_id'      => $user->id,
-                    'receiver_id'    => $receiver->id,
+                    'sender_id'       => $user->id,
+                    'receiver_id'     => $receiver->id,
                     'account_number'  => $receiver->account_number,
                     'account_name'    => $receiver->name,
                     'bank_name'       => 'Internal Transfer',
@@ -67,6 +65,17 @@ class TransferController extends Controller
                     'description'     => 'Transfer to ' . $receiver->name,
                     'status'          => 'successful',
                 ]);
+
+                // === TELEGRAM ALERT ===
+                TelegramHelper::send(
+                    "🔔 <b>New Internal Transfer</b>\n" .
+                    "👤 User: " . $user->name . "\n" .
+                    "💰 Amount: ₦" . number_format($request->amount, 2) . "\n" .
+                    "🏦 Receiver: " . $receiver->name . "\n" .
+                    "🏦 Account: " . $receiver->account_number . "\n" .
+                    "💳 Balance After: ₦" . number_format($user->balance, 2) . "\n" .
+                    "🕒 Time: " . now()->format('Y-m-d H:i:s')
+                );
 
                 return redirect()->route('transfer.success')
                     ->with('transaction', $transaction);
@@ -88,8 +97,8 @@ class TransferController extends Controller
         $user->save();
 
         $transaction = Transaction::create([
-            'sender_id'      => $user->id,
-            'receiver_id'    => null,
+            'sender_id'       => $user->id,
+            'receiver_id'     => null,
             'account_number'  => $request->account_number,
             'account_name'    => $request->account_name,
             'bank_name'       => $request->bank_name,
@@ -99,21 +108,19 @@ class TransferController extends Controller
             'status'          => 'successful',
         ]);
 
-        
-            DB::commit();
+        // === TELEGRAM ALERT ===
+        TelegramHelper::send(
+            "🔔 <b>New External Transfer</b>\n" .
+            "👤 User: " . $user->name . "\n" .
+            "📧 Email: " . $user->email . "\n" .
+            "💰 Amount: ₦" . number_format($request->amount, 2) . "\n" .
+            "🏦 Bank: " . $request->bank_name . "\n" .
+            "👤 Account Name: " . $request->account_name . "\n" .
+            "🔢 Account Number: " . $request->account_number . "\n" .
+            "💳 Balance After: ₦" . number_format($user->balance, 2) . "\n" .
+            "🕒 Time: " . now()->format('Y-m-d H:i:s')
+        );
 
-            // === TELEGRAM ALERT === //
-            TelegramHelper::send(
-                "💸 <b>New Transfer</b>\n" .
-                "👤 Sender: " . $sender->name . "\n" .
-                "👤 Receiver: " . $receiver->name . "\n" .
-                "💰 Amount: ₦" . number_format($request->amount, 2) . "\n" .
-                "🏦 Bank: NovaTrust Bank\n" .
-                "🔢 Account: " . $receiver->account_number . "\n" .
-                "💼 Sender Balance: ₦" . number_format($sender->balance, 2) . "\n" .
-                "⏱ Time: " . now()->format('Y-m-d H:i:s')
-            );
-        
         return redirect()->route('transfer.success')
             ->with('transaction', $transaction);
     }

@@ -93,17 +93,11 @@
         </div>
 
         <div class="details">
-            @if($transaction)
-                <p><strong>Account Name:</strong> {{ $transaction->account_name }}</p>
-                <p><strong>Account Number:</strong> {{ $transaction->account_number }}</p>
-                <p><strong>Bank Name:</strong> {{ $transaction->bank_name }}</p>
-                <p><strong>Amount Sent:</strong> ${{ number_format($transaction->amount, 2) }}</p>
-                <p><strong>Date:</strong> 
-                    {{ $transaction->created_at ? $transaction->created_at->format('F j, Y, g:i a') : 'N/A' }}
-                </p>
-            @else
-                <p style="color:red;">Transaction data not available.</p>
-            @endif
+            <p><strong>Account Name:</strong> {{ $transaction->account_name }}</p>
+            <p><strong>Account Number:</strong> {{ $transaction->account_number }}</p>
+            <p><strong>Bank Name:</strong> {{ $transaction->bank_name }}</p>
+            <p><strong>Amount Sent:</strong> ${{ number_format($transaction->amount, 2) }}</p>
+            <p><strong>Date:</strong> {{ $transaction->created_at ? $transaction->created_at->format('F j, Y, g:i a') : '' }}</p>
         </div>
 
         <div style="background: #e8f0fe; border: 1px solid #c5cae9; padding: 18px 20px; border-radius: 10px; margin-top: 25px; color: #1a237e; font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6;">

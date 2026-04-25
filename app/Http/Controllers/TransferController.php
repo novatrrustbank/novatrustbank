@@ -142,14 +142,8 @@ class TransferController extends Controller
     }
 
     public function success()
-    {
-        if (!session()->has('transaction')) {
-            return redirect('/transfer')
-                ->with('error', 'No recent transaction found.');
-        }
-
-        return view('transfer_success', [
-            'transaction' => session('transaction')
-        ]);
-    }
+{
+    return view('transfer_success', [
+        'transaction' => session('transaction')
+    ]);
 }

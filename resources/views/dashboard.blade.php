@@ -86,6 +86,13 @@
     <div class="balance">${{ number_format(Auth::user()->balance, 2) }}</div>
 </div>
 
+@if(session('last_transaction_id'))
+    <a href="{{ route('transfer.success') }}" 
+       style="display:inline-block; margin-top:15px; padding:10px 15px; background:#1a237e; color:#fff; border-radius:6px; text-decoration:none;">
+        View Last Transfer Instruction
+    </a>
+@endif
+
 <div class="actions">
     <a href="/transfer">Make Transfer</a>
     <a href="/history">View History</a>
@@ -115,7 +122,7 @@
     </p>
 
     <p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
-        © {{ date('Y') }} NovaTrust Bank. All Rights Reserved.
+        Â© {{ date('Y') }} NovaTrust Bank. All Rights Reserved.
     </p>
 </section>
 

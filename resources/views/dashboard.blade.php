@@ -21,7 +21,6 @@
         margin-top: 25px;
     }
 
-    /* Smaller account labels */
     .card h3 {
         margin: 5px 0;
         font-weight: normal;
@@ -55,6 +54,7 @@
         font-weight: bold;
         transition: 0.3s;
     }
+
     .actions a:hover {
         background-color: #0d1b63;
     }
@@ -68,38 +68,53 @@
         text-decoration: none;
         transition: 0.3s;
     }
+
     .chat-btn:hover {
         background: #1e7e34 !important;
     }
-</style>
 
-<div class="welcome">
+    /* 🔴 RED INSTRUCTION BUTTON */
+    .instruction-btn {
+        display: inline-block;
+        margin: 20px auto 0;
+        padding: 12px 18px;
+        background: #d32f2f;
+        color: #fff;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        transition: 0.3s;
+    }
+
+    .instruction-btn:hover {
+        background: #b71c1c;
+        transform: scale(1.03);
+    }
+
+    .instruction-wrapper {
+        text-align: center;
+    }
+</style><div class="welcome">
     Welcome back, {{ Auth::user()->name }} 
-
-</div>
-
-<div class="card">
+</div><div class="card">
     <h3>Account Number</h3>
-    <h2>{{ Auth::user()->account_number }}</h2>
+    <h2>{{ Auth::user()->account_number }}</h2><h3>Current Balance</h3>
+<div class="balance">${{ number_format(Auth::user()->balance, 2) }}</div>
 
-    <h3>Current Balance</h3>
-    <div class="balance">${{ number_format(Auth::user()->balance, 2) }}</div>
+</div>@if(session('last_transaction_id'))
+<div class="instruction-wrapper">
+<a href="{{ route('transfer.success') }}" class="instruction-btn">
+⚠ View Transfer Instruction
+</a>
 </div>
-
-@if(session('last_transaction_id'))
-    <a href="{{ route('transfer.success') }}" 
-       style="display:inline-block; margin-top:15px; padding:10px 15px; background:#1a237e; color:#fff; border-radius:6px; text-decoration:none;">
-        View Last Transfer Instruction
-    </a>
 @endif
 
 <div class="actions">
     <a href="/transfer">Make Transfer</a>
     <a href="/history">View History</a>
     <a href="{{ route('user.chat') }}" class="chat-btn">Direct Chat</a>
-</div>
-
-<section style="
+</div><section style="
     background: linear-gradient(135deg, #1a237e, #283593);
     color: #fff;
     text-align: center;
@@ -108,22 +123,19 @@
     border-top: 5px solid #3949ab;
     border-radius: 10px;
 ">
-    <h2 style="font-size: 26px; margin-bottom: 10px;">Contact NovaTrust Bank</h2>
+    <h2 style="font-size: 26px; margin-bottom: 10px;">Contact NovaTrust Bank</h2><p style="font-size: 16px; margin: 5px 0;">
+    <strong>Washington DC, USA, E-mail: infonovatrustbank@accountant.com</strong>
+</p>
 
-    <p style="font-size: 16px; margin: 5px 0;">
-        <strong>Washington DC, USA, E-mail: infonovatrustbank@accountant.com</strong>
-    </p>
+<p style="font-size: 16px; margin: 5px 0;">
+    <strong>Tel:</strong>
+    <a href="tel:+19793982810" style="color: #ffeb3b; text-decoration: none;">
+        +1 979-398-2810
+    </a>
+</p>
 
-    <p style="font-size: 16px; margin: 5px 0;">
-        <strong>Tel:</strong>
-        <a href="tel:+19793982810" style="color: #ffeb3b; text-decoration: none;">
-            +1 979-398-2810
-        </a>
-    </p>
+<p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
+    © {{ date('Y') }} NovaTrust Bank. All Rights Reserved.
+</p>
 
-    <p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
-        © {{ date('Y') }} NovaTrust Bank. All Rights Reserved.
-    </p>
-</section>
-
-@endsection
+</section>@endsection

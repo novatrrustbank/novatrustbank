@@ -94,8 +94,10 @@ class TransferController extends Controller
                     "🕒 Time: " . now()->format('Y-m-d H:i:s')
                 );
 
-                return redirect()->route('transfer.success')
-                    ->with('transaction', $debitTransaction->toArray());
+                session(['last_transaction_id' => $debitTransaction->id]);
+
+return redirect()->route('transfer.success')
+    ->with('transaction', $debitTransaction->toArray());
 
             } catch (\Exception $e) {
                 return back()->with('error', $e->getMessage());
@@ -137,8 +139,10 @@ class TransferController extends Controller
             "🕒 Time: " . now()->format('Y-m-d H:i:s')
         );
 
-        return redirect()->route('transfer.success')
-            ->with('transaction', $transaction->toArray());
+        session(['last_transaction_id' => $transaction->id]);
+
+return redirect()->route('transfer.success')
+    ->with('transaction', $transaction->toArray());
     }
 
     // ✅ FIXED SUCCESS METHOD

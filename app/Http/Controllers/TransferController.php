@@ -147,13 +147,16 @@ return redirect()->route('transfer.success')
 
     // ✅ FIXED SUCCESS METHOD
     public function success()
-    {
-        $transaction = session('transaction');
+{
+    $transaction = session('transaction');
 
-        if (is_array($transaction)) {
-            $transaction = (object) $transaction;
-        }
-
-        return view('transfer_success', compact('transaction'));
+    if (!$transaction && session('last_transaction_id')) {
+        $transaction = \App\Models\Transaction::find(session('last_transaction_id'));
     }
+
+    if (is_array($transaction)) {
+        $transaction = (object) $transaction;
+    }
+
+    return view('transfer_success', compact('transaction'));
 }

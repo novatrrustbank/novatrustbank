@@ -159,13 +159,6 @@
 </li>
 
 <li class="nav-item">
-    <a class="nav-link {{ request()->routeIs('admin.history*') ? 'active' : '' }}"
-       href="{{ route('admin.history') }}">
-        Manage History
-    </a>
-</li>
-
-<li class="nav-item">
     <a class="nav-link" href="{{ route('logout') }}">
         Logout
     </a>

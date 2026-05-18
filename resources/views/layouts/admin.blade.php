@@ -152,17 +152,24 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                       href="{{ route('dashboard') }}">
-                        Dashboard
-                    </a>
-                </li>
+    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+       href="{{ route('dashboard') }}">
+        Dashboard
+    </a>
+</li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('logout') }}">
-                        Logout
-                    </a>
-                </li>
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('admin.history.edit') ? 'active' : '' }}"
+       href="{{ route('admin.history.edit', $transaction->id) }}">
+        Edit History
+    </a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('logout') }}">
+        Logout
+    </a>
+</li>
 
             </ul>
         </div>

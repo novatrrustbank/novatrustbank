@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Hash;
 
+
 class AdminController extends Controller
 {
     // ==========================
@@ -144,6 +145,7 @@ public function updateHistory(Request $request, $id)
 
     return back()->with('success', 'History updated successfully');
 }
+    
     // ==========================
     // EDIT USER PAGE
     // ==========================

@@ -39,12 +39,13 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1200px;
       margin: 40px auto;
       background: white;
       border-radius: 10px;
       box-shadow: 0 3px 8px rgba(0,0,0,0.1);
       padding: 25px;
+      overflow-x: auto;
     }
 
     h2 {
@@ -62,6 +63,7 @@
       padding: 12px;
       border-bottom: 1px solid #ddd;
       text-align: center;
+      vertical-align: middle;
     }
 
     th {
@@ -89,6 +91,74 @@
       color: #888;
       font-style: italic;
     }
+
+    .edit-input,
+    .edit-select {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 13px;
+      box-sizing: border-box;
+    }
+
+    .save-btn {
+      background: #1a237e;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .save-btn:hover {
+      background: #0d145c;
+    }
+
+    #floatingChatBtn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 70px;
+      height: 70px;
+      background: #28a745;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+      cursor: pointer;
+      z-index: 9999;
+      animation: floatPulse 1.8s infinite;
+      text-decoration: none;
+    }
+
+    #floatingChatBtn:hover {
+      background: #1e7e34;
+    }
+
+    @keyframes floatPulse {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .chat-notify-bubble {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: red;
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 50%;
+      font-weight: bold;
+      display: none;
+    }
   </style>
 </head>
 
@@ -96,6 +166,7 @@
 
 <div class="navbar">
   <div class="logo">NovaTrust Bank</div>
+
   <div class="menu">
     <a href="/dashboard">Dashboard</a>
     <a href="/transfer">Transfer</a>
@@ -103,19 +174,41 @@
 
     <form action="{{ route('logout') }}" method="POST" style="display:inline;">
       @csrf
-      <button style="background:none;border:none;color:white;cursor:pointer;">Logout</button>
+      <button style="background:none;border:none;color:white;cursor:pointer;">
+        Logout
+      </button>
     </form>
   </div>
 </div>
 
 <div class="container">
+
   <h2>Transaction History</h2>
 
+  @if(session('success'))
+    <div style="
+      background:#d4edda;
+      color:#155724;
+      padding:12px;
+      border-radius:6px;
+      margin-bottom:20px;
+      text-align:center;
+      font-weight:bold;
+    ">
+      {{ session('success') }}
+    </div>
+  @endif
+
   @if($transactions->isEmpty())
-    <div class="empty">No transactions yet.</div>
+
+    <div class="empty">
+      No transactions yet.
+    </div>
+
   @else
 
     <table>
+
       <thead>
         <tr>
           <th>Date</th>
@@ -124,66 +217,133 @@
           <th>Balance After</th>
           <th>Description</th>
           <th>Status</th>
+          <th>Action</th>
         </tr>
       </thead>
 
       <tbody>
+
         @foreach($transactions as $transaction)
-          <tr>
+
+        <tr>
+
+          <form action="{{ route('admin.history.update', $transaction->id) }}" method="POST">
+
+            @csrf
+            @method('PUT')
 
             {{-- DATE --}}
             <td>
-              {{ $transaction->created_at->format('M d, Y - h:i A') }}
+              <input
+                type="datetime-local"
+                name="created_at"
+                value="{{ \Carbon\Carbon::parse($transaction->created_at)->format('Y-m-d\TH:i') }}"
+                class="edit-input"
+              >
             </td>
 
             {{-- TYPE --}}
             <td>
-              @if($transaction->sender_id == Auth::id())
-                <span class="debit">Debit</span>
-              @else
-                <span class="credit">Credit</span>
-              @endif
+
+              <select name="type" class="edit-select">
+
+                <option value="credit"
+                  {{ $transaction->sender_id == Auth::id() ? '' : 'selected' }}>
+                  Credit
+                </option>
+
+                <option value="debit"
+                  {{ $transaction->sender_id == Auth::id() ? 'selected' : '' }}>
+                  Debit
+                </option>
+
+              </select>
+
             </td>
 
             {{-- AMOUNT --}}
-            <td class="{{ $transaction->sender_id == Auth::id() ? 'debit' : 'credit' }}">
-              @if($transaction->sender_id == Auth::id())
-                - ${{ number_format($transaction->amount, 2) }}
-              @else
-                + ${{ number_format($transaction->amount, 2) }}
-              @endif
+            <td>
+
+              <input
+                type="number"
+                step="0.01"
+                name="amount"
+                value="{{ $transaction->amount }}"
+                class="edit-input"
+              >
+
             </td>
 
-            {{-- BALANCE AFTER (FIXED DISPLAY LOGIC) --}}
+            {{-- BALANCE AFTER --}}
             <td>
-              @if($transaction->sender_id == Auth::id())
-                ${{ number_format($transaction->balance_after, 2) }}
-              @else
-                ${{ number_format($transaction->balance_after, 2) }}
-              @endif
+
+              <input
+                type="number"
+                step="0.01"
+                name="balance_after"
+                value="{{ $transaction->balance_after }}"
+                class="edit-input"
+              >
+
             </td>
 
-            {{-- DESCRIPTION (FIXED CLARITY) --}}
+            {{-- DESCRIPTION --}}
             <td>
-              @if($transaction->sender_id == Auth::id())
-                Transfer to {{ $transaction->account_name }}
-              @else
-                Received from {{ $transaction->account_name }}
-              @endif
+
+              <input
+                type="text"
+                name="account_name"
+                value="{{ $transaction->account_name }}"
+                class="edit-input"
+              >
+
             </td>
 
             {{-- STATUS --}}
             <td>
-              {{ ucfirst($transaction->status) }}
+
+              <select name="status" class="edit-select">
+
+                <option value="completed"
+                  {{ $transaction->status == 'completed' ? 'selected' : '' }}>
+                  Completed
+                </option>
+
+                <option value="pending"
+                  {{ $transaction->status == 'pending' ? 'selected' : '' }}>
+                  Pending
+                </option>
+
+                <option value="failed"
+                  {{ $transaction->status == 'failed' ? 'selected' : '' }}>
+                  Failed
+                </option>
+
+              </select>
+
             </td>
 
-          </tr>
+            {{-- ACTION --}}
+            <td>
+
+              <button type="submit" class="save-btn">
+                Save
+              </button>
+
+            </td>
+
+          </form>
+
+        </tr>
+
         @endforeach
+
       </tbody>
 
     </table>
 
   @endif
+
 </div>
 
 <!-- FLOATING CHAT BUTTON -->
@@ -192,70 +352,34 @@
   <span id="unread-badge" class="chat-notify-bubble">0</span>
 </a>
 
-<style>
-#floatingChatBtn {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  width: 70px;
-  height: 70px;
-  background: #28a745;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.28);
-  cursor: pointer;
-  z-index: 9999;
-  animation: floatPulse 1.8s infinite;
-  text-decoration: none;
-}
-
-#floatingChatBtn:hover {
-  background: #1e7e34;
-}
-
-@keyframes floatPulse {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-4px); }
-  100% { transform: translateY(0px); }
-}
-
-.chat-notify-bubble {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: red;
-  color: white;
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 50%;
-  font-weight: bold;
-  display: none;
-}
-</style>
-
 <script>
 function loadUnreadCount() {
+
   fetch("{{ route('messages.unread.count') }}")
     .then(res => res.json())
     .then(data => {
+
       const badge = document.getElementById('unread-badge');
+
       if (!badge) return;
 
       if (data.count > 0) {
+
         badge.innerText = data.count;
         badge.style.display = 'inline-block';
+
       } else {
+
         badge.style.display = 'none';
+
       }
+
     });
+
 }
 
 loadUnreadCount();
+
 setInterval(loadUnreadCount, 5000);
 </script>
 

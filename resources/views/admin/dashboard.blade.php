@@ -25,6 +25,24 @@
    Edit User History
 </a>
 
+@if(!empty($t->user_id))
+    <a href="{{ url('/admin/history/'.$t->user_id) }}"
+       style="
+          background:#1a237e;
+          color:white;
+          padding:8px 15px;
+          border-radius:5px;
+          text-decoration:none;
+          font-weight:bold;
+          display:inline-block;
+       ">
+       Edit User History
+    </a>
+@else
+    <span style="color:red;">No User ID</span>
+@endif
+
+
     <!-- ********  ALL TRANSACTIONS  ******** -->
     <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-bottom:25px;">
         📄 All Transactions

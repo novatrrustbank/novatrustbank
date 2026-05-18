@@ -22,6 +22,12 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('uploads', 'transactions', 'users'));
     }
 
+public function historyUsers()
+{
+    $users = User::latest()->get();
+
+    return view('admin.history_users', compact('users'));
+}
     // ==========================
     // Show all users (LIST)
     // ==========================
@@ -145,13 +151,6 @@ public function updateHistory(Request $request, $id)
     return back()->with('success', 'History updated successfully');
 }
 
-
-public function historyUsers()
-{
-    $users = User::latest()->get();
-
-    return view('admin.history_users', compact('users'));
-}
 
     // ==========================
     // EDIT USER PAGE

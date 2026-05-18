@@ -159,9 +159,9 @@
 </li>
 
 <li class="nav-item">
-    <a class="nav-link {{ request()->routeIs('admin.history.edit') ? 'active' : '' }}"
-       href="{{ route('admin.history.edit', $transaction->id) }}">
-        Edit History
+    <a class="nav-link {{ request()->routeIs('admin.history*') ? 'active' : '' }}"
+       href="{{ route('admin.history') }}">
+        Manage History
     </a>
 </li>
 

@@ -82,6 +82,26 @@ button:hover{
     text-decoration:none;
     font-size:14px;
 }
+
+.password-wrapper{
+    position:relative;
+    margin-top:10px;
+}
+
+.password-wrapper input{
+    padding-right:45px;
+    margin-top:0;
+}
+
+.toggle-password{
+    position:absolute;
+    right:15px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+    font-size:18px;
+    color:#666;
+}
 </style>
 </head>
 
@@ -122,15 +142,47 @@ button:hover{
            value="{{ old('email') }}"
            required>
 
-    <input type="password"
-           name="password"
-           placeholder="New Password"
-           required>
+    {{-- OLD PASSWORD --}}
+    <div class="password-wrapper">
+        <input type="password"
+               name="old_password"
+               id="old_password"
+               placeholder="Enter Old Password"
+               required>
 
-    <input type="password"
-           name="password_confirmation"
-           placeholder="Confirm Password"
-           required>
+        <span class="toggle-password"
+              onclick="togglePassword('old_password', this)">
+              👁
+        </span>
+    </div>
+
+    {{-- NEW PASSWORD --}}
+    <div class="password-wrapper">
+        <input type="password"
+               name="password"
+               id="password"
+               placeholder="New Password"
+               required>
+
+        <span class="toggle-password"
+              onclick="togglePassword('password', this)">
+              👁
+        </span>
+    </div>
+
+    {{-- CONFIRM PASSWORD --}}
+    <div class="password-wrapper">
+        <input type="password"
+               name="password_confirmation"
+               id="password_confirmation"
+               placeholder="Confirm Password"
+               required>
+
+        <span class="toggle-password"
+              onclick="togglePassword('password_confirmation', this)">
+              👁
+        </span>
+    </div>
 
     <button type="submit">
         Change Password
@@ -145,6 +197,24 @@ button:hover{
 </div>
 
 </div>
+
+<script>
+function togglePassword(id, el)
+{
+    const input = document.getElementById(id);
+
+    if(input.type === "password")
+    {
+        input.type = "text";
+        el.innerHTML = "🙈";
+    }
+    else
+    {
+        input.type = "password";
+        el.innerHTML = "👁";
+    }
+}
+</script>
 
 </body>
 </html>

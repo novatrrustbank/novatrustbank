@@ -11,19 +11,18 @@
 }
 </style>
 
-<!-- PAGE TITLE BUTTON -->
-<a href="/admin/history"
+<a href="{{ route('admin.history.users') }}"
    style="
       background:#1a237e;
       color:white;
-      padding:8px 15px;
+      padding:10px 18px;
       border-radius:5px;
       text-decoration:none;
       font-weight:bold;
       display:inline-block;
       margin-bottom:20px;
    ">
-   View All History
+   Manage User Histories
 </a>
 
 <!-- ******** ALL TRANSACTIONS ******** -->

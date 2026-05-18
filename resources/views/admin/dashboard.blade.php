@@ -11,6 +11,17 @@
 }
 </style>
 
+<a href="/admin/history/{{ $user->id }}"
+   style="
+      background:#1a237e;
+      color:white;
+      padding:8px 15px;
+      border-radius:5px;
+      text-decoration:none;
+      font-weight:bold;
+   ">
+   Edit History
+</a>
 
     <!-- ********  ALL TRANSACTIONS  ******** -->
     <h2 style="color:#1a237e; border-bottom:2px solid #1a237e; padding-bottom:8px; margin-bottom:25px;">

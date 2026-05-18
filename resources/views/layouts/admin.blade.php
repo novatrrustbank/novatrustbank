@@ -169,11 +169,6 @@
     </div>
 </nav>
 
-<a href="{{ route('admin.history.edit', $transaction->id) }}"
-   class="btn btn-primary btn-sm">
-   Edit
-</a>
-
 {{-- MAIN CONTENT --}}
 <main class="nt-container">
     @yield('content')

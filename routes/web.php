@@ -113,7 +113,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 //History Update
 Route::get('/admin/history/{id}', [AdminController::class, 'editUserHistory']);
-Route::put('/admin/history/update/{id}', [AdminController::class, 'updateHistory']);
+Route::put('/admin/history/update/{id}', [AdminController::class, 'updateHistory'])
+    ->name('admin.history.update');
 
     // Admin Chat
     Route::get('/admin/chats', [AdminChatController::class, 'chatUsers'])->name('admin.chats');

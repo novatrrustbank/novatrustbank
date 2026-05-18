@@ -148,7 +148,7 @@
             <div class="link">
                 <a href="{{ route('register') }}"
                    style="color: #1a237e; text-decoration: none; font-size: 14px;">
-                   Don't have an account? Register
+                   
                 </a>
             </div>
 

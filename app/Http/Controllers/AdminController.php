@@ -118,6 +118,18 @@ class AdminController extends Controller
     // UPDATE HISTORY 
     // ==========================
 
+public function editUserHistory($id)
+{
+    $user = User::findOrFail($id);
+
+    $transactions = Transaction::where('sender_id', $id)
+        ->orWhere('receiver_id', $id)
+        ->latest()
+        ->get();
+
+    return view('admin.history', compact('user', 'transactions'));
+}
+
 public function updateHistory(Request $request, $id)
 {
     $transaction = Transaction::findOrFail($id);
@@ -130,9 +142,8 @@ public function updateHistory(Request $request, $id)
 
     $transaction->save();
 
-    return back()->with('success', 'Transaction updated successfully');
+    return back()->with('success', 'History updated successfully');
 }
-
     // ==========================
     // EDIT USER PAGE
     // ==========================

@@ -13,6 +13,7 @@ use App\Helpers\ActivationBalanceHelper;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\ForgotPasswordController;
 
 
 // =========================
@@ -81,6 +82,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chat/unread/count', [ChatController::class, 'unreadCount'])->name('messages.unread.count');
 });
 
+// =========================
+// FORGOT PASSWORD ROUTES
+// =========================
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])
+    ->name('password.request');
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'resetPassword'])
+    ->name('password.update');
 
 // =========================
 // ADMIN ROUTES

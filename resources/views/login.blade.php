@@ -68,10 +68,15 @@
             </form>
 
             <div class="link">
-                <a href="{{ route('register') }}" style="color: #1a237e; text-decoration: none; font-size: 14px;">Don't have an account? Register</a>
-            </div>
-        </div>
-    </div>
+    <a href="{{ route('register') }}"
+       style="color: #1a237e; text-decoration: none; font-size: 14px;">
+       Don't have an account? Register
+    </a>
+</div>
 
-</body>
-</html>
+<div class="link" style="margin-top:10px;">
+    <a href="{{ route('password.request') }}"
+       style="color:#c62828; text-decoration:none; font-size:14px; font-weight:bold;">
+       Forgot Password?
+    </a>
+</div>

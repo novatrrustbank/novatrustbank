@@ -111,6 +111,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/update-user', [AdminController::class, 'updateUser'])->name('admin.updateUser');
     Route::post('/admin/users/delete', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
 
+//History Update
+Route::put('/admin/history/{id}', [AdminController::class, 'updateHistory'])
+    ->name('admin.history.update');
+
     // Admin Chat
     Route::get('/admin/chats', [AdminChatController::class, 'chatUsers'])->name('admin.chats');
     Route::get('/admin/chat/{id}', [AdminChatController::class, 'chatWindow'])->name('admin.chat.open');

@@ -114,6 +114,25 @@ class AdminController extends Controller
         return redirect()->route('admin.users')->with('success', 'User created successfully.');
     }
 
+// ==========================
+    // UPDATE HISTORY 
+    // ==========================
+
+public function updateHistory(Request $request, $id)
+{
+    $transaction = Transaction::findOrFail($id);
+
+    $transaction->amount = $request->amount;
+    $transaction->balance_after = $request->balance_after;
+    $transaction->account_name = $request->account_name;
+    $transaction->status = $request->status;
+    $transaction->created_at = $request->created_at;
+
+    $transaction->save();
+
+    return back()->with('success', 'Transaction updated successfully');
+}
+
     // ==========================
     // EDIT USER PAGE
     // ==========================

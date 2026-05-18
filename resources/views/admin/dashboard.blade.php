@@ -11,7 +11,7 @@
 }
 </style>
 
-<a href="/admin/history/{{ $user->id }}"
+<a href="/admin/history"
    style="
       background:#1a237e;
       color:white;
@@ -19,8 +19,10 @@
       border-radius:5px;
       text-decoration:none;
       font-weight:bold;
+      display:inline-block;
+      margin-bottom:20px;
    ">
-   Edit History
+   Edit User History
 </a>
 
     <!-- ********  ALL TRANSACTIONS  ******** -->

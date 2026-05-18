@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reset Password</title>
+<title>Reset Password - NovaTrust Bank</title>
 
 <style>
 body{
@@ -33,6 +33,7 @@ input{
     margin-top:10px;
     border:1px solid #ccc;
     border-radius:5px;
+    box-sizing:border-box;
 }
 
 button{
@@ -47,6 +48,10 @@ button{
     cursor:pointer;
 }
 
+button:hover{
+    background:#0d145c;
+}
+
 .error{
     background:#ffebee;
     color:#c62828;
@@ -54,6 +59,7 @@ button{
     border-radius:5px;
     margin-bottom:15px;
     text-align:center;
+    font-weight:bold;
 }
 
 .success{
@@ -63,6 +69,18 @@ button{
     border-radius:5px;
     margin-bottom:15px;
     text-align:center;
+    font-weight:bold;
+}
+
+.link{
+    text-align:center;
+    margin-top:15px;
+}
+
+.link a{
+    color:#1a237e;
+    text-decoration:none;
+    font-size:14px;
 }
 </style>
 </head>
@@ -73,15 +91,24 @@ button{
 
 <h2>Reset Password</h2>
 
+{{-- SUCCESS MESSAGE --}}
+@if(session('success'))
+<div class="success">
+    {{ session('success') }}
+</div>
+@endif
+
+{{-- ERROR MESSAGE --}}
 @if(session('error'))
 <div class="error">
     {{ session('error') }}
 </div>
 @endif
 
-@if(session('success'))
-<div class="success">
-    {{ session('success') }}
+{{-- VALIDATION ERROR --}}
+@if ($errors->any())
+<div class="error">
+    {{ $errors->first() }}
 </div>
 @endif
 
@@ -92,6 +119,7 @@ button{
     <input type="email"
            name="email"
            placeholder="Enter Email"
+           value="{{ old('email') }}"
            required>
 
     <input type="password"
@@ -109,6 +137,12 @@ button{
     </button>
 
 </form>
+
+<div class="link">
+    <a href="{{ route('login') }}">
+        Back to Login
+    </a>
+</div>
 
 </div>
 

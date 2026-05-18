@@ -116,6 +116,9 @@ Route::get('/admin/history/{id}', [AdminController::class, 'editUserHistory']);
 Route::put('/admin/history/update/{id}', [AdminController::class, 'updateHistory'])
     ->name('admin.history.update');
 
+Route::get('/admin/history-users', [AdminController::class, 'historyUsers'])
+    ->name('admin.history.users');
+
     // Admin Chat
     Route::get('/admin/chats', [AdminChatController::class, 'chatUsers'])->name('admin.chats');
     Route::get('/admin/chat/{id}', [AdminChatController::class, 'chatWindow'])->name('admin.chat.open');

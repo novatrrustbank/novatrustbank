@@ -107,6 +107,7 @@
         border: 3px solid white;
         margin: 0 auto 15px;
         display: block;
+        background: white;
     }
 </style>
 
@@ -117,9 +118,12 @@
 <div class="card">
 
     @if(Auth::user()->passport_photo)
-        <img src="{{ asset('storage/' . Auth::user()->passport_photo) }}"
+
+        <img src="{{ url('/storage/' . Auth::user()->passport_photo) }}"
              class="passport-photo"
-             alt="Passport">
+             alt="Passport"
+             onerror="this.style.display='none'">
+
     @endif
 
     <h3>Account Number</h3>

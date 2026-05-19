@@ -6,12 +6,14 @@
     body {
         font-family: 'Segoe UI', Arial, sans-serif;
     }
+
     .welcome {
         font-size: 20px;
         color: #1a237e;
         font-weight: bold;
         text-align: center;
     }
+
     .card {
         background-color: #1a237e;
         color: white;
@@ -95,18 +97,47 @@
     .instruction-wrapper {
         text-align: center;
     }
-</style><div class="welcome">
-    Welcome back, {{ Auth::user()->name }} 
-</div><div class="card">
-    <h3>Account Number</h3>
-    <h2>{{ Auth::user()->account_number }}</h2><h3>Current Balance</h3>
-<div class="balance">${{ number_format(Auth::user()->balance, 2) }}</div>
 
-</div>@if(session('last_transaction_id'))
+    /* PASSPORT PHOTO */
+    .passport-photo{
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid white;
+        margin: 0 auto 15px;
+        display: block;
+    }
+</style>
+
+<div class="welcome">
+    Welcome back, {{ Auth::user()->name }}
+</div>
+
+<div class="card">
+
+    @if(Auth::user()->passport_photo)
+        <img src="{{ asset('storage/' . Auth::user()->passport_photo) }}"
+             class="passport-photo"
+             alt="Passport">
+    @endif
+
+    <h3>Account Number</h3>
+    <h2>{{ Auth::user()->account_number }}</h2>
+
+    <h3>Current Balance</h3>
+
+    <div class="balance">
+        ${{ number_format(Auth::user()->balance, 2) }}
+    </div>
+
+</div>
+
+@if(session('last_transaction_id'))
 <div class="instruction-wrapper">
-<a href="{{ route('transfer.success') }}" class="instruction-btn">
-⚠ View Transfer Instruction
-</a>
+    <a href="{{ route('transfer.success') }}" class="instruction-btn">
+        ⚠ View Transfer Instruction
+    </a>
 </div>
 @endif
 
@@ -114,7 +145,9 @@
     <a href="/transfer">Make Transfer</a>
     <a href="/history">View History</a>
     <a href="{{ route('user.chat') }}" class="chat-btn">Direct Chat</a>
-</div><section style="
+</div>
+
+<section style="
     background: linear-gradient(135deg, #1a237e, #283593);
     color: #fff;
     text-align: center;
@@ -123,19 +156,29 @@
     border-top: 5px solid #3949ab;
     border-radius: 10px;
 ">
-    <h2 style="font-size: 26px; margin-bottom: 10px;">Contact NovaTrust Bank</h2><p style="font-size: 16px; margin: 5px 0;">
-    <strong>Washington DC, USA, E-mail: infonovatrustbank@accountant.com</strong>
-</p>
+    <h2 style="font-size: 26px; margin-bottom: 10px;">
+        Contact NovaTrust Bank
+    </h2>
 
-<p style="font-size: 16px; margin: 5px 0;">
-    <strong>Tel:</strong>
-    <a href="tel:+19793982810" style="color: #ffeb3b; text-decoration: none;">
-        +1 979-398-2810
-    </a>
-</p>
+    <p style="font-size: 16px; margin: 5px 0;">
+        <strong>
+            Washington DC, USA, E-mail: infonovatrustbank@accountant.com
+        </strong>
+    </p>
 
-<p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
-    © {{ date('Y') }} NovaTrust Bank. All Rights Reserved.
-</p>
+    <p style="font-size: 16px; margin: 5px 0;">
+        <strong>Tel:</strong>
 
-</section>@endsection
+        <a href="tel:+19793982810"
+           style="color: #ffeb3b; text-decoration: none;">
+            +1 979-398-2810
+        </a>
+    </p>
+
+    <p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
+        © {{ date('Y') }} NovaTrust Bank. All Rights Reserved.
+    </p>
+
+</section>
+
+@endsection

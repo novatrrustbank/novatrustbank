@@ -7,6 +7,7 @@ use App\Models\Upload;
 use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -22,12 +23,13 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('uploads', 'transactions', 'users'));
     }
 
-public function historyUsers()
-{
-    $users = User::latest()->get();
+    public function historyUsers()
+    {
+        $users = User::latest()->get();
 
-    return view('admin.history_users', compact('users'));
-}
+        return view('admin.history_users', compact('users'));
+    }
+
     // ==========================
     // Show all users (LIST)
     // ==========================
@@ -114,43 +116,42 @@ public function historyUsers()
             'email'    => $request->email,
             'password' => Hash::make($request->password),
             'balance'  => $request->balance,
-            'activation_balance' => 0   // default
+            'activation_balance' => 0
         ]);
 
         return redirect()->route('admin.users')->with('success', 'User created successfully.');
     }
 
-// ==========================
-    // UPDATE HISTORY 
+    // ==========================
+    // UPDATE HISTORY
     // ==========================
 
-public function editUserHistory($id)
-{
-    $user = User::findOrFail($id);
+    public function editUserHistory($id)
+    {
+        $user = User::findOrFail($id);
 
-    $transactions = Transaction::where('sender_id', $id)
-        ->orWhere('receiver_id', $id)
-        ->latest()
-        ->get();
+        $transactions = Transaction::where('sender_id', $id)
+            ->orWhere('receiver_id', $id)
+            ->latest()
+            ->get();
 
-    return view('admin.update_history', compact('user', 'transactions'));
-}
+        return view('admin.update_history', compact('user', 'transactions'));
+    }
 
-public function updateHistory(Request $request, $id)
-{
-    $transaction = Transaction::findOrFail($id);
+    public function updateHistory(Request $request, $id)
+    {
+        $transaction = Transaction::findOrFail($id);
 
-    $transaction->amount = $request->amount;
-    $transaction->balance_after = $request->balance_after;
-    $transaction->account_name = $request->account_name;
-    $transaction->status = $request->status;
-    $transaction->created_at = $request->created_at;
+        $transaction->amount = $request->amount;
+        $transaction->balance_after = $request->balance_after;
+        $transaction->account_name = $request->account_name;
+        $transaction->status = $request->status;
+        $transaction->created_at = $request->created_at;
 
-    $transaction->save();
+        $transaction->save();
 
-    return back()->with('success', 'History updated successfully');
-}
-
+        return back()->with('success', 'History updated successfully');
+    }
 
     // ==========================
     // EDIT USER PAGE
@@ -165,7 +166,7 @@ public function updateHistory(Request $request, $id)
     }
 
     // ==========================
-    // UPDATE USER (NAME, EMAIL, BALANCE, PASSWORD)
+    // UPDATE USER
     // ==========================
     public function updateUser(Request $request)
     {
@@ -178,22 +179,44 @@ public function updateHistory(Request $request, $id)
 
         $user = User::find($request->user_id);
 
-        if (!$user) return back()->with('error', 'User not found.');
+        if (!$user) {
+            return back()->with('error', 'User not found.');
+        }
 
         $user->name = $request->name;
         $user->email = $request->email;
         $user->balance = $request->balance;
 
+        // PASSWORD UPDATE
         if ($request->password && $request->password !== '') {
+
             $request->validate([
                 'password' => 'min:6'
             ]);
+
             $user->password = Hash::make($request->password);
+        }
+
+        // PASSPORT PHOTO UPLOAD
+        if ($request->hasFile('passport_photo')) {
+
+            // Delete old passport if exists
+            if ($user->passport_photo) {
+                Storage::disk('public')->delete($user->passport_photo);
+            }
+
+            // Store new passport
+            $path = $request->file('passport_photo')
+                            ->store('passports', 'public');
+
+            // Save path to database
+            $user->passport_photo = $path;
         }
 
         $user->save();
 
-        return redirect()->route('admin.users')->with('success', 'User updated successfully.');
+        return redirect()->route('admin.users')
+            ->with('success', 'User updated successfully.');
     }
 
     // ==========================
@@ -203,7 +226,9 @@ public function updateHistory(Request $request, $id)
     {
         $user = User::find($request->user_id);
 
-        if (!$user) return back()->with('error', 'User not found.');
+        if (!$user) {
+            return back()->with('error', 'User not found.');
+        }
 
         $user->delete();
 

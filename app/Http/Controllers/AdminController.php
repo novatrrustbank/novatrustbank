@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class AdminController extends Controller
 {
@@ -26,22 +27,15 @@ class AdminController extends Controller
     public function historyUsers()
     {
         $users = User::latest()->get();
-
         return view('admin.history_users', compact('users'));
     }
 
-    // ==========================
-    // Show all users (LIST)
-    // ==========================
     public function users()
     {
         $users = User::orderBy('id', 'DESC')->get();
         return view('admin.users', compact('users'));
     }
 
-    // ==========================
-    // UPDATE BALANCE
-    // ==========================
     public function updateBalance(Request $request, $id)
     {
         $request->validate([
@@ -52,12 +46,9 @@ class AdminController extends Controller
         $user->balance = $request->balance;
         $user->save();
 
-        return redirect()->back()->with('success', 'Balance updated successfully.');
+        return back()->with('success', 'Balance updated successfully.');
     }
 
-    // ==========================
-    // SHOW EDIT USER NAME PAGE
-    // ==========================
     public function editUserNamePage($id)
     {
         $user = User::find($id);
@@ -69,9 +60,6 @@ class AdminController extends Controller
         return view('admin.edit-user-name', compact('user'));
     }
 
-    // ==========================
-    // UPDATE USER NAME
-    // ==========================
     public function updateUserName(Request $request)
     {
         $request->validate([
@@ -91,17 +79,11 @@ class AdminController extends Controller
         return back()->with('success', 'User name updated successfully.');
     }
 
-    // ==========================
-    // CREATE USER PAGE
-    // ==========================
     public function createUserPage()
     {
         return view('admin.create-user');
     }
 
-    // ==========================
-    // STORE NEW USER
-    // ==========================
     public function storeUser(Request $request)
     {
         $request->validate([
@@ -121,10 +103,6 @@ class AdminController extends Controller
 
         return redirect()->route('admin.users')->with('success', 'User created successfully.');
     }
-
-    // ==========================
-    // UPDATE HISTORY
-    // ==========================
 
     public function editUserHistory($id)
     {
@@ -153,9 +131,6 @@ class AdminController extends Controller
         return back()->with('success', 'History updated successfully');
     }
 
-    // ==========================
-    // EDIT USER PAGE
-    // ==========================
     public function editUserPage($id)
     {
         $user = User::find($id);
@@ -165,9 +140,6 @@ class AdminController extends Controller
         return view('admin.edit-user', compact('user'));
     }
 
-    // ==========================
-    // UPDATE USER
-    // ==========================
     public function updateUser(Request $request)
     {
         $request->validate([
@@ -189,7 +161,6 @@ class AdminController extends Controller
 
         // PASSWORD UPDATE
         if ($request->password && $request->password !== '') {
-
             $request->validate([
                 'password' => 'min:6'
             ]);
@@ -197,20 +168,30 @@ class AdminController extends Controller
             $user->password = Hash::make($request->password);
         }
 
-        // PASSPORT PHOTO UPLOAD
+        // ==========================
+        // PASSPORT PHOTO UPLOAD (FINAL WORKING SOLUTION)
+        // ==========================
         if ($request->hasFile('passport_photo')) {
 
-            // Delete old passport if exists
-            if ($user->passport_photo) {
+            // Delete old local file if it exists
+            if ($user->passport_photo && !filter_var($user->passport_photo, FILTER_VALIDATE_URL)) {
                 Storage::disk('public')->delete($user->passport_photo);
             }
 
-            // Store new passport
-            $path = $request->file('passport_photo')
-                            ->store('passports', 'public');
+            // Step 1: store locally (backup)
+            $localPath = $request->file('passport_photo')
+                ->store('passports', 'public');
 
-            // Save path to database
-            $user->passport_photo = $path;
+            // Step 2: upload to Cloudinary (LIVE)
+            $cloudinaryUrl = Cloudinary::upload(
+                storage_path('app/public/' . $localPath),
+                [
+                    'folder' => 'passports'
+                ]
+            )->getSecurePath();
+
+            // Step 3: SAVE CLOUDINARY URL (instant dashboard update)
+            $user->passport_photo = $cloudinaryUrl;
         }
 
         $user->save();
@@ -219,9 +200,6 @@ class AdminController extends Controller
             ->with('success', 'User updated successfully.');
     }
 
-    // ==========================
-    // DELETE USER
-    // ==========================
     public function deleteUser(Request $request)
     {
         $user = User::find($request->user_id);

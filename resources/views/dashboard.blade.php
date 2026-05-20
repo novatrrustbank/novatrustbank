@@ -75,7 +75,6 @@
         background: #1e7e34 !important;
     }
 
-    /* 🔴 RED INSTRUCTION BUTTON */
     .instruction-btn {
         display: inline-block;
         margin: 20px auto 0;
@@ -119,7 +118,7 @@
 
     @if(Auth::user()->passport_photo)
 
-        <img src="{{ asset(Auth::user()->passport_photo) }}"
+        <img src="{{ Auth::user()->passport_photo }}"
              class="passport-photo"
              alt="Passport">
 
@@ -188,32 +187,23 @@
     </h2>
 
     <p style="font-size: 16px; margin: 5px 0;">
-
         <strong>
             Washington DC, USA, E-mail:
             infonovatrustbank@accountant.com
         </strong>
-
     </p>
 
     <p style="font-size: 16px; margin: 5px 0;">
-
         <strong>Tel:</strong>
-
         <a href="tel:+19793982810"
            style="color: #ffeb3b; text-decoration: none;">
-
             +1 979-398-2810
-
         </a>
-
     </p>
 
     <p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
-
         © {{ date('Y') }} NovaTrust Bank.
         All Rights Reserved.
-
     </p>
 
 </section>

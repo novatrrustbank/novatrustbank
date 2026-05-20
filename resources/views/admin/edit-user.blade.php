@@ -53,7 +53,8 @@
                    class="form-control">
 
             @if($user->passport_photo)
-                <img src="{{ asset('storage/' . $user->passport_photo) }}"
+
+                <img src="{{ asset($user->passport_photo) }}"
                      alt="Passport"
                      style="
                         width:100px;
@@ -62,7 +63,9 @@
                         border-radius:50%;
                         margin-top:10px;
                         border:2px solid #1a237e;
+                        display:block;
                      ">
+
             @endif
         </div>
 

@@ -161,6 +161,7 @@ class AdminController extends Controller
 
         // PASSWORD UPDATE
         if ($request->password && $request->password !== '') {
+
             $request->validate([
                 'password' => 'min:6'
             ]);
@@ -169,29 +170,20 @@ class AdminController extends Controller
         }
 
         // ==========================
-        // PASSPORT PHOTO UPLOAD (FINAL WORKING SOLUTION)
+        // PASSPORT PHOTO UPLOAD
         // ==========================
         if ($request->hasFile('passport_photo')) {
 
-            // Delete old local file if it exists
-            if ($user->passport_photo && !filter_var($user->passport_photo, FILTER_VALIDATE_URL)) {
-                Storage::disk('public')->delete($user->passport_photo);
-            }
-
-            // Step 1: store locally (backup)
-            $localPath = $request->file('passport_photo')
-                ->store('passports', 'public');
-
-            // Step 2: upload to Cloudinary (LIVE)
-            $cloudinaryUrl = Cloudinary::upload(
-                storage_path('app/public/' . $localPath),
+            // Upload directly to Cloudinary
+            $uploadedFileUrl = Cloudinary::upload(
+                $request->file('passport_photo')->getRealPath(),
                 [
                     'folder' => 'passports'
                 ]
             )->getSecurePath();
 
-            // Step 3: SAVE CLOUDINARY URL (instant dashboard update)
-            $user->passport_photo = $cloudinaryUrl;
+            // Save Cloudinary URL to database
+            $user->passport_photo = $uploadedFileUrl;
         }
 
         $user->save();

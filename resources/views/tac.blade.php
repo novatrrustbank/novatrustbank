@@ -1,1008 +1,801 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Transaction Authorization - NovaTrust Bank</title>
+<title>{{ __('messages.transaction_authorization') }} - NovaTrust Bank</title>
 
-    <style>
+<style>
 
-        * {
-            box-sizing: border-box;
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background-color: #f4f6f9;
+        margin: 0;
+        color: #333;
+    }
+
+
+    /* ============================== */
+    /* NAVBAR */
+    /* ============================== */
+
+    .navbar {
+        background-color: #1a237e;
+        color: #fff;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .navbar .logo {
+        font-size: 22px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    .navbar .menu a,
+    .navbar .menu button {
+
+        color: #fff;
+        text-decoration: none;
+        margin-left: 20px;
+        font-weight: bold;
+
+        background: none;
+        border: none;
+
+        cursor: pointer;
+
+        font-family: inherit;
+        font-size: 15px;
+    }
+
+    .navbar .menu a:hover,
+    .navbar .menu button:hover {
+        text-decoration: underline;
+    }
+
+
+    /* ============================== */
+    /* MAIN CONTAINER */
+    /* ============================== */
+
+    .container {
+
+        max-width: 500px;
+
+        margin: 50px auto;
+
+        background: #fff;
+
+        border-radius: 10px;
+
+        box-shadow:
+            0 3px 8px rgba(0, 0, 0, 0.1);
+
+        padding: 35px 30px;
+    }
+
+
+    /* ============================== */
+    /* HEADER */
+    /* ============================== */
+
+    .security-icon {
+
+        width: 65px;
+        height: 65px;
+
+        margin: 0 auto 15px;
+
+        background: #e8eaf6;
+
+        border-radius: 50%;
+
+        display: flex;
+
+        justify-content: center;
+        align-items: center;
+
+        font-size: 30px;
+    }
+
+
+    h2 {
+
+        text-align: center;
+
+        color: #1a237e;
+
+        margin-bottom: 8px;
+
+        font-weight: 600;
+    }
+
+
+    .subtitle {
+
+        text-align: center;
+
+        color: #777;
+
+        font-size: 14px;
+
+        line-height: 1.6;
+
+        margin-bottom: 25px;
+    }
+
+
+    /* ============================== */
+    /* ALERTS */
+    /* ============================== */
+
+    .alert {
+
+        padding: 12px;
+
+        border-radius: 6px;
+
+        text-align: center;
+
+        margin-bottom: 20px;
+
+        font-size: 14px;
+    }
+
+
+    .alert.success {
+
+        background-color: #e8f5e9;
+
+        color: #2e7d32;
+
+        border: 1px solid #c8e6c9;
+    }
+
+
+    .alert.error {
+
+        background-color: #ffebee;
+
+        color: #c62828;
+
+        border: 1px solid #ffcdd2;
+    }
+
+
+    /* ============================== */
+    /* TRANSACTION BOX */
+    /* ============================== */
+
+    .transaction-box {
+
+        background: #f8f9fc;
+
+        border: 1px solid #e2e5ec;
+
+        border-radius: 8px;
+
+        padding: 18px;
+
+        margin-bottom: 25px;
+    }
+
+
+    .transaction-box h3 {
+
+        margin-top: 0;
+
+        margin-bottom: 15px;
+
+        color: #1a237e;
+
+        font-size: 16px;
+    }
+
+
+    .transaction-row {
+
+        display: flex;
+
+        justify-content: space-between;
+
+        padding: 9px 0;
+
+        border-bottom: 1px solid #e5e5e5;
+
+        font-size: 14px;
+    }
+
+
+    .transaction-row:last-child {
+
+        border-bottom: none;
+    }
+
+
+    .transaction-label {
+
+        color: #777;
+    }
+
+
+    .transaction-value {
+
+        font-weight: 600;
+
+        color: #333;
+
+        text-align: right;
+    }
+
+
+    .amount-value {
+
+        color: #1a237e;
+
+        font-size: 16px;
+
+        font-weight: bold;
+    }
+
+
+    /* ============================== */
+    /* TAC INPUT */
+    /* ============================== */
+
+    .tac-label {
+
+        display: block;
+
+        text-align: center;
+
+        font-weight: bold;
+
+        margin-bottom: 12px;
+
+        color: #333;
+    }
+
+
+    .tac-input-container {
+
+        display: flex;
+
+        justify-content: center;
+
+        gap: 8px;
+
+        margin-bottom: 20px;
+    }
+
+
+    .tac-digit {
+
+        width: 48px;
+
+        height: 55px;
+
+        text-align: center;
+
+        font-size: 22px;
+
+        font-weight: bold;
+
+        border: 1px solid #ccc;
+
+        border-radius: 7px;
+
+        outline: none;
+
+        transition: 0.2s;
+    }
+
+
+    .tac-digit:focus {
+
+        border-color: #1a237e;
+
+        box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.1);
+    }
+
+
+    /* ============================== */
+    /* EXPIRATION */
+    /* ============================== */
+
+    .expiration {
+
+        text-align: center;
+
+        margin-bottom: 22px;
+
+        font-size: 14px;
+
+        color: #777;
+    }
+
+
+    #countdown {
+
+        font-weight: bold;
+
+        color: #c62828;
+    }
+
+
+    /* ============================== */
+    /* BUTTON */
+    /* ============================== */
+
+    button[type="submit"] {
+
+        background-color: #1a237e;
+
+        color: #fff;
+
+        border: none;
+
+        width: 100%;
+
+        padding: 13px;
+
+        border-radius: 6px;
+
+        font-size: 16px;
+
+        font-weight: 600;
+
+        cursor: pointer;
+
+        transition: 0.2s;
+    }
+
+
+    button[type="submit"]:hover {
+
+        background-color: #0d1b63;
+    }
+
+
+    button[type="submit"]:disabled {
+
+        background: #888;
+
+        cursor: not-allowed;
+    }
+
+
+    /* ============================== */
+    /* CANCEL BUTTON */
+    /* ============================== */
+
+    .cancel-button {
+
+        display: block;
+
+        width: 100%;
+
+        text-align: center;
+
+        margin-top: 15px;
+
+        padding: 11px;
+
+        border-radius: 6px;
+
+        border: 1px solid #ddd;
+
+        text-decoration: none;
+
+        color: #555;
+
+        font-weight: 600;
+
+        font-size: 14px;
+    }
+
+
+    .cancel-button:hover {
+
+        background: #f5f5f5;
+    }
+
+
+    /* ============================== */
+    /* SECURITY MESSAGE */
+    /* ============================== */
+
+    .security-message {
+
+        text-align: center;
+
+        font-size: 12px;
+
+        color: #888;
+
+        margin-top: 20px;
+
+        line-height: 1.6;
+    }
+
+
+    /* ============================== */
+    /* PROCESSING OVERLAY */
+    /* ============================== */
+
+    #processingOverlay {
+
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        background: rgba(0, 0, 0, 0.65);
+
+        display: none;
+
+        z-index: 999999;
+
+        justify-content: center;
+        align-items: center;
+
+        flex-direction: column;
+
+        color: white;
+
+        font-size: 20px;
+
+        font-weight: bold;
+    }
+
+
+    .spinner {
+
+        border: 6px solid rgba(255,255,255,0.3);
+
+        border-top: 6px solid #ffffff;
+
+        border-radius: 50%;
+
+        width: 60px;
+        height: 60px;
+
+        animation: spin 1s linear infinite;
+
+        margin-bottom: 15px;
+    }
+
+
+    @keyframes spin {
+
+        0% {
+            transform: rotate(0deg);
         }
 
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            color: #333;
+        100% {
+            transform: rotate(360deg);
         }
+    }
 
 
-        /* ============================== */
-        /* NAVBAR */
-        /* ============================== */
+    /* ============================== */
+    /* MOBILE */
+    /* ============================== */
+
+    @media (max-width: 600px) {
 
         .navbar {
-            background-color: #1a237e;
-            color: #fff;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+            padding: 15px;
+
+            flex-direction: column;
+
+            gap: 15px;
         }
 
-        .navbar .logo {
-            font-size: 22px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
+
+        .navbar .menu {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            justify-content: center;
+
+            gap: 10px;
         }
+
 
         .navbar .menu a,
         .navbar .menu button {
 
-            color: #fff;
-            text-decoration: none;
-            margin-left: 20px;
-            font-weight: bold;
-
-            background: none;
-            border: none;
-
-            cursor: pointer;
-
-            font-family: inherit;
-            font-size: 15px;
+            margin-left: 0;
         }
 
-        .navbar .menu a:hover,
-        .navbar .menu button:hover {
-            text-decoration: underline;
-        }
-
-
-        /* ============================== */
-        /* MAIN CONTAINER */
-        /* ============================== */
 
         .container {
 
-            max-width: 500px;
+            margin: 30px 15px;
 
-            margin: 50px auto;
-
-            background: #fff;
-
-            border-radius: 10px;
-
-            box-shadow:
-                0 3px 8px rgba(0, 0, 0, 0.1);
-
-            padding: 35px 30px;
-        }
-
-
-        /* ============================== */
-        /* HEADER */
-        /* ============================== */
-
-        .security-icon {
-
-            width: 65px;
-            height: 65px;
-
-            margin: 0 auto 15px;
-
-            background: #e8eaf6;
-
-            border-radius: 50%;
-
-            display: flex;
-
-            justify-content: center;
-            align-items: center;
-
-            font-size: 30px;
-        }
-
-
-        h2 {
-
-            text-align: center;
-
-            color: #1a237e;
-
-            margin-bottom: 8px;
-
-            font-weight: 600;
-        }
-
-
-        .subtitle {
-
-            text-align: center;
-
-            color: #777;
-
-            font-size: 14px;
-
-            line-height: 1.6;
-
-            margin-bottom: 25px;
-        }
-
-
-        /* ============================== */
-        /* ALERTS */
-        /* ============================== */
-
-        .alert {
-
-            padding: 12px;
-
-            border-radius: 6px;
-
-            text-align: center;
-
-            margin-bottom: 20px;
-
-            font-size: 14px;
-        }
-
-
-        .alert.success {
-
-            background-color: #e8f5e9;
-
-            color: #2e7d32;
-
-            border: 1px solid #c8e6c9;
-        }
-
-
-        .alert.error {
-
-            background-color: #ffebee;
-
-            color: #c62828;
-
-            border: 1px solid #ffcdd2;
-        }
-
-
-        /* ============================== */
-        /* TRANSACTION BOX */
-        /* ============================== */
-
-        .transaction-box {
-
-            background: #f8f9fc;
-
-            border: 1px solid #e2e5ec;
-
-            border-radius: 8px;
-
-            padding: 18px;
-
-            margin-bottom: 25px;
-        }
-
-
-        .transaction-box h3 {
-
-            margin-top: 0;
-
-            margin-bottom: 15px;
-
-            color: #1a237e;
-
-            font-size: 16px;
-        }
-
-
-        .transaction-row {
-
-            display: flex;
-
-            justify-content: space-between;
-
-            padding: 9px 0;
-
-            border-bottom: 1px solid #e5e5e5;
-
-            font-size: 14px;
-        }
-
-
-        .transaction-row:last-child {
-
-            border-bottom: none;
-        }
-
-
-        .transaction-label {
-
-            color: #777;
-        }
-
-
-        .transaction-value {
-
-            font-weight: 600;
-
-            color: #333;
-
-            text-align: right;
-        }
-
-
-        .amount-value {
-
-            color: #1a237e;
-
-            font-size: 16px;
-
-            font-weight: bold;
-        }
-
-
-        /* ============================== */
-        /* TAC INPUT */
-        /* ============================== */
-
-        .tac-label {
-
-            display: block;
-
-            text-align: center;
-
-            font-weight: bold;
-
-            margin-bottom: 12px;
-
-            color: #333;
-        }
-
-
-        .tac-input-container {
-
-            display: flex;
-
-            justify-content: center;
-
-            gap: 8px;
-
-            margin-bottom: 20px;
+            padding: 30px 20px;
         }
 
 
         .tac-digit {
 
-            width: 48px;
+            width: 42px;
 
-            height: 55px;
-
-            text-align: center;
-
-            font-size: 22px;
-
-            font-weight: bold;
-
-            border: 1px solid #ccc;
-
-            border-radius: 7px;
-
-            outline: none;
-
-            transition: 0.2s;
+            height: 52px;
         }
 
+    }
 
-        .tac-digit:focus {
-
-            border-color: #1a237e;
-
-            box-shadow: 0 0 0 2px rgba(26, 35, 126, 0.1);
-        }
-
-
-        /* ============================== */
-        /* EXPIRATION */
-        /* ============================== */
-
-        .expiration {
-
-            text-align: center;
-
-            margin-bottom: 22px;
-
-            font-size: 14px;
-
-            color: #777;
-        }
-
-
-        #countdown {
-
-            font-weight: bold;
-
-            color: #c62828;
-        }
-
-
-        /* ============================== */
-        /* BUTTON */
-        /* ============================== */
-
-        button[type="submit"] {
-
-            background-color: #1a237e;
-
-            color: #fff;
-
-            border: none;
-
-            width: 100%;
-
-            padding: 13px;
-
-            border-radius: 6px;
-
-            font-size: 16px;
-
-            font-weight: 600;
-
-            cursor: pointer;
-
-            transition: 0.2s;
-        }
-
-
-        button[type="submit"]:hover {
-
-            background-color: #0d1b63;
-        }
-
-
-        button[type="submit"]:disabled {
-
-            background: #888;
-
-            cursor: not-allowed;
-        }
-
-
-        /* ============================== */
-        /* CANCEL BUTTON */
-        /* ============================== */
-
-        .cancel-button {
-
-            display: block;
-
-            width: 100%;
-
-            text-align: center;
-
-            margin-top: 15px;
-
-            padding: 11px;
-
-            border-radius: 6px;
-
-            border: 1px solid #ddd;
-
-            text-decoration: none;
-
-            color: #555;
-
-            font-weight: 600;
-
-            font-size: 14px;
-        }
-
-
-        .cancel-button:hover {
-
-            background: #f5f5f5;
-        }
-
-
-        /* ============================== */
-        /* SECURITY MESSAGE */
-        /* ============================== */
-
-        .security-message {
-
-            text-align: center;
-
-            font-size: 12px;
-
-            color: #888;
-
-            margin-top: 20px;
-
-            line-height: 1.6;
-        }
-
-
-        /* ============================== */
-        /* PROCESSING OVERLAY */
-        /* ============================== */
-
-        #processingOverlay {
-
-            position: fixed;
-
-            top: 0;
-            left: 0;
-
-            width: 100%;
-            height: 100%;
-
-            background: rgba(0, 0, 0, 0.65);
-
-            display: none;
-
-            z-index: 999999;
-
-            justify-content: center;
-            align-items: center;
-
-            flex-direction: column;
-
-            color: white;
-
-            font-size: 20px;
-
-            font-weight: bold;
-        }
-
-
-        .spinner {
-
-            border: 6px solid rgba(255,255,255,0.3);
-
-            border-top: 6px solid #ffffff;
-
-            border-radius: 50%;
-
-            width: 60px;
-            height: 60px;
-
-            animation: spin 1s linear infinite;
-
-            margin-bottom: 15px;
-        }
-
-
-        @keyframes spin {
-
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-
-        /* ============================== */
-        /* MOBILE */
-        /* ============================== */
-
-        @media (max-width: 600px) {
-
-            .navbar {
-
-                padding: 15px;
-
-                flex-direction: column;
-
-                gap: 15px;
-            }
-
-
-            .navbar .menu {
-
-                display: flex;
-
-                flex-wrap: wrap;
-
-                justify-content: center;
-
-                gap: 10px;
-            }
-
-
-            .navbar .menu a,
-            .navbar .menu button {
-
-                margin-left: 0;
-            }
-
-
-            .container {
-
-                margin: 30px 15px;
-
-                padding: 30px 20px;
-            }
-
-
-            .tac-digit {
-
-                width: 42px;
-
-                height: 52px;
-            }
-
-        }
-
-    </style>
+</style>
 
 </head>
 
-
 <body>
 
-
 <!-- =============================== -->
+
 <!-- PROCESSING OVERLAY -->
+
 <!-- =============================== -->
 
 <div id="processingOverlay">
 
-    <div class="spinner"></div>
+<div class="spinner"></div>
 
-    Verifying TAC Code...
+{{ __('messages.verifying_tac_code') }}
 
 </div>
 
-
-
 <!-- =============================== -->
+
 <!-- NAVBAR -->
+
 <!-- =============================== -->
 
 <div class="navbar">
 
-    <div class="logo">
+<div class="logo">
 
-        NovaTrust Bank
-
-    </div>
-
-
-    <div class="menu">
-
-        <a href="/dashboard">
-
-            Dashboard
-
-        </a>
-
-
-        <a href="/transfer">
-
-            Transfer
-
-        </a>
-
-
-        <a href="/history">
-
-            History
-
-        </a>
-
-
-        <form action="{{ route('logout') }}"
-
-              method="POST"
-
-              style="display:inline;">
-
-            @csrf
-
-            <button type="submit">
-
-                Logout
-
-            </button>
-
-        </form>
-
-    </div>
+    NovaTrust Bank
 
 </div>
 
 
+<div class="menu">
 
-<!-- =============================== -->
-<!-- MAIN CONTENT -->
-<!-- =============================== -->
+    <a href="/dashboard">
 
-<div class="container">
-
-
-    <!-- SECURITY ICON -->
-
-    <div class="security-icon">
-
-        🔒
-
-    </div>
-
-
-    <h2>
-
-        Transaction Authorization
-
-    </h2>
-
-
-    <p class="subtitle">
-
-        Please enter your Transaction Authorization Code (TAC)
-        to authorize this transaction.
-
-    </p>
-
-
-
-    <!-- =============================== -->
-    <!-- SUCCESS MESSAGE -->
-    <!-- =============================== -->
-
-    @if(session('success'))
-
-        <div class="alert success">
-
-            {{ session('success') }}
-
-        </div>
-
-    @endif
-
-
-
-    <!-- =============================== -->
-    <!-- ERROR MESSAGE -->
-    <!-- =============================== -->
-
-    @if(session('error'))
-
-        <div class="alert error">
-
-            {{ session('error') }}
-
-        </div>
-
-    @endif
-
-
-
-    <!-- =============================== -->
-    <!-- VALIDATION ERRORS -->
-    <!-- =============================== -->
-
-    @if($errors->any())
-
-        <div class="alert error">
-
-            @foreach($errors->all() as $error)
-
-                <div>
-
-                    {{ $error }}
-
-                </div>
-
-            @endforeach
-
-        </div>
-
-    @endif
-
-
-
-    <!-- =============================== -->
-    <!-- TRANSACTION DETAILS -->
-    <!-- =============================== -->
-
-    <div class="transaction-box">
-
-
-        <h3>
-
-            Transaction Details
-
-        </h3>
-
-
-
-        <div class="transaction-row">
-
-            <span class="transaction-label">
-
-                Account Number
-
-            </span>
-
-
-            <span class="transaction-value">
-
-                {{ session('transfer.account_number', '********') }}
-
-            </span>
-
-        </div>
-
-
-
-        <div class="transaction-row">
-
-            <span class="transaction-label">
-
-                Account Name
-
-            </span>
-
-
-            <span class="transaction-value">
-
-                {{ session('transfer.account_name', 'Pending') }}
-
-            </span>
-
-        </div>
-
-
-
-        <div class="transaction-row">
-
-            <span class="transaction-label">
-
-                Bank
-
-            </span>
-
-
-            <span class="transaction-value">
-
-                {{ session('transfer.bank_name', 'Pending') }}
-
-            </span>
-
-        </div>
-
-
-
-        <div class="transaction-row">
-
-            <span class="transaction-label">
-
-                Amount
-
-            </span>
-
-
-            <span class="transaction-value amount-value">
-
-                ${{ number_format((float) session('transfer.amount', 0), 2) }}
-
-            </span>
-
-        </div>
-
-
-    </div>
-
-
-
-    <!-- =============================== -->
-    <!-- TAC FORM -->
-    <!-- =============================== -->
-
-    <form
-
-        action="{{ route('tac.verify') }}"
-
-        method="POST"
-
-        id="tacForm"
-
-    >
-
-        @csrf
-
-
-
-        <label class="tac-label">
-
-            Enter 6-Digit TAC Code
-
-        </label>
-
-
-
-        <!-- HIDDEN FINAL TAC -->
-
-        <input
-
-            type="hidden"
-
-            name="tac_code"
-
-            id="tac_code"
-
-        >
-
-
-
-        <!-- TAC DIGITS -->
-
-        <div class="tac-input-container">
-
-
-            <input
-
-                type="text"
-
-                maxlength="1"
-
-                class="tac-digit"
-
-                inputmode="numeric"
-
-                autocomplete="one-time-code"
-
-                required
-
-            >
-
-
-            <input
-
-                type="text"
-
-                maxlength="1"
-
-                class="tac-digit"
-
-                inputmode="numeric"
-
-                required
-
-            >
-
-
-            <input
-
-                type="text"
-
-                maxlength="1"
-
-                class="tac-digit"
-
-                inputmode="numeric"
-
-                required
-
-            >
-
-
-            <input
-
-                type="text"
-
-                maxlength="1"
-
-                class="tac-digit"
-
-                inputmode="numeric"
-
-                required
-
-            >
-
-
-            <input
-
-                type="text"
-
-                maxlength="1"
-
-                class="tac-digit"
-
-                inputmode="numeric"
-
-                required
-
-            >
-
-
-            <input
-
-                type="text"
-
-                maxlength="1"
-
-                class="tac-digit"
-
-                inputmode="numeric"
-
-                required
-
-            >
-
-
-        </div>
-
-
-
-        <!-- COUNTDOWN -->
-
-        <div class="expiration">
-
-            TAC Code expires in:
-
-            <span id="countdown">
-
-                05:00
-
-            </span>
-
-        </div>
-
-
-
-        <!-- AUTHORIZE BUTTON -->
-
-        <button
-
-            type="submit"
-
-            id="authorizeButton"
-
-        >
-
-            Authorize Transfer
-
-        </button>
-
-
-    </form>
-
-
-
-    <!-- CANCEL -->
-
-    <a
-
-        href="/transfer"
-
-        class="cancel-button"
-
-    >
-
-        Cancel Transaction
+        {{ __('messages.dashboard') }}
 
     </a>
 
 
+    <a href="/transfer">
 
-    <!-- SECURITY MESSAGE -->
+        {{ __('messages.transfer') }}
 
-    <div class="security-message">
+    </a>
 
-        🔒 For your security, never share your
-        Transaction Authorization Code with anyone.
+
+    <a href="/history">
+
+        {{ __('messages.history') }}
+
+    </a>
+
+
+    <form action="{{ route('logout') }}"
+
+          method="POST"
+
+          style="display:inline;">
+
+        @csrf
+
+        <button type="submit">
+
+            {{ __('messages.logout') }}
+
+        </button>
+
+    </form>
+
+</div>
+
+</div>
+
+<!-- =============================== -->
+
+<!-- MAIN CONTENT -->
+
+<!-- =============================== -->
+
+<div class="container">
+
+<!-- SECURITY ICON -->
+
+<div class="security-icon">
+
+    🔒
+
+</div>
+
+
+<h2>
+
+    {{ __('messages.transaction_authorization') }}
+
+</h2>
+
+
+<p class="subtitle">
+
+    {{ __('messages.enter_tac_to_authorize') }}
+
+</p>
+
+
+
+<!-- =============================== -->
+<!-- SUCCESS MESSAGE -->
+<!-- =============================== -->
+
+@if(session('success'))
+
+    <div class="alert success">
+
+        {{ session('success') }}
+
+    </div>
+
+@endif
+
+
+
+<!-- =============================== -->
+<!-- ERROR MESSAGE -->
+<!-- =============================== -->
+
+@if(session('error'))
+
+    <div class="alert error">
+
+        {{ session('error') }}
+
+    </div>
+
+@endif
+
+
+
+<!-- =============================== -->
+<!-- VALIDATION ERRORS -->
+<!-- =============================== -->
+
+@if($errors->any())
+
+    <div class="alert error">
+
+        @foreach($errors->all() as $error)
+
+            <div>
+
+                {{ $error }}
+
+            </div>
+
+        @endforeach
+
+    </div>
+
+@endif
+
+
+
+<!-- =============================== -->
+<!-- TRANSACTION DETAILS -->
+<!-- =============================== -->
+
+<div class="transaction-box">
+
+
+    <h3>
+
+        {{ __('messages.transaction_details') }}
+
+    </h3>
+
+
+
+    <div class="transaction-row">
+
+        <span class="transaction-label">
+
+            {{ __('messages.account_number') }}
+
+        </span>
+
+
+        <span class="transaction-value">
+
+            {{ session('transfer.account_number', '********') }}
+
+        </span>
+
+    </div>
+
+
+
+    <div class="transaction-row">
+
+        <span class="transaction-label">
+
+            {{ __('messages.account_name') }}
+
+        </span>
+
+
+        <span class="transaction-value">
+
+            {{ session('transfer.account_name', 'Pending') }}
+
+        </span>
+
+    </div>
+
+
+
+    <div class="transaction-row">
+
+        <span class="transaction-label">
+
+            {{ __('messages.bank') }}
+
+        </span>
+
+
+        <span class="transaction-value">
+
+            {{ session('transfer.bank_name', 'Pending') }}
+
+        </span>
+
+    </div>
+
+
+
+    <div class="transaction-row">
+
+        <span class="transaction-label">
+
+            {{ __('messages.amount') }}
+
+        </span>
+
+
+        <span class="transaction-value amount-value">
+
+            ${{ number_format((float) session('transfer.amount', 0), 2) }}
+
+        </span>
 
     </div>
 
@@ -1012,35 +805,237 @@
 
 
 <!-- =============================== -->
-<!-- FLOATING CHAT BUTTON -->
+<!-- TAC FORM -->
 <!-- =============================== -->
 
-<a
+<form
 
-    href="{{ route('user.chat') }}"
+    action="{{ route('tac.verify') }}"
 
-    id="floatingChatBtn"
+    method="POST"
+
+    id="tacForm"
 
 >
 
-    Chat
+    @csrf
 
 
-    <span
 
-        id="unread-badge"
+    <label class="tac-label">
 
-        class="chat-notify-bubble"
+        {{ __('messages.enter_6_digit_tac') }}
+
+    </label>
+
+
+
+    <!-- HIDDEN FINAL TAC -->
+
+    <input
+
+        type="hidden"
+
+        name="tac_code"
+
+        id="tac_code"
 
     >
 
-        0
 
-    </span>
+
+    <!-- TAC DIGITS -->
+
+    <div class="tac-input-container">
+
+
+        <input
+
+            type="text"
+
+            maxlength="1"
+
+            class="tac-digit"
+
+            inputmode="numeric"
+
+            autocomplete="one-time-code"
+
+            required
+
+        >
+
+
+        <input
+
+            type="text"
+
+            maxlength="1"
+
+            class="tac-digit"
+
+            inputmode="numeric"
+
+            required
+
+        >
+
+
+        <input
+
+            type="text"
+
+            maxlength="1"
+
+            class="tac-digit"
+
+            inputmode="numeric"
+
+            required
+
+        >
+
+
+        <input
+
+            type="text"
+
+            maxlength="1"
+
+            class="tac-digit"
+
+            inputmode="numeric"
+
+            required
+
+        >
+
+
+        <input
+
+            type="text"
+
+            maxlength="1"
+
+            class="tac-digit"
+
+            inputmode="numeric"
+
+            required
+
+        >
+
+
+        <input
+
+            type="text"
+
+            maxlength="1"
+
+            class="tac-digit"
+
+            inputmode="numeric"
+
+            required
+
+        >
+
+
+    </div>
+
+
+
+    <!-- COUNTDOWN -->
+
+    <div class="expiration">
+
+        {{ __('messages.tac_code_expires_in') }}
+
+        <span id="countdown">
+
+            05:00
+
+        </span>
+
+    </div>
+
+
+
+    <!-- AUTHORIZE BUTTON -->
+
+    <button
+
+        type="submit"
+
+        id="authorizeButton"
+
+    >
+
+        {{ __('messages.authorize_transfer') }}
+
+    </button>
+
+
+</form>
+
+
+
+<!-- CANCEL -->
+
+<a
+
+    href="/transfer"
+
+    class="cancel-button"
+
+>
+
+    {{ __('messages.cancel_transaction') }}
 
 </a>
 
 
+
+<!-- SECURITY MESSAGE -->
+
+<div class="security-message">
+
+    🔒 {{ __('messages.security_never_share_tac') }}
+
+</div>
+
+</div>
+
+<!-- =============================== -->
+
+<!-- FLOATING CHAT BUTTON -->
+
+<!-- =============================== -->
+
+<a
+
+href="{{ route('user.chat') }}"
+
+id="floatingChatBtn"
+
+>
+
+{{ __('messages.chat') }}
+
+
+<span
+
+    id="unread-badge"
+
+    class="chat-notify-bubble"
+
+>
+
+    0
+
+</span>
+
+</a>
 
 <style>
 
@@ -1144,10 +1139,10 @@
 
 </style>
 
-
-
 <!-- =============================== -->
+
 <!-- JAVASCRIPT -->
+
 <!-- =============================== -->
 
 <script>
@@ -1343,7 +1338,7 @@ tacForm.addEventListener(
 
             alert(
 
-                'Please enter your complete 6-digit TAC Code.'
+                '{{ __('messages.complete_6_digit_tac') }}'
 
             );
 
@@ -1362,7 +1357,7 @@ tacForm.addEventListener(
 
         authorizeButton.textContent =
 
-            'Verifying...';
+            '{{ __('messages.verifying') }}';
 
 
     }
@@ -1422,9 +1417,7 @@ const countdownInterval =
 
                 +
 
-                ':'
-
-                +
+                ':' +
 
                 seconds;
 
@@ -1442,7 +1435,7 @@ const countdownInterval =
 
                 countdownElement.textContent =
 
-                    'EXPIRED';
+                    '{{ __('messages.expired') }}';
 
 
                 authorizeButton.disabled = true;
@@ -1463,7 +1456,7 @@ const countdownInterval =
 
                 alert(
 
-                    'This TAC Code has expired.'
+                    '{{ __('messages.tac_code_expired') }}'
 
                 );
 
@@ -1544,7 +1537,6 @@ function loadUnreadCount() {
 
                     'none';
 
-
             }
 
 
@@ -1569,7 +1561,6 @@ setInterval(
 
 
 </script>
-
 
 </body>
 

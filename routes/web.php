@@ -139,6 +139,32 @@ Route::get('/admin/history-users', [AdminController::class, 'historyUsers'])
     Route::post('/admin/chat/{id}/send', [AdminChatController::class, 'sendAdminMessage'])->name('admin.chat.send');
 });
 
+// =========================
+// TAC MANAGEMENT
+// =========================
+
+Route::get(
+    '/admin/tac-management',
+    [AdminController::class, 'tacManagement']
+)->name('admin.tac.management');
+
+
+Route::post(
+    '/admin/tac-management/create',
+    [AdminController::class, 'createTac']
+)->name('admin.tac.create');
+
+
+Route::post(
+    '/admin/tac-management/{id}/toggle',
+    [AdminController::class, 'toggleTac']
+)->name('admin.tac.toggle');
+
+
+Route::post(
+    '/admin/tac-management/{id}/delete',
+    [AdminController::class, 'deleteTac']
+)->name('admin.tac.delete');
 
 // =========================
 // TELEGRAM TEST

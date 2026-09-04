@@ -24,4 +24,25 @@ return [
     'tel' => 'Tel',
     'all_rights_reserved' => 'Tutti i diritti riservati',
 
+    // TRANSFER
+    'transfer_funds' => 'Trasferisci fondi',
+'processing_transfer' => 'Elaborazione del trasferimento...',
+'dashboard' => 'Dashboard',
+'transfer' => 'Trasferimento',
+'history' => 'Cronologia',
+'logout' => 'Esci',
+'enter_recipient_account_number' => 'Inserisci il numero di conto del destinatario',
+'account_name' => 'Nome del conto',
+'enter_account_name' => 'Inserisci il nome del conto',
+'select_bank' => 'Seleziona banca',
+'other_not_listed' => 'Altro (non elencato)',
+'enter_bank_name' => 'Inserisci il nome della banca',
+'enter_your_bank_name' => 'Inserisci il nome della tua banca',
+'amount' => 'Importo',
+'enter_amount_to_transfer' => 'Inserisci l’importo da trasferire',
+'send_money' => 'Invia denaro',
+'please_enter_bank_name' => 'Inserisci il nome della tua banca.',
+'processing' => 'Elaborazione...',
+'chat' => 'Chat',
+
 ];

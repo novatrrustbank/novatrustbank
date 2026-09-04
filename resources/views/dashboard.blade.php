@@ -116,7 +116,6 @@
 
 <div class="card">
 
-```
 @if(Auth::user()->passport_photo)
 
     <img src="{{ Auth::user()->passport_photo }}"
@@ -136,7 +135,6 @@
 <div class="balance">
     ${{ number_format(Auth::user()->balance, 2) }}
 </div>
-```
 
 </div>
 
@@ -144,14 +142,12 @@
 
 <div class="instruction-wrapper">
 
-```
 <a href="{{ route('transfer.success') }}"
    class="instruction-btn">
 
     ⚠ {{ __('messages.view_transfer_instruction') }}
 
 </a>
-```
 
 </div>
 
@@ -159,7 +155,6 @@
 
 <div class="actions">
 
-```
 <a href="/transfer">
     {{ __('messages.make_transfer') }}
 </a>
@@ -174,7 +169,6 @@
     {{ __('messages.direct_chat') }}
 
 </a>
-```
 
 </div>
 
@@ -188,7 +182,6 @@
     border-radius: 10px;
 ">
 
-```
 <h2 style="font-size: 26px; margin-bottom: 10px;">
     {{ __('messages.contact_novatrust_bank') }}
 </h2>
@@ -212,7 +205,6 @@
     © {{ date('Y') }} NovaTrust Bank.
     {{ __('messages.all_rights_reserved') }}
 </p>
-```
 
 </section>
 

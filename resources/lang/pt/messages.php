@@ -24,4 +24,25 @@ return [
     'tel' => 'Tel',
     'all_rights_reserved' => 'Todos os direitos reservados',
 
+    // TRANSFER
+    'transfer_funds' => 'Transferir fundos',
+'processing_transfer' => 'Processando transferência...',
+'dashboard' => 'Painel',
+'transfer' => 'Transferência',
+'history' => 'Histórico',
+'logout' => 'Sair',
+'enter_recipient_account_number' => 'Digite o número da conta do destinatário',
+'account_name' => 'Nome da conta',
+'enter_account_name' => 'Digite o nome da conta',
+'select_bank' => 'Selecionar banco',
+'other_not_listed' => 'Outro (não listado)',
+'enter_bank_name' => 'Digite o nome do banco',
+'enter_your_bank_name' => 'Digite o nome do seu banco',
+'amount' => 'Valor',
+'enter_amount_to_transfer' => 'Digite o valor a transferir',
+'send_money' => 'Enviar dinheiro',
+'please_enter_bank_name' => 'Digite o nome do seu banco.',
+'processing' => 'Processando...',
+'chat' => 'Chat',
+
 ];

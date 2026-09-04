@@ -131,30 +131,7 @@ class TransferController extends Controller
     }
 
 
-    // ==============================
-    // SHOW TAC PAGE
-    // ==============================
-
-    public function showTac()
-    {
-
-        if (!session()->has('transfer')) {
-
-            return redirect()
-                ->route('transfer.form')
-                ->with(
-                    'error',
-                    'No transfer transaction was found.'
-                );
-
-        }
-
-
-        return view('tac');
-
-    }
-
-public function verifyTac(Request $request)
+  public function verifyTac(Request $request)
 {
 // ==============================
 // VALIDATE TAC INPUT

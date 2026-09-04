@@ -111,30 +111,32 @@
 </style>
 
 <div class="welcome">
-    Welcome back, {{ Auth::user()->name }}
+    {{ __('messages.welcome_back') }}, {{ Auth::user()->name }}
 </div>
 
 <div class="card">
 
-    @if(Auth::user()->passport_photo)
+```
+@if(Auth::user()->passport_photo)
 
-        <img src="{{ Auth::user()->passport_photo }}"
-             class="passport-photo"
-             alt="Passport">
+    <img src="{{ Auth::user()->passport_photo }}"
+         class="passport-photo"
+         alt="{{ __('messages.passport') }}">
 
-    @endif
+@endif
 
-    <h3>Account Number</h3>
+<h3>{{ __('messages.account_number') }}</h3>
 
-    <h2>
-        {{ Auth::user()->account_number }}
-    </h2>
+<h2>
+    {{ Auth::user()->account_number }}
+</h2>
 
-    <h3>Current Balance</h3>
+<h3>{{ __('messages.current_balance') }}</h3>
 
-    <div class="balance">
-        ${{ number_format(Auth::user()->balance, 2) }}
-    </div>
+<div class="balance">
+    ${{ number_format(Auth::user()->balance, 2) }}
+</div>
+```
 
 </div>
 
@@ -142,12 +144,14 @@
 
 <div class="instruction-wrapper">
 
-    <a href="{{ route('transfer.success') }}"
-       class="instruction-btn">
+```
+<a href="{{ route('transfer.success') }}"
+   class="instruction-btn">
 
-        ⚠ View Transfer Instruction
+    ⚠ {{ __('messages.view_transfer_instruction') }}
 
-    </a>
+</a>
+```
 
 </div>
 
@@ -155,20 +159,22 @@
 
 <div class="actions">
 
-    <a href="/transfer">
-        Make Transfer
-    </a>
+```
+<a href="/transfer">
+    {{ __('messages.make_transfer') }}
+</a>
 
-    <a href="/history">
-        View History
-    </a>
+<a href="/history">
+    {{ __('messages.view_history') }}
+</a>
 
-    <a href="{{ route('user.chat') }}"
-       class="chat-btn">
+<a href="{{ route('user.chat') }}"
+   class="chat-btn">
 
-        Direct Chat
+    {{ __('messages.direct_chat') }}
 
-    </a>
+</a>
+```
 
 </div>
 
@@ -182,29 +188,31 @@
     border-radius: 10px;
 ">
 
-    <h2 style="font-size: 26px; margin-bottom: 10px;">
-        Contact NovaTrust Bank
-    </h2>
+```
+<h2 style="font-size: 26px; margin-bottom: 10px;">
+    {{ __('messages.contact_novatrust_bank') }}
+</h2>
 
-    <p style="font-size: 16px; margin: 5px 0;">
-        <strong>
-            Washington DC, USA, E-mail:
-            infonovatrustbank@accountant.com
-        </strong>
-    </p>
+<p style="font-size: 16px; margin: 5px 0;">
+    <strong>
+        {{ __('messages.washington_dc_usa') }}, E-mail:
+        infonovatrustbank@accountant.com
+    </strong>
+</p>
 
-    <p style="font-size: 16px; margin: 5px 0;">
-        <strong>Tel:</strong>
-        <a href="tel:+19793982810"
-           style="color: #ffeb3b; text-decoration: none;">
-            +1 979-398-2810
-        </a>
-    </p>
+<p style="font-size: 16px; margin: 5px 0;">
+    <strong>{{ __('messages.tel') }}:</strong>
+    <a href="tel:+19793982810"
+       style="color: #ffeb3b; text-decoration: none;">
+        +1 979-398-2810
+    </a>
+</p>
 
-    <p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
-        © {{ date('Y') }} NovaTrust Bank.
-        All Rights Reserved.
-    </p>
+<p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
+    © {{ date('Y') }} NovaTrust Bank.
+    {{ __('messages.all_rights_reserved') }}
+</p>
+```
 
 </section>
 

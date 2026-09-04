@@ -1,10 +1,11 @@
+php
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login - NovaTrust Bank</title>
+    <title>{{ __('messages.login') }} - NovaTrust Bank</title>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
@@ -75,13 +76,22 @@
 
     <div class="main">
         <div class="hero-text">
-            <span>Simple, Quick, Secure Banking System</span>
-            <h1>Send Funds From Us To 130+ Countries Within Minutes</h1>
+
+            <span>
+                {{ __('messages.simple_secure_banking') }}
+            </span>
+
+            <h1>
+                {{ __('messages.send_funds') }}
+            </h1>
+
         </div>
 
         <div class="container">
 
-            <h2>Login</h2>
+            <h2>
+                {{ __('messages.login') }}
+            </h2>
 
             {{-- SUCCESS MESSAGE --}}
             @if(session('success'))
@@ -107,7 +117,9 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-                <label>Email Address</label>
+                <label>
+                    {{ __('messages.email_address') }}
+                </label>
 
                 <input
                     type="email"
@@ -117,7 +129,9 @@
                     autofocus
                 >
 
-                <label>Password</label>
+                <label>
+                    {{ __('messages.password') }}
+                </label>
 
                 <div class="password-wrapper">
 
@@ -134,21 +148,22 @@
 
                 </div>
 
-                <button type="submit">Login</button>
+                <button type="submit">
+                    {{ __('messages.login') }}
+                </button>
 
             </form>
 
             <div class="link" style="margin-top:10px;">
                 <a href="{{ route('password.request') }}"
                    style="color:#c62828; text-decoration:none; font-size:14px; font-weight:bold;">
-                   Forgot Password?
+                    {{ __('messages.forgot_password') }}
                 </a>
             </div>
 
             <div class="link">
                 <a href="{{ route('register') }}"
                    style="color: #1a237e; text-decoration: none; font-size: 14px;">
-                   
                 </a>
             </div>
 

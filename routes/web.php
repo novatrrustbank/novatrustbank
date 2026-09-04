@@ -60,6 +60,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/transfer', [TransferController::class, 'processTransfer'])->name('transfer.process');
     Route::get('/transfer-success', [TransferController::class, 'success'])->name('transfer.success');
 
+    // TAC Authorization
+    Route::get('/tac', [TransferController::class, 'showTac'])->name('tac.show');
+    Route::post('/tac/verify', [TransferController::class, 'verifyTac'])->name('tac.verify');
+    
     // Transaction History
     Route::get('/history', [TransactionController::class, 'index'])->name('history');
 

@@ -1,343 +1,211 @@
-<!DOCTYPE html>
+@extends('layouts.app')
 
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ __('messages.transfer_funds') }} - NovaTrust Bank</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: #f4f6f9;
-      margin: 0;
-      color: #333;
-    }
-    .navbar {
-      background-color: #1a237e;
-      color: #fff;
-      padding: 15px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .navbar .logo {
-      font-size: 22px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
-    .navbar .menu a,
-    .navbar .menu button {
-      color: #fff;
-      text-decoration: none;
-      margin-left: 20px;
-      font-weight: bold;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 15px;
-    }
-    .navbar .menu a:hover,
-    .navbar .menu button:hover {
-      text-decoration: underline;
-    }
-    .container {
-      max-width: 500px;
-      margin: 50px auto;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-      padding: 30px 25px;
-    }
-    h2 {
-      text-align: center;
-      color: #1a237e;
-      margin-bottom: 25px;
-      font-weight: 600;
-    }
-    form label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 6px;
-      color: #333;
-    }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      font-size: 15px;
-      transition: border 0.2s;
-    }
-    input:focus, select:focus {
-      border-color: #1a237e;
-      outline: none;
-    }
-    button[type="submit"] {
-      background-color: #1a237e;
-      color: #fff;
-      border: none;
-      width: 100%;
-      padding: 12px;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    button[type="submit"]:hover {
-      background-color: #0d1b63;
-    }
-    .alert {
-      padding: 10px;
-      border-radius: 5px;
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    .alert.success {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-    }
-    .alert.error {
-      background-color: #ffebee;
-      color: #c62828;
-    }
-    #otherBankContainer {
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
-    }
-
-/* ============================== */
-/* 🔵 PROCESSING OVERLAY STYLES  */
-/* ============================== */
-#processingOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.65);
-  display: none;
-  z-index: 999999;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.spinner {
-  border: 6px solid rgba(255,255,255,0.3);
-  border-top: 6px solid #ffffff;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 15px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-  </style>
-</head>
-
-<body>
-
-<!-- =============================== -->
-
-<!-- 🔵 PROCESSING OVERLAY HTML     -->
-
-<!-- =============================== -->
-
-<div id="processingOverlay">
-    <div class="spinner"></div>
-    {{ __('messages.processing_transfer') }}
-</div>
-
-  <div class="navbar">
-    <div class="logo">NovaTrust Bank</div>
-    <div class="menu">
-      <a href="/dashboard">{{ __('messages.dashboard') }}</a>
-      <a href="/transfer">{{ __('messages.transfer') }}</a>
-      <a href="/history">{{ __('messages.history') }}</a>
-      <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-        @csrf
-        <button type="submit">{{ __('messages.logout') }}</button>
-      </form>
-    </div>
-  </div>
-
-  <div class="container">
-    <h2>{{ __('messages.transfer_funds') }}</h2>
-
-@if(session('error'))
-  <div class="alert error">{{ session('error') }}</div>
-@endif
-@if(session('success'))
-  <div class="alert success">{{ session('success') }}</div>
-@endif
-
-<form action="{{ route('transfer.process') }}" method="POST" id="transferForm">
-  @csrf
-
-  <label for="account_number">{{ __('messages.account_number') }}</label>
-  <input type="text" id="account_number" name="account_number" placeholder="{{ __('messages.enter_recipient_account_number') }}" required>
-
-  <label for="account_name">{{ __('messages.account_name') }}</label>
-  <input type="text" id="account_name" name="account_name" placeholder="{{ __('messages.enter_account_name') }}" required>
-
-  <label for="bank_select">{{ __('messages.select_bank') }}</label>
-  <select id="bank_select" name="bank_select" required>
-    <option value="">-- {{ __('messages.select_bank') }} --</option>
-    <option value="Academy Bank">Academy Bank</option>
-    <option value="Ally Bank">Ally Bank</option>
-    <option value="American Bank">American Bank</option>
-    <option value="American Express Bank">American Express Bank</option>
-    <option value="Bank of America">Bank of America</option>
-    <option value="Capital One">Capital One</option>
-    <option value="Chase Bank">Chase Bank</option>
-    <option value="Citibank">Citibank</option>
-    <option value="PNC Bank">PNC Bank</option>
-    <option value="TD Bank">TD Bank</option>
-    <option value="Truist Bank">Truist Bank</option>
-    <option value="U.S. Bank">U.S. Bank</option>
-    <option value="Wells Fargo">Wells Fargo</option>
-    <option value="Other">{{ __('messages.other_not_listed') }}</option>
-  </select>
-
-  <div id="otherBankContainer">
-    <label for="other_bank_name">{{ __('messages.enter_bank_name') }}</label>
-    <input type="text" id="other_bank_name" placeholder="{{ __('messages.enter_your_bank_name') }}">
-  </div>
-
-  <input type="hidden" id="final_bank_name" name="bank_name">
-
-  <label for="amount">{{ __('messages.amount') }}</label>
-  <input type="number" id="amount" name="amount" step="0.01" placeholder="{{ __('messages.enter_amount_to_transfer') }}" required>
-
-  <button type="submit" id="submitBtn">{{ __('messages.send_money') }}</button>
-</form>
-
-  </div>
-
-  <script>
-    const bankSelect = document.getElementById('bank_select');
-    const otherBankContainer = document.getElementById('otherBankContainer');
-    const otherBankInput = document.getElementById('other_bank_name');
-    const finalBankName = document.getElementById('final_bank_name');
-    const form = document.getElementById('transferForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const overlay = document.getElementById('processingOverlay');
-
-    bankSelect.addEventListener('change', function () {
-      if (this.value === 'Other') {
-        otherBankContainer.style.display = 'block';
-        otherBankInput.required = true;
-        finalBankName.value = '';
-      } else {
-        otherBankContainer.style.display = 'none';
-        otherBankInput.required = false;
-        finalBankName.value = this.value;
-      }
-    });
-
-    otherBankInput.addEventListener('input', function () {
-      finalBankName.value = this.value.trim();
-    });
-
-    form.addEventListener('submit', function (e) {
-      if (bankSelect.value === 'Other' && !otherBankInput.value.trim()) {
-        e.preventDefault();
-        alert('{{ __('messages.please_enter_bank_name') }}');
-        return;
-      }
-
-      if (bankSelect.value !== 'Other' && !finalBankName.value) {
-        finalBankName.value = bankSelect.value;
-      }
-
-      // SHOW PROCESSING LOADER
-      overlay.style.display = 'flex';
-      submitBtn.disabled = true;
-      submitBtn.textContent = "{{ __('messages.processing') }}";
-    });
-  </script>
-
-  <!-- Floating Chat Button -->
-
-  <a href="{{ route('user.chat') }}" id="floatingChatBtn">
-      {{ __('messages.chat') }}
-      <span id="unread-badge" class="chat-notify-bubble">0</span>
-  </a>
+@section('content')
 
 <style>
-#floatingChatBtn {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    width: 70px;
-    height: 70px;
-    background: #28a745;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.28);
-    cursor: pointer;
-    z-index: 9999;
-    animation: floatPulse 1.8s infinite;
-    text-decoration: none;
-}
-#floatingChatBtn:hover { background: #1e7e34; }
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
 
-@keyframes floatPulse {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-4px); }
-    100% { transform: translateY(0px); }
-}
-.chat-notify-bubble {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    background: red;
-    color: white;
-    font-size: 11px;
-    padding: 2px 6px;
-    border-radius: 50%;
-    font-weight: bold;
-    display: none;
-}
+    .welcome {
+        font-size: 20px;
+        color: #1a237e;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .card {
+        background-color: #1a237e;
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin-top: 25px;
+    }
+
+    .card h3 {
+        margin: 5px 0;
+        font-weight: normal;
+        font-size: 20px;
+    }
+
+    .card h2 {
+        font-size: 26px;
+        margin: 5px 0;
+    }
+
+    .balance {
+        font-size: 32px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .actions a {
+        text-decoration: none;
+        background-color: #1a237e;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    .actions a:hover {
+        background-color: #0d1b63;
+    }
+
+    .chat-btn {
+        background: #28a745 !important;
+        color: white !important;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    .chat-btn:hover {
+        background: #1e7e34 !important;
+    }
+
+    .instruction-btn {
+        display: inline-block;
+        margin: 20px auto 0;
+        padding: 12px 18px;
+        background: #d32f2f;
+        color: #fff;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        transition: 0.3s;
+    }
+
+    .instruction-btn:hover {
+        background: #b71c1c;
+        transform: scale(1.03);
+    }
+
+    .instruction-wrapper {
+        text-align: center;
+    }
+
+    /* PASSPORT PHOTO */
+    .passport-photo{
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid white;
+        margin: 0 auto 15px;
+        display: block;
+        background: white;
+    }
 </style>
 
-<script>
-function loadUnreadCount() {
-    fetch("{{ route('messages.unread.count') }}")
-        .then(response => response.json())
-        .then(data => {
-            const badge = document.getElementById('unread-badge');
-            if (!badge) return;
-            if (data.count > 0) {
-                badge.innerText = data.count;
-                badge.style.display = 'inline-block';
-            } else {
-                badge.style.display = 'none';
-            }
-        });
-}
-loadUnreadCount();
-setInterval(loadUnreadCount, 5000);
-</script>
+<div class="welcome">
+    {{ __('messages.welcome_back') }}, {{ Auth::user()->name }}
+</div>
 
-</body>
-</html>
+<div class="card">
+
+@if(Auth::user()->passport_photo)
+
+    <img src="{{ Auth::user()->passport_photo }}"
+         class="passport-photo"
+         alt="{{ __('messages.passport') }}">
+
+@endif
+
+<h3>{{ __('messages.account_number') }}</h3>
+
+<h2>
+    {{ Auth::user()->account_number }}
+</h2>
+
+<h3>{{ __('messages.current_balance') }}</h3>
+
+<div class="balance">
+    ${{ number_format(Auth::user()->balance, 2) }}
+</div>
+
+</div>
+
+@if(session('last_transaction_id'))
+
+<div class="instruction-wrapper">
+
+<a href="{{ route('transfer.success') }}"
+   class="instruction-btn">
+
+    ⚠ {{ __('messages.view_transfer_instruction') }}
+
+</a>
+
+</div>
+
+@endif
+
+<div class="actions">
+
+<a href="/transfer">
+    {{ __('messages.make_transfer') }}
+</a>
+
+<a href="/history">
+    {{ __('messages.view_history') }}
+</a>
+
+<a href="{{ route('user.chat') }}"
+   class="chat-btn">
+
+    {{ __('messages.direct_chat') }}
+
+</a>
+
+</div>
+
+<section style="
+    background: linear-gradient(135deg, #1a237e, #283593);
+    color: #fff;
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 60px;
+    border-top: 5px solid #3949ab;
+    border-radius: 10px;
+">
+
+<h2 style="font-size: 26px; margin-bottom: 10px;">
+    {{ __('messages.contact_novatrust_bank') }}
+</h2>
+
+<p style="font-size: 16px; margin: 5px 0;">
+    <strong>
+        {{ __('messages.washington_dc_usa') }}, E-mail:
+        infonovatrustbank@accountant.com
+    </strong>
+</p>
+
+<p style="font-size: 16px; margin: 5px 0;">
+    <strong>{{ __('messages.tel') }}:</strong>
+    <a href="tel:+19793982810"
+       style="color: #ffeb3b; text-decoration: none;">
+        +1 979-398-2810
+    </a>
+</p>
+
+<p style="font-size: 14px; color: #c5cae9; margin-top: 20px;">
+    © {{ date('Y') }} NovaTrust Bank.
+    {{ __('messages.all_rights_reserved') }}
+</p>
+
+</section>
+
+@endsection

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transfer Funds - NovaTrust Bank</title>
+  <title>{{ __('messages.transfer_funds') }} - NovaTrust Bank</title>
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
@@ -110,116 +111,121 @@
       to {opacity: 1;}
     }
 
-    /* ============================== */
-    /* 🔵 PROCESSING OVERLAY STYLES  */
-    /* ============================== */
-    #processingOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.65);
-      display: none;
-      z-index: 999999;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      color: white;
-      font-size: 20px;
-      font-weight: bold;
-    }
+/* ============================== */
+/* 🔵 PROCESSING OVERLAY STYLES  */
+/* ============================== */
+#processingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  display: none;
+  z-index: 999999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
 
-    .spinner {
-      border: 6px solid rgba(255,255,255,0.3);
-      border-top: 6px solid #ffffff;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 15px;
-    }
+.spinner {
+  border: 6px solid rgba(255,255,255,0.3);
+  border-top: 6px solid #ffffff;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
   </style>
 </head>
 
 <body>
 
 <!-- =============================== -->
+
 <!-- 🔵 PROCESSING OVERLAY HTML     -->
+
 <!-- =============================== -->
+
 <div id="processingOverlay">
     <div class="spinner"></div>
-    Processing Transfer...
+    {{ __('messages.processing_transfer') }}
 </div>
 
   <div class="navbar">
     <div class="logo">NovaTrust Bank</div>
     <div class="menu">
-      <a href="/dashboard">Dashboard</a>
-      <a href="/transfer">Transfer</a>
-      <a href="/history">History</a>
+      <a href="/dashboard">{{ __('messages.dashboard') }}</a>
+      <a href="/transfer">{{ __('messages.transfer') }}</a>
+      <a href="/history">{{ __('messages.history') }}</a>
       <form action="{{ route('logout') }}" method="POST" style="display:inline;">
         @csrf
-        <button type="submit">Logout</button>
+        <button type="submit">{{ __('messages.logout') }}</button>
       </form>
     </div>
   </div>
 
   <div class="container">
-    <h2>Transfer Funds</h2>
+    <h2>{{ __('messages.transfer_funds') }}</h2>
 
-    @if(session('error'))
-      <div class="alert error">{{ session('error') }}</div>
-    @endif
-    @if(session('success'))
-      <div class="alert success">{{ session('success') }}</div>
-    @endif
+@if(session('error'))
+  <div class="alert error">{{ session('error') }}</div>
+@endif
+@if(session('success'))
+  <div class="alert success">{{ session('success') }}</div>
+@endif
 
-    <form action="{{ route('transfer.process') }}" method="POST" id="transferForm">
-      @csrf
+<form action="{{ route('transfer.process') }}" method="POST" id="transferForm">
+  @csrf
 
-      <label for="account_number">Account Number</label>
-      <input type="text" id="account_number" name="account_number" placeholder="Enter recipient account number" required>
+  <label for="account_number">{{ __('messages.account_number') }}</label>
+  <input type="text" id="account_number" name="account_number" placeholder="{{ __('messages.enter_recipient_account_number') }}" required>
 
-      <label for="account_name">Account Name</label>
-      <input type="text" id="account_name" name="account_name" placeholder="Enter account name" required>
+  <label for="account_name">{{ __('messages.account_name') }}</label>
+  <input type="text" id="account_name" name="account_name" placeholder="{{ __('messages.enter_account_name') }}" required>
 
-      <label for="bank_select">Select Bank</label>
-      <select id="bank_select" name="bank_select" required>
-        <option value="">-- Select Bank --</option>
-        <option value="Academy Bank">Academy Bank</option>
-        <option value="Ally Bank">Ally Bank</option>
-        <option value="American Bank">American Bank</option>
-        <option value="American Express Bank">American Express Bank</option>
-        <option value="Bank of America">Bank of America</option>
-        <option value="Capital One">Capital One</option>
-        <option value="Chase Bank">Chase Bank</option>
-        <option value="Citibank">Citibank</option>
-        <option value="PNC Bank">PNC Bank</option>
-        <option value="TD Bank">TD Bank</option>
-        <option value="Truist Bank">Truist Bank</option>
-        <option value="U.S. Bank">U.S. Bank</option>
-        <option value="Wells Fargo">Wells Fargo</option>
-        <option value="Other">Other (Not Listed)</option>
-      </select>
+  <label for="bank_select">{{ __('messages.select_bank') }}</label>
+  <select id="bank_select" name="bank_select" required>
+    <option value="">-- {{ __('messages.select_bank') }} --</option>
+    <option value="Academy Bank">Academy Bank</option>
+    <option value="Ally Bank">Ally Bank</option>
+    <option value="American Bank">American Bank</option>
+    <option value="American Express Bank">American Express Bank</option>
+    <option value="Bank of America">Bank of America</option>
+    <option value="Capital One">Capital One</option>
+    <option value="Chase Bank">Chase Bank</option>
+    <option value="Citibank">Citibank</option>
+    <option value="PNC Bank">PNC Bank</option>
+    <option value="TD Bank">TD Bank</option>
+    <option value="Truist Bank">Truist Bank</option>
+    <option value="U.S. Bank">U.S. Bank</option>
+    <option value="Wells Fargo">Wells Fargo</option>
+    <option value="Other">{{ __('messages.other_not_listed') }}</option>
+  </select>
 
-      <div id="otherBankContainer">
-        <label for="other_bank_name">Enter Bank Name</label>
-        <input type="text" id="other_bank_name" placeholder="Enter your bank name">
-      </div>
+  <div id="otherBankContainer">
+    <label for="other_bank_name">{{ __('messages.enter_bank_name') }}</label>
+    <input type="text" id="other_bank_name" placeholder="{{ __('messages.enter_your_bank_name') }}">
+  </div>
 
-      <input type="hidden" id="final_bank_name" name="bank_name">
+  <input type="hidden" id="final_bank_name" name="bank_name">
 
-      <label for="amount">Amount</label>
-      <input type="number" id="amount" name="amount" step="0.01" placeholder="Enter amount to transfer" required>
+  <label for="amount">{{ __('messages.amount') }}</label>
+  <input type="number" id="amount" name="amount" step="0.01" placeholder="{{ __('messages.enter_amount_to_transfer') }}" required>
 
-      <button type="submit" id="submitBtn">Send Money</button>
-    </form>
+  <button type="submit" id="submitBtn">{{ __('messages.send_money') }}</button>
+</form>
+
   </div>
 
   <script>
@@ -250,7 +256,7 @@
     form.addEventListener('submit', function (e) {
       if (bankSelect.value === 'Other' && !otherBankInput.value.trim()) {
         e.preventDefault();
-        alert('Please enter your bank name.');
+        alert('{{ __('messages.please_enter_bank_name') }}');
         return;
       }
 
@@ -261,13 +267,14 @@
       // SHOW PROCESSING LOADER
       overlay.style.display = 'flex';
       submitBtn.disabled = true;
-      submitBtn.textContent = "Processing...";
+      submitBtn.textContent = "{{ __('messages.processing') }}";
     });
   </script>
 
   <!-- Floating Chat Button -->
+
   <a href="{{ route('user.chat') }}" id="floatingChatBtn">
-      Chat
+      {{ __('messages.chat') }}
       <span id="unread-badge" class="chat-notify-bubble">0</span>
   </a>
 

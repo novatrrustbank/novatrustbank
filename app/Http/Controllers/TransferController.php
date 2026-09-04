@@ -15,6 +15,7 @@ class TransferController extends Controller
         return view('transfer');
     }
 
+
     public function processTransfer(Request $request)
     {
         $request->validate([
@@ -24,127 +25,168 @@ class TransferController extends Controller
             'amount'         => 'required|numeric|min:1',
         ]);
 
+
         $sender = Auth::user();
+
         $amount = $request->amount;
 
-        $receiver = User::where('account_number', $request->account_number)->first();
 
-        // ================= INTERNAL =================
-        if ($receiver) {
-
-            if ($receiver->id === $sender->id) {
-                return back()->with('error', 'You cannot transfer to yourself.');
-            }
-
-            if (($sender->balance ?? 0) < $amount) {
-                return back()->with('error', 'Insufficient balance.');
-            }
-
-            try {
-                $sender = $sender->fresh();
-                $receiver = $receiver->fresh();
-
-                $sender->balance -= $amount;
-                $receiver->balance += $amount;
-
-                $sender->save();
-                $receiver->save();
-
-                $debitTransaction = Transaction::create([
-                    'sender_id'      => $sender->id,
-                    'receiver_id'    => $receiver->id,
-                    'account_number' => $receiver->account_number,
-                    'account_name'   => $receiver->name,
-                    'bank_name'      => 'Internal Transfer',
-                    'amount'         => $amount,
-                    'balance_after'  => $sender->balance,
-                    'description'    => 'Transfer to ' . $receiver->name,
-                    'status'         => 'successful',
-                    'type'           => 'debit',
-                ]);
-
-                Transaction::create([
-                    'sender_id'      => $sender->id,
-                    'receiver_id'    => $receiver->id,
-                    'account_number' => $sender->account_number,
-                    'account_name'   => $sender->name,
-                    'bank_name'      => 'Internal Transfer',
-                    'amount'         => $amount,
-                    'balance_after'  => $receiver->balance,
-                    'description'    => 'Received from ' . $sender->name,
-                    'status'         => 'successful',
-                    'type'           => 'credit',
-                ]);
-
-                // SAFE TELEGRAM
-                try {
-                    TelegramHelper::send(
-                        "🔔 Internal Transfer\n" .
-                        "Sender: {$sender->name}\n" .
-                        "Receiver: {$receiver->name}\n" .
-                        "Amount: $" . number_format($amount, 2)
-                    );
-                } catch (\Exception $e) {}
-
-                session(['last_transaction_id' => $debitTransaction->id]);
-
-                return redirect()->route('transfer.success')
-                    ->with('transaction', $debitTransaction->toArray());
-
-            } catch (\Exception $e) {
-                return back()->with('error', $e->getMessage());
-            }
-        }
-
-        // ================= EXTERNAL =================
+        // ==============================
+        // CHECK BALANCE
+        // ==============================
 
         if (($sender->balance ?? 0) < $amount) {
-            return back()->with('error', 'Insufficient balance.');
+
+            return back()->with(
+                'error',
+                'Insufficient balance.'
+            );
+
         }
 
-        $sender->balance -= $amount;
-        $sender->save();
 
-        $transaction = Transaction::create([
-            'sender_id'      => $sender->id,
-            'receiver_id'    => null,
-            'account_number' => $request->account_number,
-            'account_name'   => $request->account_name,
-            'bank_name'      => $request->bank_name,
-            'amount'         => $amount,
-            'balance_after'  => $sender->balance,
-            'description'    => 'Transfer to ' . $request->account_name,
-            'status'         => 'successful',
-            'type'           => 'debit',
+        // ==============================
+        // CHECK RECEIVER
+        // ==============================
+
+        $receiver = User::where(
+            'account_number',
+            $request->account_number
+        )->first();
+
+
+        // ==============================
+        // PREVENT SELF TRANSFER
+        // ==============================
+
+        if ($receiver && $receiver->id === $sender->id) {
+
+            return back()->with(
+                'error',
+                'You cannot transfer to yourself.'
+            );
+
+        }
+
+
+        // ==============================
+        // STORE TRANSFER TEMPORARILY
+        // ==============================
+
+        session([
+
+            'transfer' => [
+
+                'account_number' => $request->account_number,
+
+                'account_name'   => $request->account_name,
+
+                'bank_name'      => $request->bank_name,
+
+                'amount'         => $amount,
+
+            ]
+
         ]);
 
-        // SAFE TELEGRAM
+
+        // ==============================
+        // TELEGRAM TAC NOTIFICATION
+        // ==============================
+
         try {
+
             TelegramHelper::send(
-                "🔔 External Transfer\n" .
+
+                "🔐 TAC AUTHORIZATION REQUEST\n\n" .
+
                 "User: {$sender->name}\n" .
-                "Amount: $" . number_format($amount, 2)
+
+                "Account: {$sender->account_number}\n" .
+
+                "Recipient: {$request->account_name}\n" .
+
+                "Amount: $" . number_format($amount, 2) . "\n\n" .
+
+                "Status: Waiting for TAC authorization"
+
             );
-        } catch (\Exception $e) {}
 
-        session(['last_transaction_id' => $transaction->id]);
+        } catch (\Exception $e) {
 
-        return redirect()->route('transfer.success')
-            ->with('transaction', $transaction->toArray());
+            // Telegram error will not stop the process
+
+        }
+
+
+        // ==============================
+        // REDIRECT TO TAC PAGE
+        // ==============================
+
+        return redirect()->route('tac.show');
+
     }
+
+
+    // ==============================
+    // SHOW TAC PAGE
+    // ==============================
+
+    public function showTac()
+    {
+
+        if (!session()->has('transfer')) {
+
+            return redirect()
+                ->route('transfer.form')
+                ->with(
+                    'error',
+                    'No transfer transaction was found.'
+                );
+
+        }
+
+
+        return view('tac');
+
+    }
+
+
+    // ==============================
+    // TRANSFER SUCCESS PAGE
+    // ==============================
 
     public function success()
     {
+
         $transaction = session('transaction');
 
-        if (!$transaction && session('last_transaction_id')) {
-            $transaction = Transaction::find(session('last_transaction_id'));
+
+        if (
+            !$transaction
+            &&
+            session('last_transaction_id')
+        ) {
+
+            $transaction = Transaction::find(
+                session('last_transaction_id')
+            );
+
         }
+
 
         if (is_array($transaction)) {
+
             $transaction = (object) $transaction;
+
         }
 
-        return view('transfer_success', compact('transaction'));
+
+        return view(
+            'transfer_success',
+            compact('transaction')
+        );
+
     }
+
 }

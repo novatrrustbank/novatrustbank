@@ -20,7 +20,7 @@ class SetLocale
         ];
 
         // Use previously selected language if available
-        $locale = session('locale');
+        $locale = null;
 
         // Otherwise detect browser language
         if (!$locale) {

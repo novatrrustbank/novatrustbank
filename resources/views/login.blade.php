@@ -70,6 +70,10 @@ php
 </head>
 <body>
 
+    <div style="position:fixed;bottom:10px;left:10px;background:white;color:black;padding:10px;z-index:9999;">
+    Language: {{ app()->getLocale() }}
+</div>
+    
     <img src="{{ asset('images/banking-bg.jpg') }}" class="bg-image">
     <div class="overlay"></div>
     <img src="{{ asset('images/logo.jpg') }}" class="logo-image">

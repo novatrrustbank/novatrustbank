@@ -354,12 +354,7 @@ try {
         // LOCK SENDER
         // ==============================
 
-        $lockedSender = User::where(
-            'id',
-            $sender->id
-        )
-        ->lockForUpdate()
-        ->firstOrFail();
+        $lockedSender = User::findOrFail($sender->id);
 
 
         // ==============================
@@ -367,11 +362,9 @@ try {
         // ==============================
 
         $receiver = User::where(
-            'account_number',
-            $transfer['account_number']
-        )
-        ->lockForUpdate()
-        ->first();
+    'account_number',
+    $transfer['account_number']
+)->first();
 
 
         // ==============================

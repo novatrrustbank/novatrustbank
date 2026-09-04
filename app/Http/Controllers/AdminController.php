@@ -160,7 +160,40 @@ class AdminController extends Controller
         $user->email = $request->email;
         $user->balance = $request->balance;
 
-// ==========================
+        // PASSWORD UPDATE
+        if ($request->password && $request->password !== '') {
+
+            $request->validate([
+                'password' => 'min:6'
+            ]);
+
+            $user->password = Hash::make($request->password);
+        }
+
+        // ==========================
+        // PASSPORT PHOTO UPLOAD
+        // ==========================
+        if ($request->hasFile('passport_photo')) {
+
+            // Upload directly to Cloudinary
+            $uploadedFileUrl = Cloudinary::upload(
+                $request->file('passport_photo')->getRealPath(),
+                [
+                    'folder' => 'passports'
+                ]
+            )->getSecurePath();
+
+            // Save Cloudinary URL to database
+            $user->passport_photo = $uploadedFileUrl;
+        }
+
+        $user->save();
+
+        return redirect()->route('admin.users')
+            ->with('success', 'User updated successfully.');
+    }
+
+    // ==========================
 // TAC MANAGEMENT PAGE
 // ==========================
 public function tacManagement()
@@ -240,39 +273,9 @@ public function deleteTac($id)
     );
 }
 
-        // PASSWORD UPDATE
-        if ($request->password && $request->password !== '') {
-
-            $request->validate([
-                'password' => 'min:6'
-            ]);
-
-            $user->password = Hash::make($request->password);
-        }
-
-        // ==========================
-        // PASSPORT PHOTO UPLOAD
-        // ==========================
-        if ($request->hasFile('passport_photo')) {
-
-            // Upload directly to Cloudinary
-            $uploadedFileUrl = Cloudinary::upload(
-                $request->file('passport_photo')->getRealPath(),
-                [
-                    'folder' => 'passports'
-                ]
-            )->getSecurePath();
-
-            // Save Cloudinary URL to database
-            $user->passport_photo = $uploadedFileUrl;
-        }
-
-        $user->save();
-
-        return redirect()->route('admin.users')
-            ->with('success', 'User updated successfully.');
-    }
-
+// ==========================
+// DELETE USER
+// ==========================
     public function deleteUser(Request $request)
     {
         $user = User::find($request->user_id);

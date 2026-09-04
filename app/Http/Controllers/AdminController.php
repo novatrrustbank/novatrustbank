@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Upload;
 use App\Models\User;
 use App\Models\Transaction;
+use App\Models\TransactionTac;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
@@ -158,6 +159,86 @@ class AdminController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->balance = $request->balance;
+
+// ==========================
+// TAC MANAGEMENT PAGE
+// ==========================
+public function tacManagement()
+{
+    $users = User::orderBy('name', 'ASC')->get();
+
+    $tacs = TransactionTac::with('user')
+        ->latest()
+        ->get();
+
+    return view(
+        'admin.tac_management',
+        compact('users', 'tacs')
+    );
+}
+
+
+// ==========================
+// CREATE TAC
+// ==========================
+public function createTac(Request $request)
+{
+    $request->validate([
+        'user_id'    => 'required|exists:users,id',
+        'code'       => 'required|string|min:4|max:20',
+        'expires_at' => 'required|date',
+    ]);
+
+
+    TransactionTac::create([
+        'user_id'    => $request->user_id,
+        'code'       => $request->code,
+        'expires_at' => $request->expires_at,
+        'is_active'  => true,
+    ]);
+
+
+    return back()->with(
+        'success',
+        'TAC Code created successfully.'
+    );
+}
+
+
+// ==========================
+// ACTIVATE / DEACTIVATE TAC
+// ==========================
+public function toggleTac($id)
+{
+    $tac = TransactionTac::findOrFail($id);
+
+    $tac->is_active = !$tac->is_active;
+
+    $tac->save();
+
+
+    return back()->with(
+        'success',
+        'TAC status updated successfully.'
+    );
+}
+
+
+// ==========================
+// DELETE TAC
+// ==========================
+public function deleteTac($id)
+{
+    $tac = TransactionTac::findOrFail($id);
+
+    $tac->delete();
+
+
+    return back()->with(
+        'success',
+        'TAC deleted successfully.'
+    );
+}
 
         // PASSWORD UPDATE
         if ($request->password && $request->password !== '') {

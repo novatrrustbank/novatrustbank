@@ -24,4 +24,25 @@ return [
     'tel' => 'Tel',
     'all_rights_reserved' => 'Alle Rechte vorbehalten',
 
+    // TRANSFER
+    'transfer_funds' => 'Geld überweisen',
+'processing_transfer' => 'Überweisung wird verarbeitet...',
+'dashboard' => 'Dashboard',
+'transfer' => 'Überweisung',
+'history' => 'Verlauf',
+'logout' => 'Abmelden',
+'enter_recipient_account_number' => 'Kontonummer des Empfängers eingeben',
+'account_name' => 'Kontoinhaber',
+'enter_account_name' => 'Kontonamen eingeben',
+'select_bank' => 'Bank auswählen',
+'other_not_listed' => 'Andere (nicht aufgeführt)',
+'enter_bank_name' => 'Banknamen eingeben',
+'enter_your_bank_name' => 'Namen Ihrer Bank eingeben',
+'amount' => 'Betrag',
+'enter_amount_to_transfer' => 'Zu überweisenden Betrag eingeben',
+'send_money' => 'Geld senden',
+'please_enter_bank_name' => 'Bitte geben Sie den Namen Ihrer Bank ein.',
+'processing' => 'Wird verarbeitet...',
+'chat' => 'Chat',
+
 ];

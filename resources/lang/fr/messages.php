@@ -24,4 +24,25 @@ return [
     'tel' => 'Tél',
     'all_rights_reserved' => 'Tous droits réservés',
 
+    // TRANSFER
+    'transfer_funds' => 'Transférer des fonds',
+    'processing_transfer' => 'Traitement du virement...',
+    'dashboard' => 'Tableau de bord',
+    'transfer' => 'Virement',
+    'history' => 'Historique',
+    'logout' => 'Déconnexion',
+    'enter_recipient_account_number' => 'Entrez le numéro de compte du destinataire',
+    'account_name' => 'Nom du titulaire',
+    'enter_account_name' => 'Entrez le nom du titulaire',
+    'select_bank' => 'Sélectionner une banque',
+    'other_not_listed' => 'Autre (non répertoriée)',
+    'enter_bank_name' => 'Entrez le nom de la banque',
+    'enter_your_bank_name' => 'Entrez le nom de votre banque',
+    'amount' => 'Montant',
+    'enter_amount_to_transfer' => 'Entrez le montant à transférer',
+    'send_money' => 'Envoyer de l’argent',
+    'please_enter_bank_name' => 'Veuillez entrer le nom de votre banque.',
+    'processing' => 'Traitement...',
+    'chat' => 'Chat',
+
 ];

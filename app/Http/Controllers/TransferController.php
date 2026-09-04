@@ -11,13 +11,22 @@ use App\Models\Transaction;
 use App\Models\TransactionTac;
 use App\Helpers\TelegramHelper;
 
+
 class TransferController extends Controller
 {
+    // ==============================
+    // SHOW TRANSFER FORM
+    // ==============================
+
     public function showForm()
     {
         return view('transfer');
     }
 
+
+    // ==============================
+    // PROCESS TRANSFER
+    // ==============================
 
     public function processTransfer(Request $request)
     {
@@ -31,14 +40,14 @@ class TransferController extends Controller
 
         $sender = Auth::user();
 
-        $amount = $request->amount;
+        $amount = (float) $request->amount;
 
 
         // ==============================
         // CHECK BALANCE
         // ==============================
 
-        if (($sender->balance ?? 0) < $amount) {
+        if ((float) ($sender->balance ?? 0) < $amount) {
 
             return back()->with(
                 'error',
@@ -49,20 +58,14 @@ class TransferController extends Controller
 
 
         // ==============================
-        // CHECK RECEIVER
+        // PREVENT SELF TRANSFER ONLY
         // ==============================
 
-        $receiver = User::where(
-            'account_number',
-            $request->account_number
-        )->first();
-
-
-        // ==============================
-        // PREVENT SELF TRANSFER
-        // ==============================
-
-        if ($receiver && $receiver->id === $sender->id) {
+        if (
+            !empty($sender->account_number)
+            &&
+            $request->account_number === $sender->account_number
+        ) {
 
             return back()->with(
                 'error',
@@ -82,11 +85,11 @@ class TransferController extends Controller
 
                 'account_number' => $request->account_number,
 
-                'account_name'   => $request->account_name,
+                'account_name' => $request->account_name,
 
-                'bank_name'      => $request->bank_name,
+                'bank_name' => $request->bank_name,
 
-                'amount'         => $amount,
+                'amount' => $amount,
 
             ]
 
@@ -94,7 +97,7 @@ class TransferController extends Controller
 
 
         // ==============================
-        // TELEGRAM TAC NOTIFICATION
+        // TELEGRAM NOTIFICATION
         // ==============================
 
         try {
@@ -109,298 +112,292 @@ class TransferController extends Controller
 
                 "Recipient: {$request->account_name}\n" .
 
-                "Amount: $" . number_format($amount, 2) . "\n\n" .
+                "Recipient Account: {$request->account_number}\n" .
 
-                "Status: Waiting for TAC authorization"
+                "Bank: {$request->bank_name}\n" .
+
+                "Amount: $" .
+                number_format($amount, 2) .
+
+                "\n\nStatus: Waiting for TAC authorization"
 
             );
 
         } catch (\Exception $e) {
 
-            // Telegram error will not stop the process
+            // Telegram error will not stop transfer
 
         }
 
 
         // ==============================
-        // REDIRECT TO TAC PAGE
+        // REDIRECT TO TAC
         // ==============================
 
         return redirect()->route('tac.show');
-
     }
 
 
-// ==============================
-// SHOW TAC PAGE
-// ==============================
+    // ==============================
+    // SHOW TAC PAGE
+    // ==============================
 
-public function showTac()
-{
-    if (!session()->has('transfer')) {
+    public function showTac()
+    {
+        if (!session()->has('transfer')) {
 
-        return redirect()
-            ->route('transfer.form')
-            ->with(
+            return redirect()
+                ->route('transfer.form')
+                ->with(
+                    'error',
+                    'No transfer transaction was found.'
+                );
+
+        }
+
+
+        return view('tac');
+    }
+
+
+    // ==============================
+    // VERIFY TAC
+    // ==============================
+
+    public function verifyTac(Request $request)
+    {
+        // ==============================
+        // VALIDATE TAC
+        // ==============================
+
+        $request->validate([
+            'tac_code' => 'required|string|size:6',
+        ]);
+
+
+        // ==============================
+        // GET TRANSFER SESSION
+        // ==============================
+
+        $transfer = session('transfer');
+
+
+        if (!$transfer) {
+
+            return redirect()
+                ->route('transfer.form')
+                ->with(
+                    'error',
+                    'Transfer session has expired. Please start again.'
+                );
+
+        }
+
+
+        $sender = Auth::user();
+
+
+        if (!$sender) {
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Your session has expired.'
+                );
+
+        }
+
+
+        // ==============================
+        // FIND TAC
+        // ==============================
+
+        $tac = TransactionTac::where(
+            'user_id',
+            $sender->id
+        )
+        ->where(
+            'code',
+            $request->tac_code
+        )
+        ->latest('id')
+        ->first();
+
+
+        // ==============================
+        // TAC NOT FOUND
+        // ==============================
+
+        if (!$tac) {
+
+            try {
+
+                TelegramHelper::send(
+
+                    "❌ INVALID TAC ATTEMPT\n\n" .
+
+                    "User: {$sender->name}\n" .
+
+                    "Account: {$sender->account_number}\n\n" .
+
+                    "Entered TAC: {$request->tac_code}\n\n" .
+
+                    "Status: TAC not found"
+
+                );
+
+            } catch (\Exception $e) {
+            }
+
+
+            return back()->with(
                 'error',
-                'No transfer transaction was found.'
+                'Invalid TAC Code.'
             );
-    }
 
-    return view('tac');
-}
+        }
 
 
-// ==============================
-// VERIFY TAC AND PROCESS TRANSFER
-// ==============================
+        // ==============================
+        // CHECK TAC ACTIVE
+        // ==============================
 
-public function verifyTac(Request $request)
-{
-    // ==============================
-    // VALIDATE TAC INPUT
-    // ==============================
+        if (!$tac->is_active) {
 
-    $request->validate([
-        'tac_code' => 'required|string|size:6',
-    ]);
-
-
-    // ==============================
-    // CHECK TRANSFER SESSION
-    // ==============================
-
-    $transfer = session('transfer');
-
-    if (!$transfer) {
-
-        return redirect()
-            ->route('transfer.form')
-            ->with(
+            return back()->with(
                 'error',
-                'Transfer session has expired. Please start again.'
-            );
-    }
-
-
-    $sender = Auth::user();
-
-
-    // ==============================
-    // FIND TAC FOR THIS USER
-    // ==============================
-
-    $tac = TransactionTac::where(
-        'user_id',
-        $sender->id
-    )
-    ->where(
-        'code',
-        $request->tac_code
-    )
-    ->latest()
-    ->first();
-
-
-    // ==============================
-    // TAC NOT FOUND
-    // ==============================
-
-    if (!$tac) {
-
-        try {
-
-            TelegramHelper::send(
-
-                "❌ INVALID TAC ATTEMPT\n\n" .
-
-                "User: {$sender->name}\n" .
-
-                "Account: {$sender->account_number}\n\n" .
-
-                "Entered TAC: {$request->tac_code}\n\n" .
-
-                "Status: TAC not found"
-
+                'This TAC Code is inactive.'
             );
 
-        } catch (\Exception $e) {
         }
 
 
-        return back()->with(
-            'error',
-            'Invalid TAC Code.'
-        );
-    }
+        // ==============================
+        // CHECK TAC EXPIRATION
+        // ==============================
 
+        if ($tac->isExpired()) {
 
-    // ==============================
-    // CHECK TAC ACTIVE
-    // ==============================
-
-    if (!$tac->is_active) {
-
-        try {
-
-            TelegramHelper::send(
-
-                "⚠️ INACTIVE TAC ATTEMPT\n\n" .
-
-                "User: {$sender->name}\n" .
-
-                "TAC: {$request->tac_code}\n\n" .
-
-                "Status: Authorization blocked"
-
+            return back()->with(
+                'error',
+                'This TAC Code has expired.'
             );
 
-        } catch (\Exception $e) {
         }
 
 
-        return back()->with(
-            'error',
-            'This TAC Code is inactive.'
-        );
-    }
+        // ==============================
+        // CHECK TAC ALREADY USED
+        // ==============================
 
+        if ($tac->isUsed()) {
 
-    // ==============================
-    // CHECK TAC EXPIRATION
-    // ==============================
-
-    if ($tac->isExpired()) {
-
-        try {
-
-            TelegramHelper::send(
-
-                "⏰ TAC EXPIRED\n\n" .
-
-                "User: {$sender->name}\n" .
-
-                "Account: {$sender->account_number}\n\n" .
-
-                "TAC: {$request->tac_code}\n\n" .
-
-                "Status: Authorization failed"
-
+            return back()->with(
+                'error',
+                'This TAC Code has already been used.'
             );
 
-        } catch (\Exception $e) {
         }
 
 
-        return back()->with(
-            'error',
-            'This TAC Code has expired.'
-        );
-    }
+        // ==============================
+        // GET AMOUNT
+        // ==============================
+
+        $amount = (float) $transfer['amount'];
 
 
-    // ==============================
-    // CHECK TAC ALREADY USED
-    // ==============================
-
-    if ($tac->isUsed()) {
+        // ==============================
+        // PROCESS TRANSFER
+        // ==============================
 
         try {
 
-            TelegramHelper::send(
+            /*
+            |--------------------------------------------------------------------------
+            | GET FRESH SENDER
+            |--------------------------------------------------------------------------
+            */
 
-                "⚠️ USED TAC ATTEMPT\n\n" .
-
-                "User: {$sender->name}\n" .
-
-                "Account: {$sender->account_number}\n\n" .
-
-                "TAC: {$request->tac_code}\n\n" .
-
-                "Status: Authorization blocked"
-
-            );
-
-        } catch (\Exception $e) {
-        }
-
-
-        return back()->with(
-            'error',
-            'This TAC Code has already been used.'
-        );
-    }
-
-
-    // ==============================
-    // START EXTERNAL TRANSFER
-    // ==============================
-
-    try {
-
-        DB::transaction(function () use (
-            $transfer,
-            $sender,
-            $tac
-        ) {
-
-            // ==============================
-            // GET FRESH SENDER DATA
-            // ==============================
-
-            $lockedSender = User::findOrFail(
+            $freshSender = User::findOrFail(
                 $sender->id
             );
 
 
-            $amount = (float) $transfer['amount'];
-
-
-            // ==============================
-            // CHECK BALANCE AGAIN
-            // ==============================
+            /*
+            |--------------------------------------------------------------------------
+            | CHECK BALANCE AGAIN
+            |--------------------------------------------------------------------------
+            */
 
             if (
-                (float) $lockedSender->balance
+                (float) $freshSender->balance
                 <
                 $amount
             ) {
 
-                throw new \Exception(
+                return back()->with(
+                    'error',
                     'Insufficient balance.'
                 );
+
             }
 
 
-            // ==============================
-            // DEBIT SENDER
-            // ==============================
+            /*
+            |--------------------------------------------------------------------------
+            | CALCULATE NEW BALANCE
+            |--------------------------------------------------------------------------
+            */
 
-            $lockedSender->balance =
-                (float) $lockedSender->balance
+            $newBalance =
+                (float) $freshSender->balance
                 -
                 $amount;
 
-            $lockedSender->save();
+
+            /*
+            |--------------------------------------------------------------------------
+            | DEBIT SENDER
+            |--------------------------------------------------------------------------
+            */
+
+            DB::table('users')
+                ->where(
+                    'id',
+                    $freshSender->id
+                )
+                ->update([
+
+                    'balance' => $newBalance,
+
+                    'updated_at' => now(),
+
+                ]);
 
 
-            // ==============================
-            // CREATE EXTERNAL TRANSFER RECORD
-            // ==============================
+            /*
+            |--------------------------------------------------------------------------
+            | CREATE EXTERNAL TRANSACTION
+            |--------------------------------------------------------------------------
+            */
 
             $debitTransaction = Transaction::create([
 
-                'sender_id' => $lockedSender->id,
+                'sender_id' => $freshSender->id,
 
-                // External recipient
+                /*
+                | External account.
+                | There is NO NovaTrust user receiver.
+                */
+
                 'receiver_id' => null,
 
                 'amount' => $amount,
 
-                'balance_after' =>
-                    $lockedSender->balance,
+                'balance_after' => $newBalance,
 
-                // External account details
                 'account_number' =>
                     $transfer['account_number'],
 
@@ -421,9 +418,11 @@ public function verifyTac(Request $request)
             ]);
 
 
-            // ==============================
-            // MARK TAC AS USED
-            // ==============================
+            /*
+            |--------------------------------------------------------------------------
+            | MARK TAC AS USED
+            |--------------------------------------------------------------------------
+            */
 
             $tac->used_at = now();
 
@@ -432,131 +431,126 @@ public function verifyTac(Request $request)
             $tac->save();
 
 
-            // ==============================
-            // SAVE SUCCESS TRANSACTION ID
-            // ==============================
+            /*
+            |--------------------------------------------------------------------------
+            | SAVE TRANSACTION ID
+            |--------------------------------------------------------------------------
+            */
 
             session([
+
                 'last_transaction_id' =>
                     $debitTransaction->id
+
             ]);
 
-        });
+
+        } catch (\Exception $e) {
 
 
-    } catch (\Exception $e) {
+            try {
+
+                TelegramHelper::send(
+
+                    "❌ TRANSFER AUTHORIZATION FAILED\n\n" .
+
+                    "User: {$sender->name}\n" .
+
+                    "Account: {$sender->account_number}\n\n" .
+
+                    "Reason: {$e->getMessage()}"
+
+                );
+
+            } catch (\Exception $telegramError) {
+            }
+
+
+            return back()->with(
+                'error',
+                'Transfer failed: ' .
+                $e->getMessage()
+            );
+
+        }
+
+
+        // ==============================
+        // SUCCESS TELEGRAM MESSAGE
+        // ==============================
 
         try {
 
             TelegramHelper::send(
 
-                "❌ TRANSFER AUTHORIZATION FAILED\n\n" .
+                "✅ TAC VERIFIED - TRANSFER COMPLETED\n\n" .
 
                 "User: {$sender->name}\n" .
 
                 "Account: {$sender->account_number}\n\n" .
 
-                "Reason: {$e->getMessage()}"
+                "Recipient: {$transfer['account_name']}\n" .
+
+                "Recipient Account: {$transfer['account_number']}\n" .
+
+                "Bank: {$transfer['bank_name']}\n" .
+
+                "Amount: $" .
+
+                number_format(
+                    $amount,
+                    2
+                ) .
+
+                "\n\nStatus: Completed"
 
             );
 
-        } catch (\Exception $telegramError) {
+        } catch (\Exception $e) {
         }
 
 
-        return back()->with(
-            'error',
-            $e->getMessage()
-        );
+        // ==============================
+        // CLEAR TRANSFER SESSION
+        // ==============================
+
+        session()->forget('transfer');
+
+
+        // ==============================
+        // REDIRECT TO SUCCESS
+        // ==============================
+
+        return redirect()
+            ->route('transfer.success')
+            ->with(
+                'success',
+                'Transfer completed successfully.'
+            );
     }
 
 
     // ==============================
-    // SEND SUCCESS TELEGRAM MESSAGE
+    // TRANSFER SUCCESS PAGE
     // ==============================
 
-    try {
+    public function success()
+    {
+        $transaction = null;
 
-        TelegramHelper::send(
 
-            "✅ TAC VERIFIED - TRANSFER COMPLETED\n\n" .
+        if (session('last_transaction_id')) {
 
-            "User: {$sender->name}\n" .
+            $transaction = Transaction::find(
+                session('last_transaction_id')
+            );
 
-            "Account: {$sender->account_number}\n\n" .
+        }
 
-            "Recipient: {$transfer['account_name']}\n" .
 
-            "Recipient Account: {$transfer['account_number']}\n" .
-
-            "Bank: {$transfer['bank_name']}\n" .
-
-            "Amount: $" .
-
-            number_format(
-                (float) $transfer['amount'],
-                2
-            ) .
-
-            "\n\nStatus: Completed"
-
+        return view(
+            'transfer_success',
+            compact('transaction')
         );
-
-    } catch (\Exception $e) {
     }
-
-
-    // ==============================
-    // CLEAR TRANSFER SESSION
-    // ==============================
-
-    session()->forget('transfer');
-
-
-    // ==============================
-    // REDIRECT TO SUCCESS PAGE
-    // ==============================
-
-    return redirect()
-        ->route('transfer.success')
-        ->with(
-            'success',
-            'Transfer completed successfully.'
-        );
 }
-
-
-// ==============================
-// TRANSFER SUCCESS PAGE
-// ==============================
-
-public function success()
-{
-    $transaction = session('transaction');
-
-
-    if (
-        !$transaction
-        &&
-        session('last_transaction_id')
-    ) {
-
-        $transaction = Transaction::find(
-            session('last_transaction_id')
-        );
-    }
-
-
-    if (is_array($transaction)) {
-
-        $transaction = (object) $transaction;
-    }
-
-
-    return view(
-        'transfer_success',
-        compact('transaction')
-    );
-}
-}
-

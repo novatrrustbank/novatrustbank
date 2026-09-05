@@ -45,4 +45,20 @@ return [
 'processing' => 'Wird verarbeitet...',
 'chat' => 'Chat',
 
+// TAC
+    'transaction_authorization' => 'Transaktionsautorisierung',
+'verifying_tac_code' => 'TAC-Code wird überprüft...',
+'enter_tac_to_authorize' => 'Bitte geben Sie Ihren Transaktionsautorisierungscode (TAC) ein, um diese Transaktion zu autorisieren.',
+'transaction_details' => 'Transaktionsdetails',
+'bank' => 'Bank',
+'enter_6_digit_tac' => '6-stelligen TAC-Code eingeben',
+'tac_code_expires_in' => 'TAC-Code läuft ab in:',
+'authorize_transfer' => 'Überweisung autorisieren',
+'cancel_transaction' => 'Transaktion abbrechen',
+'security_never_share_tac' => 'Geben Sie aus Sicherheitsgründen Ihren Transaktionsautorisierungscode niemals an andere Personen weiter.',
+'complete_6_digit_tac' => 'Bitte geben Sie Ihren vollständigen 6-stelligen TAC-Code ein.',
+'verifying' => 'Wird überprüft...',
+'expired' => 'ABGELAUFEN',
+'tac_code_expired' => 'Dieser TAC-Code ist abgelaufen.',
+
 ];

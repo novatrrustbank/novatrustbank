@@ -152,6 +152,13 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.tac.management*') ? 'active' : '' }}"
+                       href="{{ route('admin.tac.management') }}">
+                        Tac
+                    </a>
+                </li>
+
+                <li class="nav-item">
     <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
        href="{{ route('dashboard') }}">
         Dashboard

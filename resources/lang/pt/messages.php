@@ -45,4 +45,20 @@ return [
 'processing' => 'Processando...',
 'chat' => 'Chat',
 
+// TAC
+    'transaction_authorization' => 'Autorização da transação',
+'verifying_tac_code' => 'Verificando o código TAC...',
+'enter_tac_to_authorize' => 'Introduza o seu código de autorização da transação (TAC) para autorizar esta transação.',
+'transaction_details' => 'Detalhes da transação',
+'bank' => 'Banco',
+'enter_6_digit_tac' => 'Introduza o código TAC de 6 dígitos',
+'tac_code_expires_in' => 'O código TAC expira em:',
+'authorize_transfer' => 'Autorizar transferência',
+'cancel_transaction' => 'Cancelar transação',
+'security_never_share_tac' => 'Para sua segurança, nunca partilhe o seu código de autorização da transação com ninguém.',
+'complete_6_digit_tac' => 'Introduza o seu código TAC completo de 6 dígitos.',
+'verifying' => 'A verificar...',
+'expired' => 'EXPIRADO',
+'tac_code_expired' => 'Este código TAC expirou.',
+
 ];

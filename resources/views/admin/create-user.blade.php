@@ -1,4 +1,3 @@
-```blade
 @extends('layouts.admin')
 
 @section('content')
@@ -43,13 +42,53 @@
         </div>
 
         <div class="mb-3">
-            <label>Password</label>
-            <input name="password" type="password" class="form-control" required>
-        </div>
+    <label>Password</label>
+
+    <div style="position:relative;">
+        <input
+            name="password"
+            id="password"
+            type="password"
+            class="form-control"
+            required
+            style="padding-right:45px;"
+        >
+
+        <span
+            onclick="togglePassword()"
+            style="
+                position:absolute;
+                right:12px;
+                top:50%;
+                transform:translateY(-50%);
+                cursor:pointer;
+                font-size:18px;
+                color:#666;
+            "
+            id="passwordEye"
+        >
+            👁️
+        </span>
+    </div>
+</div>
+
+<script>
+function togglePassword() {
+    const password = document.getElementById('password');
+    const eye = document.getElementById('passwordEye');
+
+    if (password.type === 'password') {
+        password.type = 'text';
+        eye.textContent = '🙈';
+    } else {
+        password.type = 'password';
+        eye.textContent = '👁️';
+    }
+}
+</script>
 
         <button class="btn btn-success">Create User</button>
     </form>
 
 </div>
 @endsection
-```

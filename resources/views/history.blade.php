@@ -110,6 +110,17 @@
   
 <div class="container">  
   <h2>Transaction History</h2>  
+
+  @php
+    $currencySymbols = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+    ];
+
+    $currency = Auth::user()->currency ?? 'USD';
+    $symbol = $currencySymbols[$currency] ?? '$';
+  @endphp
   
   @if($transactions->isEmpty())  
     <div class="empty">No transactions yet.</div>  
@@ -148,22 +159,18 @@
             {{-- AMOUNT --}}  
             <td class="{{ $transaction->sender_id == Auth::id() ? 'debit' : 'credit' }}">  
               @if($transaction->sender_id == Auth::id())  
-                - ${{ number_format($transaction->amount, 2) }}  
+                - {{ $symbol }}{{ number_format($transaction->amount, 2) }}  
               @else  
-                + ${{ number_format($transaction->amount, 2) }}  
+                + {{ $symbol }}{{ number_format($transaction->amount, 2) }}  
               @endif  
             </td>  
   
-            {{-- BALANCE AFTER (FIXED DISPLAY LOGIC) --}}  
+            {{-- BALANCE AFTER --}}  
             <td>  
-              @if($transaction->sender_id == Auth::id())  
-                ${{ number_format($transaction->balance_after, 2) }}  
-              @else  
-                ${{ number_format($transaction->balance_after, 2) }}  
-              @endif  
+              {{ $symbol }}{{ number_format($transaction->balance_after, 2) }}  
             </td>  
   
-            {{-- DESCRIPTION (FIXED CLARITY) --}}  
+            {{-- DESCRIPTION --}}  
             <td>  
               @if($transaction->sender_id == Auth::id())  
                 Transfer to {{ $transaction->account_name }}  
@@ -260,4 +267,4 @@ setInterval(loadUnreadCount, 5000);
 </script>  
   
 </body>  
-</html>  
+</html>

@@ -56,9 +56,19 @@
                     {{ $user->email }}
                 </td>
 
-                <td style="padding:12px;">
-                    ${{ number_format($user->balance, 2) }}
-                </td>
+                @php
+    $currencySymbols = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+    ];
+
+    $symbol = $currencySymbols[$user->currency ?? 'USD'] ?? '$';
+@endphp
+
+<td style="padding:12px;">
+    {{ $symbol }}{{ number_format($user->balance, 2) }}
+</td>
 
                 <td style="padding:12px;">
 

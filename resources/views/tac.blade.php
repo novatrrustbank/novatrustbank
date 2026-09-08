@@ -723,6 +723,17 @@
     </h3>
 
 
+    @php
+        $currencySymbols = [
+            'USD' => '$',
+            'EUR' => '€',
+            'GBP' => '£',
+        ];
+
+        $currency = Auth::user()->currency ?? 'USD';
+        $symbol = $currencySymbols[$currency] ?? '$';
+    @endphp
+
 
     <div class="transaction-row">
 
@@ -733,22 +744,11 @@
         </span>
 
 
-        @php
-    $currencySymbols = [
-        'USD' => '$',
-        'EUR' => '€',
-        'GBP' => '£',
-    ];
+        <span class="transaction-value">
 
-    $currency = Auth::user()->currency ?? 'USD';
-    $symbol = $currencySymbols[$currency] ?? '$';
-@endphp
+            {{ session('transfer.account_number', 'Pending') }}
 
-<span class="transaction-value amount-value">
-
-    {{ $symbol }}{{ number_format((float) session('transfer.amount', 0), 2) }}
-
-</span>
+        </span>
 
     </div>
 
@@ -803,7 +803,7 @@
 
         <span class="transaction-value amount-value">
 
-            ${{ number_format((float) session('transfer.amount', 0), 2) }}
+            {{ $symbol }}{{ number_format((float) session('transfer.amount', 0), 2) }}
 
         </span>
 

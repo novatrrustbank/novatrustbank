@@ -126,11 +126,20 @@ public function storeUser(Request $request)
                 Your NovaTrust Bank account has been successfully created.
             </p>
 
-            <p><strong>Account Number:</strong> ' . e($user->account_number) . '</p>
+            <p>
+                <strong>Account Number:</strong>
+                ' . e($user->account_number) . '
+            </p>
 
-            <p><strong>Currency:</strong> ' . e($user->currency) . '</p>
+            <p>
+                <strong>Currency:</strong>
+                ' . e($user->currency) . '
+            </p>
 
-            <p><strong>Available Balance:</strong> ' . $symbol . number_format($user->balance, 2) . '</p>
+            <p>
+                <strong>Available Balance:</strong>
+                ' . $symbol . number_format($user->balance, 2) . '
+            </p>
 
             <p>
                 You can access your account using the button below:
@@ -181,34 +190,42 @@ NovaTrust Bank
 ";
 
     $mailResponse = Http::withToken(env('LOCKALLY_API_KEY'))
-    ->timeout(20)
-    ->post('https://api.lockally.com/v1/sends', [
-        'from'    => 'info@novatrustbank.us',
-        'to'      => [$user->email],
-        'subject' => 'Welcome to NovaTrust Bank',
-        'html'    => $emailHtml,
-        'text'    => $emailText,
+        ->timeout(20)
+        ->post('https://api.lockally.com/v1/sends', [
+            'from'    => 'info@novatrustbank.us',
+            'to'      => [$user->email],
+            'subject' => 'Welcome to NovaTrust Bank',
+            'html'    => $emailHtml,
+            'text'    => $emailText,
+        ]);
+
+    Log::info('Lockally email response', [
+        'status'     => $mailResponse->status(),
+        'successful' => $mailResponse->successful(),
+        'response'   => $mailResponse->json(),
     ]);
 
-Log::info('Lockally email response', [
-    'status' => $mailResponse->status(),
-    'successful' => $mailResponse->successful(),
-    'response' => $mailResponse->json(),
-]);
+    if (!$mailResponse->successful()) {
 
-if (!$mailResponse->successful()) {
+        Log::error('Lockally email failed', [
+            'status'    => $mailResponse->status(),
+            'response'  => $mailResponse->body(),
+            'recipient' => $user->email,
+        ]);
 
-    Log::error('Lockally email failed', [
-        'status' => $mailResponse->status(),
-        'response' => $mailResponse->body(),
-        'recipient' => $user->email,
-    ]);
+        return redirect()
+            ->route('admin.users')
+            ->with(
+                'success',
+                'User created successfully, but the welcome email could not be sent.'
+            );
+    }
 
     return redirect()
         ->route('admin.users')
         ->with(
             'success',
-            'User created successfully, but the welcome email could not be sent.'
+            'User created successfully and welcome email sent.'
         );
 }
 

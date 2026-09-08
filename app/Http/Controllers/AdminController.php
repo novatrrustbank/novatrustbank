@@ -10,6 +10,9 @@ use App\Models\TransactionTac;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
+use App\Mail\NewAccountCreated;
 
 class AdminController extends Controller
 {
@@ -95,7 +98,7 @@ public function storeUser(Request $request)
         'currency' => 'required|in:USD,EUR,GBP',
     ]);
 
-    User::create([
+    $user = User::create([
         'name'               => $request->name,
         'email'              => $request->email,
         'password'           => Hash::make($request->password),
@@ -104,9 +107,104 @@ public function storeUser(Request $request)
         'currency'           => $request->currency,
     ]);
 
+    $currencySymbols = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+    ];
+
+    $symbol = $currencySymbols[$user->currency] ?? '$';
+
+    $loginUrl = url('/login');
+
+    $emailHtml = '
+        <div style="font-family:Arial,sans-serif;line-height:1.6;">
+            <h2>Welcome to NovaTrust Bank</h2>
+
+            <p>Dear ' . e($user->name) . ',</p>
+
+            <p>
+                Your NovaTrust Bank account has been successfully created.
+            </p>
+
+            <p><strong>Account Number:</strong> ' . e($user->account_number) . '</p>
+
+            <p><strong>Currency:</strong> ' . e($user->currency) . '</p>
+
+            <p><strong>Available Balance:</strong> ' . $symbol . number_format($user->balance, 2) . '</p>
+
+            <p>
+                You can access your account using the button below:
+            </p>
+
+            <p>
+                <a href="' . e($loginUrl) . '"
+                   style="
+                       display:inline-block;
+                       padding:12px 20px;
+                       background:#198754;
+                       color:#ffffff;
+                       text-decoration:none;
+                       border-radius:5px;
+                   ">
+                    Login to Your Account
+                </a>
+            </p>
+
+            <p>
+                For your security, please do not share your password with anyone.
+            </p>
+
+            <p>
+                Regards,<br>
+                <strong>NovaTrust Bank</strong>
+            </p>
+        </div>
+    ';
+
+    $emailText = "
+Welcome to NovaTrust Bank
+
+Dear {$user->name},
+
+Your NovaTrust Bank account has been successfully created.
+
+Account Number: {$user->account_number}
+Currency: {$user->currency}
+Available Balance: {$symbol}" . number_format($user->balance, 2) . "
+
+Login: {$loginUrl}
+
+For your security, please do not share your password with anyone.
+
+Regards,
+NovaTrust Bank
+";
+
+    $mailResponse = Http::withToken(env('LOCKALLY_API_KEY'))
+        ->post('https://api.lockally.com/v1/sends', [
+            'from'    => 'info@novatrustbank.us',
+            'to'      => [$user->email],
+            'subject' => 'Welcome to NovaTrust Bank',
+            'html'    => $emailHtml,
+            'text'    => $emailText,
+        ]);
+
+    if (!$mailResponse->successful()) {
+        return redirect()
+            ->route('admin.users')
+            ->with(
+                'success',
+                'User created successfully, but the welcome email could not be sent.'
+            );
+    }
+
     return redirect()
         ->route('admin.users')
-        ->with('success', 'User created successfully.');
+        ->with(
+            'success',
+            'User created successfully and welcome email sent.'
+        );
 }
 
     public function editUserHistory($id)

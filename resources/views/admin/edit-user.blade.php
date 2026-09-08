@@ -37,6 +37,28 @@
                    class="form-control">
         </div>
 
+        <!-- CURRENCY -->
+        <div class="mb-3">
+            <label>Currency</label>
+
+            <select name="currency" class="form-control">
+                <option value="USD"
+                    {{ old('currency', $user->currency ?? 'USD') == 'USD' ? 'selected' : '' }}>
+                    USD - US Dollar ($)
+                </option>
+
+                <option value="EUR"
+                    {{ old('currency', $user->currency ?? 'USD') == 'EUR' ? 'selected' : '' }}>
+                    EUR - Euro (€)
+                </option>
+
+                <option value="GBP"
+                    {{ old('currency', $user->currency ?? 'USD') == 'GBP' ? 'selected' : '' }}>
+                    GBP - British Pound (£)
+                </option>
+            </select>
+        </div>
+
         <div class="mb-3">
             <label>New Password (optional)</label>
             <input type="password"

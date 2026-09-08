@@ -1,3 +1,4 @@
+```blade
 @extends('layouts.admin')
 
 @section('content')
@@ -24,6 +25,24 @@
         </div>
 
         <div class="mb-3">
+            <label>Currency</label>
+
+            <select name="currency" class="form-control" required>
+                <option value="USD" selected>
+                    USD - US Dollar ($)
+                </option>
+
+                <option value="EUR">
+                    EUR - Euro (€)
+                </option>
+
+                <option value="GBP">
+                    GBP - British Pound (£)
+                </option>
+            </select>
+        </div>
+
+        <div class="mb-3">
             <label>Password</label>
             <input name="password" type="password" class="form-control" required>
         </div>
@@ -33,3 +52,4 @@
 
 </div>
 @endsection
+```

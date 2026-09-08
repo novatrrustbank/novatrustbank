@@ -1,3 +1,4 @@
+```blade
 @extends('layouts.admin')
 
 @section('content')
@@ -76,23 +77,50 @@
 
     <tbody>
     @foreach($users as $user)
+
+        @php
+            $currencySymbols = [
+                'USD' => '$',
+                'EUR' => '€',
+                'GBP' => '£',
+            ];
+
+            $symbol = $currencySymbols[$user->currency ?? 'USD'] ?? '$';
+        @endphp
+
         <tr>
             <td>{{ $user->name }}</td>
             <td>{{ $user->email }}</td>
-            <td class="balance">${{ number_format($user->balance, 2) }}</td>
+
+            <td class="balance">
+                {{ $symbol }}{{ number_format($user->balance, 2) }}
+            </td>
 
             <td>
-                <a href="{{ route('admin.editUserPage', $user->id) }}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="{{ route('admin.editUserPage', $user->id) }}"
+                   class="btn btn-primary btn-sm">
+                    Edit
+                </a>
 
-                <form action="{{ route('admin.deleteUser') }}" method="POST" style="display:inline;">
+                <form action="{{ route('admin.deleteUser') }}"
+                      method="POST"
+                      style="display:inline;">
                     @csrf
-                    <input type="hidden" name="user_id" value="{{ $user->id }}">
-                    <button class="btn btn-danger btn-sm">Delete</button>
+
+                    <input type="hidden"
+                           name="user_id"
+                           value="{{ $user->id }}">
+
+                    <button class="btn btn-danger btn-sm">
+                        Delete
+                    </button>
                 </form>
             </td>
         </tr>
+
     @endforeach
     </tbody>
 </table>
 
 @endsection
+```

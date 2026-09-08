@@ -142,33 +142,35 @@ class AdminController extends Controller
     }
 
     public function updateUser(Request $request)
-    {
+{
+    $request->validate([
+        'user_id'  => 'required',
+        'name'     => 'required',
+        'email'    => 'required|email',
+        'balance'  => 'required|numeric',
+        'currency' => 'required|in:USD,EUR,GBP',
+    ]);
+
+    $user = User::find($request->user_id);
+
+    if (!$user) {
+        return back()->with('error', 'User not found.');
+    }
+
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->balance = $request->balance;
+    $user->currency = $request->currency;
+
+    // PASSWORD UPDATE
+    if ($request->password && $request->password !== '') {
+
         $request->validate([
-            'user_id' => 'required',
-            'name'    => 'required',
-            'email'   => 'required|email',
-            'balance' => 'required|numeric',
+            'password' => 'min:6'
         ]);
 
-        $user = User::find($request->user_id);
-
-        if (!$user) {
-            return back()->with('error', 'User not found.');
-        }
-
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->balance = $request->balance;
-
-        // PASSWORD UPDATE
-        if ($request->password && $request->password !== '') {
-
-            $request->validate([
-                'password' => 'min:6'
-            ]);
-
-            $user->password = Hash::make($request->password);
-        }
+        $user->password = Hash::make($request->password);
+    }
 
         // ==========================
         // PASSPORT PHOTO UPLOAD

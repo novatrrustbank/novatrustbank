@@ -132,8 +132,19 @@
 
 <h3>{{ __('messages.current_balance') }}</h3>
 
+@php
+    $currencySymbols = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+    ];
+
+    $currency = Auth::user()->currency ?? 'USD';
+    $symbol = $currencySymbols[$currency] ?? '$';
+@endphp
+
 <div class="balance">
-    ${{ number_format(Auth::user()->balance, 2) }}
+    {{ $symbol }}{{ number_format(Auth::user()->balance, 2) }}
 </div>
 
 </div>

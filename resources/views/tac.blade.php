@@ -234,8 +234,7 @@
 
         font-weight: 600;
 
-        color: #333;
-
+        color: #333
         text-align: right;
     }
 
@@ -734,11 +733,22 @@
         </span>
 
 
-        <span class="transaction-value">
+        @php
+    $currencySymbols = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+    ];
 
-            {{ session('transfer.account_number', '********') }}
+    $currency = Auth::user()->currency ?? 'USD';
+    $symbol = $currencySymbols[$currency] ?? '$';
+@endphp
 
-        </span>
+<span class="transaction-value amount-value">
+
+    {{ $symbol }}{{ number_format((float) session('transfer.amount', 0), 2) }}
+
+</span>
 
     </div>
 

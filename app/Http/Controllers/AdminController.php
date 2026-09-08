@@ -85,25 +85,29 @@ class AdminController extends Controller
         return view('admin.create-user');
     }
 
-    public function storeUser(Request $request)
-    {
-        $request->validate([
-            'name'     => 'required',
-            'email'    => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'balance'  => 'required|numeric',
-        ]);
+public function storeUser(Request $request)
+{
+    $request->validate([
+        'name'     => 'required',
+        'email'    => 'required|email|unique:users',
+        'password' => 'required|min:6',
+        'balance'  => 'required|numeric',
+        'currency' => 'required|in:USD,EUR,GBP',
+    ]);
 
-        User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'balance'  => $request->balance,
-            'activation_balance' => 0
-        ]);
+    User::create([
+        'name'               => $request->name,
+        'email'              => $request->email,
+        'password'           => Hash::make($request->password),
+        'balance'            => $request->balance,
+        'activation_balance' => 0,
+        'currency'           => $request->currency,
+    ]);
 
-        return redirect()->route('admin.users')->with('success', 'User created successfully.');
-    }
+    return redirect()
+        ->route('admin.users')
+        ->with('success', 'User created successfully.');
+}
 
     public function editUserHistory($id)
     {

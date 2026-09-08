@@ -159,6 +159,13 @@
                 </li>
 
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.history.users*') ? 'active' : '' }}"
+                       href="{{ route('admin.history.users') }}">
+                        History Users
+                    </a>
+                </li>
+
+                <li class="nav-item">
     <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
        href="{{ route('dashboard') }}">
         Dashboard

@@ -10,9 +10,8 @@ use App\Models\TransactionTac;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use App\Mail\NewAccountCreated;
 
 class AdminController extends Controller
 {
@@ -182,28 +181,34 @@ NovaTrust Bank
 ";
 
     $mailResponse = Http::withToken(env('LOCKALLY_API_KEY'))
-        ->post('https://api.lockally.com/v1/sends', [
-            'from'    => 'info@novatrustbank.us',
-            'to'      => [$user->email],
-            'subject' => 'Welcome to NovaTrust Bank',
-            'html'    => $emailHtml,
-            'text'    => $emailText,
-        ]);
+    ->timeout(20)
+    ->post('https://api.lockally.com/v1/sends', [
+        'from'    => 'info@novatrustbank.us',
+        'to'      => [$user->email],
+        'subject' => 'Welcome to NovaTrust Bank',
+        'html'    => $emailHtml,
+        'text'    => $emailText,
+    ]);
 
-    if (!$mailResponse->successful()) {
-        return redirect()
-            ->route('admin.users')
-            ->with(
-                'success',
-                'User created successfully, but the welcome email could not be sent.'
-            );
-    }
+Log::info('Lockally email response', [
+    'status' => $mailResponse->status(),
+    'successful' => $mailResponse->successful(),
+    'response' => $mailResponse->json(),
+]);
+
+if (!$mailResponse->successful()) {
+
+    Log::error('Lockally email failed', [
+        'status' => $mailResponse->status(),
+        'response' => $mailResponse->body(),
+        'recipient' => $user->email,
+    ]);
 
     return redirect()
         ->route('admin.users')
         ->with(
             'success',
-            'User created successfully and welcome email sent.'
+            'User created successfully, but the welcome email could not be sent.'
         );
 }
 
